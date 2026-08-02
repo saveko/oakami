@@ -33,13 +33,11 @@ export default function NotificationCenter({ onClose }: NotificationCenterProps)
     return 'border-l-4 border-blue-500 bg-blue-50 hover:bg-blue-100';
   };
 
-  const unreadNotifications = notifications.filter((n) => !n.isRead);
-
   return (
     <div className="fixed right-0 top-16 w-96 max-h-screen bg-white shadow-2xl rounded-lg overflow-hidden z-50">
       <div className="sticky top-0 p-4 border-b bg-white flex justify-between items-center">
         <h3 className="font-semibold text-gray-900">Notifications</h3>
-        {notifications.some((n) => !n.isRead) && (
+        {notifications.some((n: any) => !n.isRead) && (
           <button
             onClick={handleMarkAllAsRead}
             disabled={markAllAsReadMutation.isPending}
@@ -62,7 +60,7 @@ export default function NotificationCenter({ onClose }: NotificationCenterProps)
         )}
 
         {!isLoading &&
-          notifications.map((notification) => (
+          notifications.map((notification: any) => (
             <div
               key={notification.id}
               className={`p-4 border-b cursor-pointer transition ${severityColor(

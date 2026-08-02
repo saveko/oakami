@@ -24,7 +24,7 @@ export function useCategoryBreakdown(days: number = 7) {
 export function useWasteTrend(days: number = 30) {
   return useQuery({
     queryKey: ['wasteTrend', days],
-    queryFn: () => api.getWasteTrendAnalysis(days),
+    queryFn: () => api.getWasteTrend(days),
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
   });
@@ -33,7 +33,7 @@ export function useWasteTrend(days: number = 30) {
 export function useTopIngredients(days: number = 30, limit: number = 10) {
   return useQuery({
     queryKey: ['topIngredients', days, limit],
-    queryFn: () => api.getTopWastedIngredients(days, limit),
+    queryFn: () => api.getTopIngredients(days, limit),
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
   });

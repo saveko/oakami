@@ -85,7 +85,7 @@ export default function DashboardPage() {
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold text-gray-900">AI Predictions</h2>
             <button
-              onClick={() => generatePredictions({ daysToAnalyze: 30 })}
+              onClick={() => generatePredictions(30)}
               disabled={genPending}
               className="px-4 py-1 text-sm bg-sky-100 text-sky-700 rounded hover:bg-sky-200 transition disabled:opacity-50"
             >
@@ -93,7 +93,7 @@ export default function DashboardPage() {
             </button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-            {predictions.map((pred) => (
+            {predictions.map((pred: any) => (
               <PredictionCard key={pred.id} prediction={pred} />
             ))}
           </div>

@@ -7,8 +7,7 @@ export const queryClient = new QueryClient({
       gcTime: 10 * 60 * 1000, // 10 minutes cache lifetime
       retry: 1,
       retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-      refetchOnWindowFocus: false, // Don't refetch on tab switch (using visibility detection instead)
-      refetchOnMount: 'stale',
+      refetchOnWindowFocus: false, // Don't refetch on tab switch
     },
   },
 });

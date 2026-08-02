@@ -45,7 +45,7 @@ export default function CategoryBreakdownChart({ data }: { data: CategoryData[] 
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
             ))}
           </Pie>
-          <Tooltip formatter={(value) => `$${value.toFixed(2)}`} />
+          <Tooltip formatter={(value: any) => `$${(typeof value === 'number' ? value : parseFloat(value as string)).toFixed(2)}`} />
         </PieChart>
       </ResponsiveContainer>
     </div>

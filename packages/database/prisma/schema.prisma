@@ -437,8 +437,8 @@ model AIPrediction {
   organizationId   String
   organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
-  ingredient       Ingredient @relation(fields: [ingredientId], references: [id])
-  ingredientId     String
+  ingredient       Ingredient? @relation(fields: [ingredientId], references: [id])
+  ingredientId     String?
 
   predictionType   PredictionType
 

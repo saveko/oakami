@@ -43,8 +43,8 @@ export class WasteController {
 
   @Get('dashboard/stats')
   async getDashboardStats(
-    @Query('days') days?: number,
     @Request() req: any,
+    @Query('days') days?: number,
   ) {
     const organizationId = req.user.organizationId;
     return this.wasteService.getDashboardStats(organizationId, days);

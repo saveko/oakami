@@ -24,11 +24,11 @@ const nextConfig = {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1',
   },
   webpack: (config, { isServer }) => {
-    // Enable tree-shaking by ensuring all modules are marked as side-effect free
+    // Avoid conflicts with Next.js 14's default caching strategy
+    // Removed usedExports: true as it conflicts with cacheUnaffected
     if (!isServer) {
       config.optimization = {
         ...config.optimization,
-        usedExports: true,
         sideEffects: false,
       };
     }

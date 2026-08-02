@@ -3,6 +3,7 @@ import { DatabaseService } from '@/database/database.service';
 import { NotificationsService } from '@/notifications/notifications.service';
 import { CreateWasteRecordDto } from './dto/create-waste-record.dto';
 import { ListWasteRecordsDto } from './dto/list-waste-records.dto';
+import { WasteStatus } from '@prisma/client';
 
 @Injectable()
 export class WasteService {
@@ -212,7 +213,7 @@ export class WasteService {
     const where = {
       organizationId,
       createdAt: { gte: startDate },
-      status: 'APPROVED',
+      status: WasteStatus.APPROVED,
     };
 
     // Get overall totals with single aggregation query
@@ -241,9 +242,9 @@ export class WasteService {
       }),
     ]);
 
-    const totalWaste = totalStats._sum.costImpact || 0;
-    const totalQuantity = totalStats._sum.quantity || 0;
-    const recordCount = totalStats._count;
+    const totalWaste = totalStats._sum?.costImpact || 0;
+    const totalQuantity = totalStats._sum?.quantity || 0;
+    const recordCount = (totalStats._count as number) || 0;
 
     // Fetch only category names for matching categories
     const categoryIds = categoryStats.map((c) => c.categoryId);
@@ -259,9 +260,9 @@ export class WasteService {
     const categoryBreakdown = categoryStats.map((c) => ({
       categoryId: c.categoryId,
       categoryName: categoryMap.get(c.categoryId) || 'Unknown',
-      cost: c._sum.costImpact || 0,
-      quantity: c._sum.quantity || 0,
-      count: c._count,
+      cost: c._sum?.costImpact || 0,
+      quantity: c._sum?.quantity || 0,
+      count: (c._count as number) || 0,
     }));
 
     // Fetch only ingredient names for matching ingredients
@@ -278,9 +279,9 @@ export class WasteService {
     const topIngredients = ingredientStats.map((i) => ({
       ingredientId: i.ingredientId,
       ingredientName: ingredientMap.get(i.ingredientId) || 'Unknown',
-      cost: i._sum.costImpact || 0,
-      quantity: i._sum.quantity || 0,
-      count: i._count,
+      cost: i._sum?.costImpact || 0,
+      quantity: i._sum?.quantity || 0,
+      count: (i._count as number) || 0,
     }));
 
     return {

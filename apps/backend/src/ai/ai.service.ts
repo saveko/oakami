@@ -98,7 +98,7 @@ export class AiService {
       },
       select: {
         quantity: true,
-        cost: true,
+        costImpact: true,
         createdAt: true,
         unit: true,
       },
@@ -108,7 +108,9 @@ export class AiService {
       return null;
     }
 
-    const dailyData = this.aggregateByDate(records);
+    // Map costImpact to cost for aggregation
+    const mappedRecords = records.map((r) => ({ ...r, cost: r.costImpact }));
+    const dailyData = this.aggregateByDate(mappedRecords);
     const avgQuantity = this.calculateAverage(dailyData.map((d) => d.quantity));
     const avgCost = this.calculateAverage(dailyData.map((d) => d.cost));
     const variance = this.calculateVariance(dailyData.map((d) => d.cost));
@@ -190,7 +192,7 @@ export class AiService {
         createdAt: { gte: startDate },
       },
       select: {
-        cost: true,
+        costImpact: true,
       },
     });
 
@@ -198,7 +200,7 @@ export class AiService {
       return null;
     }
 
-    const totalCost = records.reduce((sum, r) => sum + r.cost, 0);
+    const totalCost = records.reduce((sum, r) => sum + r.costImpact, 0);
     const avgDailyCost = totalCost / daysToAnalyze;
     const riskPercentage = Math.min(100, (avgDailyCost / 500) * 100);
 
@@ -232,7 +234,7 @@ export class AiService {
         },
       },
       select: {
-        name: true,
+        ingredient: { select: { name: true } },
         expiryDate: true,
       },
     });
@@ -248,7 +250,7 @@ export class AiService {
         )
       : 0;
 
-    const recommendation = `${expiringItems.length} items expiring within 3 days. Prioritize using ${expiringItems[0].name} before ${expiringItems[0].expiryDate?.toLocaleDateString()}.`;
+    const recommendation = `${expiringItems.length} items expiring within 3 days. Prioritize using ${expiringItems[0].ingredient.name} before ${expiringItems[0].expiryDate?.toLocaleDateString()}.`;
 
     return this.createPrediction(
       organizationId,

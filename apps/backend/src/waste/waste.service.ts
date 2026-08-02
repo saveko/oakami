@@ -296,4 +296,174 @@ export class WasteService {
       topIngredients,
     };
   }
+
+  async filterRecords(organizationId: string, filters: {
+    dateFrom?: string;
+    dateTo?: string;
+    categoryId?: string;
+    ingredientId?: string;
+    status?: WasteStatus;
+    costMin?: number;
+    costMax?: number;
+    searchText?: string;
+    skip?: number;
+    take?: number;
+    sortBy?: string;
+    sortOrder?: string;
+  }) {
+    const where: any = { organizationId };
+
+    // Date range filter
+    if (filters.dateFrom || filters.dateTo) {
+      where.createdAt = {};
+      if (filters.dateFrom) {
+        where.createdAt.gte = new Date(filters.dateFrom);
+      }
+      if (filters.dateTo) {
+        where.createdAt.lte = new Date(filters.dateTo);
+      }
+    }
+
+    // Category filter
+    if (filters.categoryId) {
+      where.categoryId = filters.categoryId;
+    }
+
+    // Ingredient filter
+    if (filters.ingredientId) {
+      where.ingredientId = filters.ingredientId;
+    }
+
+    // Status filter
+    if (filters.status) {
+      where.status = filters.status;
+    }
+
+    // Cost range filter
+    if (filters.costMin !== undefined || filters.costMax !== undefined) {
+      where.costImpact = {};
+      if (filters.costMin !== undefined) {
+        where.costImpact.gte = filters.costMin;
+      }
+      if (filters.costMax !== undefined) {
+        where.costImpact.lte = filters.costMax;
+      }
+    }
+
+    // Full-text search (on notes)
+    if (filters.searchText) {
+      where.OR = [
+        { notes: { contains: filters.searchText, mode: 'insensitive' } },
+        { ingredient: { name: { contains: filters.searchText, mode: 'insensitive' } } },
+        { department: { contains: filters.searchText, mode: 'insensitive' } },
+      ];
+    }
+
+    // Pagination
+    const skip = filters.skip || 0;
+    const take = filters.take || 20;
+
+    // Sorting
+    const orderBy: any = {};
+    const sortBy = filters.sortBy || 'createdAt';
+    const sortOrder = filters.sortOrder || 'desc';
+    orderBy[sortBy] = sortOrder;
+
+    const [records, totalCount] = await Promise.all([
+      this.db.wasteRecord.findMany({
+        where,
+        include: {
+          ingredient: { select: { id: true, name: true } },
+          category: { select: { id: true, name: true } },
+          recordedBy: { select: { id: true, email: true, firstName: true, lastName: true } },
+        },
+        skip,
+        take,
+        orderBy,
+      }),
+      this.db.wasteRecord.count({ where }),
+    ]);
+
+    return {
+      data: records,
+      pagination: {
+        skip,
+        take,
+        total: totalCount,
+        hasMore: skip + take < totalCount,
+      },
+    };
+  }
+
+  async saveFilterPreset(organizationId: string, userId: string, data: {
+    name: string;
+    description?: string;
+    filterCriteria: Record<string, any>;
+  }) {
+    // Check if preset name already exists
+    const existing = await this.db.filterPreset.findUnique({
+      where: {
+        organizationId_name: {
+          organizationId,
+          name: data.name,
+        },
+      },
+    });
+
+    if (existing) {
+      throw new BadRequestException('Filter preset with this name already exists');
+    }
+
+    return this.db.filterPreset.create({
+      data: {
+        organizationId,
+        createdBy: userId,
+        name: data.name,
+        description: data.description,
+        filterCriteria: data.filterCriteria,
+      },
+    });
+  }
+
+  async getFilterPresets(organizationId: string) {
+    return this.db.filterPreset.findMany({
+      where: { organizationId },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async deleteFilterPreset(organizationId: string, presetId: string) {
+    const preset = await this.db.filterPreset.findUnique({
+      where: { id: presetId },
+    });
+
+    if (!preset || preset.organizationId !== organizationId) {
+      throw new NotFoundException('Filter preset not found');
+    }
+
+    return this.db.filterPreset.delete({
+      where: { id: presetId },
+    });
+  }
+
+  async exportFilteredRecords(organizationId: string, filters: any) {
+    const result = await this.filterRecords(organizationId, { ...filters, take: 10000 });
+
+    // Format records for CSV export
+    const csvData = result.data.map((record: any) => ({
+      id: record.id,
+      date: new Date(record.createdAt).toISOString().split('T')[0],
+      ingredient: record.ingredient?.name || '',
+      category: record.category?.name || '',
+      quantity: record.quantity,
+      unit: record.unit,
+      cost: record.costImpact,
+      percentage: record.percentageWaste.toFixed(2),
+      status: record.status,
+      notes: record.notes || '',
+      recordedBy: record.recordedBy?.email || '',
+    }));
+
+    return csvData;
+  }
 }

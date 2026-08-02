@@ -255,6 +255,37 @@ class ApiClient {
     return response.data;
   }
 
+  // Filtering & Search
+  async filterWasteRecords(filters: Record<string, any>) {
+    const response = await this.client.get('/waste/filter/search', { params: filters });
+    return response.data;
+  }
+
+  async getFilterPresets() {
+    const response = await this.client.get('/waste/filter/presets');
+    return response.data;
+  }
+
+  async saveFilterPreset(data: { name: string; description?: string; filterCriteria: Record<string, any> }) {
+    const response = await this.client.post('/waste/filter/presets', data);
+    return response.data;
+  }
+
+  async deleteFilterPreset(presetId: string) {
+    const response = await this.client.delete(`/waste/filter/presets/${presetId}`);
+    return response.data;
+  }
+
+  async applyFilterPreset(presetId: string) {
+    const response = await this.client.get(`/waste/filter/presets/${presetId}`);
+    return response.data;
+  }
+
+  async exportWasteRecords(filters: Record<string, any>) {
+    const response = await this.client.get('/waste/filter/export', { params: filters });
+    return response.data;
+  }
+
   // Health
   async checkHealth() {
     const response = await this.client.get('/health');

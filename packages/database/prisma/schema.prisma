@@ -114,6 +114,7 @@ model Organization {
   reports              Report[]
   aiPredictions        AIPrediction[]
   auditLogs            AuditLog[]
+  filterPresets        FilterPreset[]
 }
 
 model OrganizationSettings {
@@ -396,6 +397,23 @@ enum WasteStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+model FilterPreset {
+  id               String   @id @default(cuid())
+  organizationId   String
+  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  createdBy        String
+  name             String
+  description      String?
+  filterCriteria   Json     // Stores filter query as JSON
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([organizationId, name])
+  @@index([organizationId])
 }
 
 // Reports

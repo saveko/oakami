@@ -6,6 +6,8 @@ import { WasteModule } from './waste/waste.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { OrganizationsModule } from './organizations/organizations.module';
 import { IngredientsModule } from './ingredients/ingredients.module';
+import { ReportsModule } from './reports/reports.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 import { HealthController } from './health/health.controller';
 
 @Module({
@@ -16,6 +18,8 @@ import { HealthController } from './health/health.controller';
     InventoryModule,
     OrganizationsModule,
     IngredientsModule,
+    ReportsModule,
+    AnalyticsModule,
   ],
   controllers: [HealthController],
   providers: [ConfigService],

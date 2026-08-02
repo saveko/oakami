@@ -140,3 +140,59 @@ export const useDashboardStore = create<DashboardStore>((set) => ({
     }
   },
 }));
+
+// Prediction Store
+interface AIPrediction {
+  id: string;
+  ingredientId?: string;
+  predictionType: string;
+  value: number;
+  confidence: number;
+  unit: string;
+  reason?: string;
+  recommendation?: string;
+  predictedFor: string;
+}
+
+interface PredictionStore {
+  predictions: AIPrediction[];
+  isLoading: boolean;
+  error: string | null;
+  fetchPredictions: (days?: number) => Promise<void>;
+  generatePredictions: () => Promise<void>;
+}
+
+export const usePredictionStore = create<PredictionStore>((set) => ({
+  predictions: [],
+  isLoading: false,
+  error: null,
+
+  fetchPredictions: async (days = 7) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await api.getPredictions({ days });
+      const data = response.data || response;
+      set({ predictions: Array.isArray(data) ? data : data || [], isLoading: false });
+    } catch (error: any) {
+      set({
+        error: error.response?.data?.message || 'Failed to fetch predictions',
+        isLoading: false,
+      });
+    }
+  },
+
+  generatePredictions: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      await api.generatePredictions({ daysToAnalyze: 30 });
+      const response = await api.getPredictions();
+      const data = response.data || response;
+      set({ predictions: Array.isArray(data) ? data : data || [], isLoading: false });
+    } catch (error: any) {
+      set({
+        error: error.response?.data?.message || 'Failed to generate predictions',
+        isLoading: false,
+      });
+    }
+  },
+}));

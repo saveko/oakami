@@ -218,6 +218,22 @@ class ApiClient {
     return response.data;
   }
 
+  // AI Predictions
+  async getPredictions(params?: { days?: number; type?: string; limit?: number; skip?: number }) {
+    const response = await this.client.get('/ai/predictions', { params });
+    return response.data;
+  }
+
+  async generatePredictions(dto?: { daysToAnalyze?: number }) {
+    const response = await this.client.post('/ai/generate', dto || {});
+    return response.data;
+  }
+
+  async getPredictionsByType(type: string, params?: { limit?: number; skip?: number }) {
+    const response = await this.client.get(`/ai/predictions/${type}`, { params });
+    return response.data;
+  }
+
   // Health
   async checkHealth() {
     const response = await this.client.get('/health');

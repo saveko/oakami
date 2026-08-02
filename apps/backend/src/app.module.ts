@@ -9,6 +9,7 @@ import { IngredientsModule } from './ingredients/ingredients.module';
 import { ReportsModule } from './reports/reports.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { SuppliersModule } from './suppliers/suppliers.module';
+import { AiModule } from './ai/ai.module';
 import { HealthController } from './health/health.controller';
 
 @Module({
@@ -22,6 +23,7 @@ import { HealthController } from './health/health.controller';
     ReportsModule,
     AnalyticsModule,
     SuppliersModule,
+    AiModule,
   ],
   controllers: [HealthController],
   providers: [ConfigService],

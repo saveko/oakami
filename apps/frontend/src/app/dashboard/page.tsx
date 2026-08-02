@@ -14,15 +14,18 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
-import { useDashboardStore } from '@/lib/store';
+import { useDashboardStore, usePredictionStore } from '@/lib/store';
+import PredictionCard from '@/components/PredictionCard';
 
 const COLORS = ['#0ea5e9', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6'];
 
 export default function DashboardPage() {
   const { metrics, isLoading, error, fetchMetrics } = useDashboardStore();
+  const { predictions, isLoading: predLoading, error: predError, fetchPredictions, generatePredictions } = usePredictionStore();
 
   useEffect(() => {
     fetchMetrics(7);
+    fetchPredictions(7);
   }, []);
 
   const MetricCard = ({ label, value, unit = '' }: { label: string; value: number | string; unit?: string }) => (
@@ -69,6 +72,27 @@ export default function DashboardPage() {
         <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
         <p className="text-gray-600 mt-2">Last 7 days overview</p>
       </div>
+
+      {/* AI Predictions Section */}
+      {predictions.length > 0 && (
+        <div className="mb-8">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">AI Predictions</h2>
+            <button
+              onClick={generatePredictions}
+              disabled={predLoading}
+              className="px-4 py-1 text-sm bg-sky-100 text-sky-700 rounded hover:bg-sky-200 transition disabled:opacity-50"
+            >
+              {predLoading ? 'Generating...' : 'Refresh'}
+            </button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            {predictions.map((pred) => (
+              <PredictionCard key={pred.id} prediction={pred} />
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

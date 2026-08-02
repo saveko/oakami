@@ -1,394 +1,383 @@
-# Oakami OS Version 1
+# Oakami Waste Intelligence System
 
-**Status:** 🔬 RESEARCH PHASE  
-**Start Date:** 2026-07-26  
-**Target Launch:** TBD (After Research Complete)  
-**Version:** 1.0  
+**Status:** 🚀 Development  
+**Version:** 1.0.0  
+**Target Launch:** Q3 2026
 
----
+## 🎯 Overview
 
-## 📋 Project Overview
+Oakami is an **enterprise-grade Restaurant Food Waste Intelligence System** that helps restaurants track, analyze, and reduce food waste through AI-powered insights and real-time analytics.
 
-**Oakami OS Version 1** is a Review Collection & AI Review Reply System designed to:
-1. Collect reviews from multiple sources (Google, Facebook, TripAdvisor, Zomato, Swiggy)
-2. Automatically classify reviews (sentiment, tone, category)
-3. Generate AI-powered professional replies
-4. Route through manager approval
-5. Send replies to source platforms
-6. Generate daily reports
-7. Notify responsible persons
-
-**Scope:** Review Collection + AI Reply **ONLY**. Nothing else.
+### Key Metrics Impact
+- **Reduce** food waste by 25-40%
+- **Save** $2,000+ per restaurant annually
+- **Prevent** inventory loss through predictive alerts
+- **Achieve** sustainability goals (track carbon footprint)
 
 ---
 
-## 🎯 Quick Navigation
-
-### Phase: Research (Week 1)
-- 📖 [Research Framework](./01_Research/Research-Reports/RESEARCH_FRAMEWORK.md)
-- 📊 [Project Inventory](./01_Research/Research-Reports/PROJECT_INVENTORY.md)
-- 🔒 [Version 1 Scope](./00_Project-Control/Product-Scope/VERSION_1_SCOPE.md)
-
-### Key Research Documents (In Progress)
-- 🗄️ [Database Analysis](./01_Research/Research-Reports/DATABASE_ANALYSIS.md) - Due 2026-07-27
-- 🤖 [Prompt Analysis](./01_Research/Research-Reports/PROMPT_ANALYSIS.md) - Due 2026-07-27
-- 🎨 [UI Research](./01_Research/Research-Reports/UI_RESEARCH.md) - Due 2026-07-28
-- 📡 [API Research](./01_Research/Research-Reports/API_RESEARCH.md) - Due 2026-07-28
-- 🏗️ [Architecture Design](./03_Architecture/System-Architecture/ARCHITECTURE.md) - Due 2026-07-30
-- ⚠️ [Risk Analysis](./00_Project-Control/Risks/RISK_ANALYSIS.md) - Due 2026-07-30
-- 🗺️ [Development Roadmap](./02_Product/Roadmap/ROADMAP.md) - Due 2026-07-31
-
----
-
-## 📁 Folder Structure
+## 🏗️ Project Structure
 
 ```
-/Oakami
-├── 00_Project-Control/         # Project governance & decisions
-│   ├── Vision/                 # Project vision
-│   ├── Mission/                # Project mission
-│   ├── Product-Scope/          # V1 scope (LOCKED)
-│   ├── Success-Metrics/        # Success criteria
-│   ├── Constraints/            # Project constraints
-│   ├── Risks/                  # Risk management
-│   └── Decisions/              # Decision log
+oakami/
+├── apps/
+│   ├── backend/          # NestJS REST API
+│   │   ├── src/
+│   │   │   ├── auth/          # Authentication & authorization
+│   │   │   ├── database/      # Prisma database layer
+│   │   │   ├── config/        # Configuration management
+│   │   │   ├── common/        # Shared utilities & filters
+│   │   │   └── main.ts        # Application entry point
+│   │   └── package.json
+│   │
+│   └── frontend/         # Next.js React App
+│       ├── src/
+│       │   ├── app/           # App router & layouts
+│       │   ├── styles/        # Global styles
+│       │   └── components/    # React components
+│       └── package.json
 │
-├── 01_Research/                # Research phase (CURRENT)
-│   ├── Existing-Documents/     # Found documents
-│   ├── PRD-Research/           # PRD analysis
-│   ├── Technical-Research/     # Technical specs
-│   ├── AI-Research/            # AI requirements
-│   ├── API-Research/           # API analysis
-│   ├── Database-Research/      # DB analysis
-│   ├── Security-Research/      # Security specs
-│   └── Research-Reports/       # Final reports
+├── packages/
+│   ├── database/         # Prisma & Database Schema
+│   │   ├── prisma/
+│   │   │   ├── schema.prisma  # Complete data model
+│   │   │   └── migrations/
+│   │   └── package.json
+│   │
+│   └── shared/           # Shared types & utilities
+│       └── package.json
 │
-├── 02_Product/                 # Product definition
-│   ├── Product-Requirements/   # PRD for V1
-│   ├── User-Stories/           # User stories
-│   ├── Use-Cases/              # Use cases
-│   ├── Personas/               # User personas
-│   └── Roadmap/                # Development roadmap
+├── docker/
+│   └── docker-compose.yml # PostgreSQL + Redis
 │
-├── 03_Architecture/            # System design
-│   ├── System-Architecture/    # High-level design
-│   ├── Software-Architecture/  # Layers & components
-│   ├── Data-Flow/              # Data flow diagrams
-│   ├── Sequence-Diagrams/      # Flow diagrams
-│   └── Decision-Records/       # Architecture decisions
+├── scripts/
+│   └── db/               # Database scripts
 │
-├── 04_Database/                # Database design
-│   ├── Existing-Schema/        # Current schemas
-│   ├── Proposed-Schema/        # V1 schema
-│   ├── ERD/                    # Entity relationship diagrams
-│   ├── Migrations/             # Schema migrations
-│   ├── SQL/                    # SQL scripts
-│   └── Reports/                # Analysis reports
-│
-├── 05_API/                     # API specifications
-│   ├── Internal/               # Internal APIs
-│   ├── External/               # External integrations
-│   ├── Authentication/         # Auth spec
-│   ├── Webhooks/               # Webhook specs
-│   └── OpenAPI/                # OpenAPI definitions
-│
-├── 06_AI/                      # AI & ML components
-│   ├── Prompt-Library/         # System prompts
-│   ├── Review-Classification/  # Classification models
-│   ├── Reply-Generation/       # Reply templates
-│   ├── Models/                 # Model definitions
-│   └── Evaluation/             # Quality metrics
-│
-├── 07_UI-UX/                   # Design system
-│   ├── Design-System/          # Component library
-│   ├── Wireframes/             # Low-fi designs
-│   ├── Mockups/                # High-fi designs
-│   ├── Prototype/              # Interactive prototype
-│   ├── Assets/                 # Design assets
-│   └── Design-Reviews/         # Review findings
-│
-├── 08_Frontend/                # Frontend code (Dev Phase)
-│   ├── Web/                    # Web application
-│   ├── Components/             # React components
-│   ├── Pages/                  # Page components
-│   └── Services/               # API clients
-│
-├── 09_Backend/                 # Backend code (Dev Phase)
-│   ├── Authentication/         # Auth service
-│   ├── Reviews/                # Review service
-│   ├── AI/                     # AI service
-│   ├── Reports/                # Report service
-│   └── Notifications/          # Notification service
-│
-├── 10_Integrations/            # Third-party integrations
-│   ├── Google/                 # Google Reviews
-│   ├── Facebook/               # Facebook Reviews
-│   ├── TripAdvisor/            # TripAdvisor
-│   ├── Zomato/                 # Zomato
-│   └── Swiggy/                 # Swiggy
-│
-├── 11_Reports/                 # Report templates
-│   ├── Daily/                  # Daily reports
-│   ├── Weekly/                 # Weekly reports
-│   └── Templates/              # Report templates
-│
-├── 12_Testing/                 # QA & Testing
-│   ├── Unit/                   # Unit tests
-│   ├── Integration/            # Integration tests
-│   ├── End-to-End/             # E2E tests
-│   └── Test-Reports/           # Test results
-│
-├── 13_Security/                # Security specs
-│   ├── Authentication/         # Auth strategy
-│   ├── Encryption/             # Encryption specs
-│   ├── Compliance/             # Compliance docs
-│   └── Audit/                  # Audit logs
-│
-├── 14_Deployment/              # Deployment scripts
-│   ├── Docker/                 # Docker configs
-│   ├── CI/                     # CI/CD pipelines
-│   ├── Environment/            # Environment configs
-│   └── Monitoring/             # Monitoring setup
-│
-├── 15_Operations/              # Operations docs
-│   ├── SOP/                    # Standard procedures
-│   ├── Monitoring/             # Monitoring guide
-│   ├── Incident/               # Incident response
-│   └── Maintenance/            # Maintenance guide
-│
-├── 16_Documentation/           # User & developer docs
-│   ├── User-Guide/             # End-user guide
-│   ├── Developer-Guide/        # Dev documentation
-│   ├── Setup/                  # Setup instructions
-│   └── Troubleshooting/        # Troubleshooting
-│
-├── 17_Project-Management/      # PM artifacts
-│   ├── Sprint/                 # Sprint planning
-│   ├── Backlog/                # Product backlog
-│   ├── Tasks/                  # Task tracking
-│   ├── Daily-Reports/          # Daily progress
-│   ├── Progress/               # Progress tracking
-│   └── Team/                   # Team info
-│
-├── 18_Business/                # Business docs
-│   ├── Pricing/                # Pricing model
-│   ├── Sales/                  # Sales materials
-│   ├── Marketing/              # Marketing plan
-│   ├── Branding/               # Brand guidelines
-│   └── Legal/                  # Legal documents
-│
-├── 19_Assets/                  # Media & assets
-│   ├── Images/                 # Screenshots, images
-│   ├── Logos/                  # Logo files
-│   ├── Videos/                 # Video files
-│   ├── Icons/                  # Icon sets
-│   └── Templates/              # Templates
-│
-├── 20_Archive/                 # Old/historical files
-│
-├── 21_Scripts/                 # Build & deployment scripts
-│   ├── Setup/                  # Setup scripts
-│   ├── Build/                  # Build scripts
-│   ├── Database/               # DB scripts
-│   └── Migration/              # Migration scripts
-│
-├── 22_Config/                  # Configuration files
-│   ├── Environment/            # .env templates
-│   ├── Application/            # App config
-│   ├── AI/                     # AI models config
-│   ├── Database/               # DB config
-│   └── Logging/                # Logging config
-│
-├── 23_Tools/                   # AI tools & prompts
-│   ├── Claude/                 # Claude prompts
-│   ├── Cursor/                 # Cursor config
-│   ├── MCP/                    # MCP servers
-│   └── Automation/             # Automation scripts
-│
-├── 24_Logs/                    # Application logs
-│   ├── AI/                     # AI logs
-│   ├── Backend/                # Backend logs
-│   ├── Frontend/               # Frontend logs
-│   ├── Deployment/             # Deployment logs
-│   └── Errors/                 # Error logs
-│
-└── 25_Release/                 # Release management
-    ├── Alpha/                  # Alpha release
-    ├── Beta/                   # Beta release
-    └── Production/             # Production release
+├── docs/                 # Documentation
+├── tests/                # Test suites
+└── package.json          # Monorepo root
 ```
 
 ---
 
-## 📊 Current Status
+## 🛠️ Technology Stack
 
-| Component | Status | Progress | Owner |
-|-----------|--------|----------|-------|
-| Research | 🔄 IN PROGRESS | 5% | Team |
-| Database | ⏳ PENDING | 0% | DB Architect |
-| UI/UX | ⏳ PENDING | 0% | Designer |
-| API | ⏳ PENDING | 0% | API Architect |
-| AI | ⏳ PENDING | 0% | AI Specialist |
-| Backend | ⏳ PENDING | 0% | Backend Lead |
-| Frontend | ⏳ PENDING | 0% | Frontend Lead |
-| Architecture | ⏳ PENDING | 0% | Architect |
-| Documentation | 🔄 IN PROGRESS | 15% | Writer |
+### Frontend
+- **Next.js 14** — React framework with App Router
+- **React 18** — UI library
+- **TypeScript** — Type safety
+- **Tailwind CSS** — Utility-first styling
+- **Recharts** — Data visualization
+- **Zustand** — State management
+- **Axios** — HTTP client
 
----
+### Backend
+- **NestJS** — TypeScript framework
+- **Prisma** — ORM & migrations
+- **PostgreSQL** — Relational database
+- **Redis** — Caching & sessions
+- **JWT** — Authentication
+- **Passport.js** — Authorization
 
-## 🗓️ Timeline
-
-### Week 1 - Research Phase (CURRENT)
-- **Day 1** (Today): Project Scan & Inventory
-- **Day 2**: Database & Prompt Analysis
-- **Day 3**: Folder Structure & Cleanup
-- **Day 4**: UI & API Research
-- **Day 5**: Finalization
-- **Day 6**: Architecture & Risk Analysis
-- **Day 7**: Roadmap & Ready for Development
-
-### Week 2-4 - Development Phase (TBD)
-- Backend implementation
-- Frontend implementation
-- Integration testing
-- Performance optimization
-
-### Week 5+ - Deployment Phase (TBD)
-- QA & UAT
-- Staging deployment
-- Production deployment
-- Launch preparation
+### DevOps
+- **Docker** — Containerization
+- **Docker Compose** — Local development
+- **GitHub Actions** — CI/CD (coming)
 
 ---
 
-## 📋 Research Phase Checklist
+## 📦 Core Modules
 
-### Day 1 (Today - 2026-07-26)
-- ✅ Create folder structure
-- ✅ Create PROJECT_INVENTORY.md
-- ✅ Create RESEARCH_FRAMEWORK.md
-- ✅ Create VERSION_1_SCOPE.md
-- ✅ Create README.md
-- ⏳ Document initial findings
+### ✅ Authentication
+- User registration & login
+- JWT tokens + refresh tokens
+- Role-based access control (STAFF, MANAGER, OWNER, ADMIN)
+- Password hashing with bcrypt
 
-### Day 2 (2026-07-27)
-- ⏳ Complete DATABASE_ANALYSIS.md
-- ⏳ Complete PROMPT_ANALYSIS.md
-- ⏳ Create daily report
+### ✅ Database Layer
+- 20+ Prisma models
+- Complete schema for:
+  - Users & Permissions
+  - Organizations & Settings
+  - Ingredients & Categories
+  - Inventory Management
+  - Waste Recording
+  - Suppliers & Purchases
+  - Reports & Analytics
+  - AI Predictions
+  - Audit Logs
 
-### Day 3-4 (2026-07-28 to 2026-07-29)
-- ⏳ Complete UI_RESEARCH.md
-- ⏳ Complete API_RESEARCH.md
-- ⏳ Create daily reports
-
-### Day 5-6 (2026-07-30 to 2026-07-31)
-- ⏳ Complete ARCHITECTURE.md
-- ⏳ Complete RISK_ANALYSIS.md
-- ⏳ Finalize all research
-- ⏳ Create daily reports
-
-### Day 7 (2026-08-01)
-- ⏳ Complete ROADMAP.md
-- ⏳ Create TASK_BACKLOG.md
-- ⏳ Ready for Development
-- ⏳ Final review
+### 📋 (Coming Next)
+- **Waste Recording API** — Multi-step form with photo upload
+- **Analytics** — Dashboard KPIs, trend charts, heatmaps
+- **Inventory Management** — Stock tracking, expiry alerts
+- **Reports** — Daily/weekly/monthly reports
+- **AI Insights** — Waste predictions, risk scoring
+- **Frontend UI** — Connect with design system
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Quick Start
 
-### For New Team Members
-1. Read this README
-2. Read [VERSION_1_SCOPE.md](./00_Project-Control/Product-Scope/VERSION_1_SCOPE.md)
-3. Check [Research Framework](./01_Research/Research-Reports/RESEARCH_FRAMEWORK.md)
-4. Review daily progress reports in `/17_Project-Management/Daily-Reports/`
+### Prerequisites
+- Node.js 18+
+- Docker & Docker Compose
+- PostgreSQL 14+ (if not using Docker)
 
-### For Researchers
-1. Follow [RESEARCH_FRAMEWORK.md](./01_Research/Research-Reports/RESEARCH_FRAMEWORK.md)
-2. Document findings in respective research folders
-3. Create daily reports
-4. Cross-reference with scope document
+### 1. Install Dependencies
 
-### For Developers (Week 2+)
-1. Wait for research completion
-2. Review [ARCHITECTURE.md](./03_Architecture/System-Architecture/ARCHITECTURE.md)
-3. Review [DATABASE_FINAL.md](./04_Database/Proposed-Schema/DATABASE_FINAL.md)
-4. Review API specifications in `/05_API/`
-5. Start with backend implementation
+```bash
+npm install
+```
 
----
+### 2. Start PostgreSQL & Redis
 
-## 📞 Support & Questions
+```bash
+npm run docker:up
+```
 
-### Research Phase
-- **Questions about scope?** → See [VERSION_1_SCOPE.md](./00_Project-Control/Product-Scope/VERSION_1_SCOPE.md)
-- **How to document findings?** → See [RESEARCH_FRAMEWORK.md](./01_Research/Research-Reports/RESEARCH_FRAMEWORK.md)
-- **Current progress?** → Check `/17_Project-Management/Daily-Reports/`
+Wait for services to be healthy:
+```bash
+docker ps --format "table {{.Names}}\t{{.Status}}"
+```
 
-### Development Phase (Week 2+)
-- **Architecture questions?** → See `/03_Architecture/`
-- **Database questions?** → See `/04_Database/`
-- **API integration?** → See `/05_API/` and `/10_Integrations/`
-- **AI/ML questions?** → See `/06_AI/`
-- **UI/UX questions?** → See `/07_UI-UX/`
+### 3. Setup Database
 
----
+```bash
+cd packages/database
+npm run migrate
+npm run seed
+```
 
-## 📚 Key Documents
+### 4. Start Backend
 
-### Governance
-- [Vision](./00_Project-Control/Vision/) - Project vision
-- [Mission](./00_Project-Control/Mission/) - Project mission
-- [Version 1 Scope (LOCKED)](./00_Project-Control/Product-Scope/VERSION_1_SCOPE.md)
-- [Success Metrics](./00_Project-Control/Success-Metrics/)
-- [Risk Management](./00_Project-Control/Risks/)
+```bash
+cd apps/backend
+npm run start:dev
+```
 
-### Research
-- [Research Framework](./01_Research/Research-Reports/RESEARCH_FRAMEWORK.md)
-- [Project Inventory](./01_Research/Research-Reports/PROJECT_INVENTORY.md)
-- [Daily Progress Reports](./17_Project-Management/Daily-Reports/)
+Backend will run on `http://localhost:3000`
 
-### Design
-- [Architecture](./03_Architecture/)
-- [Database Design](./04_Database/)
-- [UI/UX System](./07_UI-UX/)
-- [API Specs](./05_API/)
-- [AI Components](./06_AI/)
+### 5. Start Frontend (new terminal)
 
-### Development (After Research)
-- [Backend Code](./09_Backend/)
-- [Frontend Code](./08_Frontend/)
-- [Integrations](./10_Integrations/)
-- [Tests](./12_Testing/)
-- [Deployment](./14_Deployment/)
+```bash
+cd apps/frontend
+npm run dev
+```
+
+Frontend will run on `http://localhost:3001`
 
 ---
 
-## ✅ Success Criteria
+## 📚 API Endpoints
 
-Research phase is complete when:
-1. ✅ All research documents are 100% complete
-2. ✅ No gaps or assumptions remain
-3. ✅ Complete traceability from document to requirement
-4. ✅ All risks identified and mitigation planned
-5. ✅ Architecture approved
-6. ✅ Database schema finalized
-7. ✅ UI specification complete
-8. ✅ API specification complete
-9. ✅ AI prompts finalized
-10. ✅ Development roadmap ready
+### Authentication
+```
+POST   /api/v1/auth/register      # Create account
+POST   /api/v1/auth/login         # Login
+POST   /api/v1/auth/refresh       # Refresh token
+POST   /api/v1/auth/me            # Get profile
+```
+
+### Health
+```
+GET    /api/v1/health             # API health check
+```
+
+### (Coming Soon)
+- Waste Records API
+- Inventory API
+- Reports API
+- Analytics API
+- Suppliers API
+- Users API
 
 ---
 
-## 📝 Document History
+## 🧪 Testing
 
-| Date | Version | Status | Author |
-|------|---------|--------|--------|
-| 2026-07-26 | 1.0 | CREATED | Architect |
+### Run All Tests
+```bash
+npm run test
+```
+
+### Run Backend Tests
+```bash
+cd apps/backend
+npm run test
+```
+
+### Run E2E Tests
+```bash
+npm run test:e2e
+```
 
 ---
 
-**Last Updated:** 2026-07-26  
-**Next Update:** 2026-07-27  
-**Status:** 🔬 RESEARCH PHASE - DAY 1
+## 📝 Development Workflow
 
+### Create a Feature Branch
+```bash
+git checkout -b feature/waste-recording-api
+```
+
+### Make Changes
+- Edit files in `apps/backend/`, `apps/frontend/`, or `packages/database/`
+
+### Database Changes
+```bash
+cd packages/database
+npm run migrate:create -- add_waste_records
+# Edit prisma/migrations/...
+npm run migrate:dev
+```
+
+### Commit & Push
+```bash
+git add .
+git commit -m "feat: add waste recording endpoints"
+git push origin feature/waste-recording-api
+```
+
+---
+
+## 🔒 Security Best Practices
+
+- ✅ JWT token-based authentication
+- ✅ Password hashing with bcrypt (10 rounds)
+- ✅ Input validation on all endpoints
+- ✅ CORS configured
+- ✅ Environment variables for secrets
+- ✅ SQL injection protection (Prisma)
+- ✅ XSS protection (React)
+- ✅ Audit logging for all actions
+
+---
+
+## 📊 Database Schema
+
+Key models:
+- **User** — Users with roles
+- **Organization** — Multi-tenant support
+- **Ingredient** — Menu items tracked
+- **WasteRecord** — Individual waste entries
+- **InventoryItem** — Stock tracking
+- **Supplier** — Source management
+- **AIPrediction** — ML predictions
+- **Report** — Generated reports
+- **AuditLog** — Compliance tracking
+
+See `packages/database/prisma/schema.prisma` for full schema.
+
+---
+
+## 🐛 Troubleshooting
+
+### Database Connection Error
+```bash
+# Check if PostgreSQL is running
+docker ps | grep postgres
+
+# View logs
+docker logs oakami-db
+
+# Restart database
+npm run docker:down
+npm run docker:up
+```
+
+### Port Already in Use
+```bash
+# Backend (3000)
+lsof -i :3000 | grep LISTEN
+
+# Frontend (3001)
+lsof -i :3001 | grep LISTEN
+
+# Kill process
+kill -9 <PID>
+```
+
+### Migration Issues
+```bash
+cd packages/database
+npm run reset      # ⚠️ Drops all data!
+npm run migrate
+npm run seed
+```
+
+---
+
+## 📋 Development Checklist
+
+- [x] Project structure initialized
+- [x] Monorepo setup (npm workspaces)
+- [x] Database schema (Prisma)
+- [x] Backend scaffolding (NestJS)
+- [x] Authentication module
+- [x] Frontend scaffolding (Next.js)
+- [x] Docker Compose setup
+- [ ] Waste Recording endpoints
+- [ ] Analytics endpoints
+- [ ] Inventory endpoints
+- [ ] Waste Recording UI
+- [ ] Dashboard UI
+- [ ] Integration tests
+- [ ] E2E tests
+- [ ] Performance optimization
+- [ ] Security audit
+- [ ] Documentation
+- [ ] Production deployment
+
+---
+
+## 🤝 Contributing
+
+1. Create feature branch: `git checkout -b feature/name`
+2. Make changes following code style
+3. Test your changes: `npm run test`
+4. Commit: `git commit -am "feat: description"`
+5. Push: `git push origin feature/name`
+6. Create Pull Request
+
+---
+
+## 📚 Documentation
+
+- [Design System](./docs/DESIGN_SYSTEM.md) — UI components & tokens
+- [API Documentation](./docs/API.md) — Endpoint specifications
+- [Database Schema](./packages/database/prisma/schema.prisma) — Data model
+- [Deployment Guide](./docs/DEPLOYMENT.md) — Production setup
+
+---
+
+## 🎯 Next Steps
+
+1. **Implement Waste Recording API** — Core feature
+2. **Build Dashboard UI** — Connect to API
+3. **Create Analytics Endpoints** — Trends & charts
+4. **AI Integration** — Predictions & alerts
+5. **Report Generation** — PDF exports
+6. **Performance Optimization** — Load testing
+7. **Security Audit** — Penetration testing
+8. **Production Deployment** — Docker, CI/CD
+
+---
+
+## 📞 Support
+
+- **Issues:** GitHub Issues
+- **Discussions:** GitHub Discussions
+- **Documentation:** `/docs` folder
+
+---
+
+## 📄 License
+
+Proprietary — All rights reserved
+
+---
+
+**Last Updated:** August 2, 2026  
+**Version:** 1.0.0  
+**Status:** 🚀 Active Development

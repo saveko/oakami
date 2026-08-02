@@ -1,18 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useNotificationStore } from '@/lib/store';
+import { useState } from 'react';
+import { useUnreadCount } from '@/lib/hooks/useNotifications';
 import NotificationCenter from './NotificationCenter';
 
 export default function NotificationBell() {
-  const { unreadCount, getUnreadCount } = useNotificationStore();
+  const { data: unreadData } = useUnreadCount();
   const [isOpen, setIsOpen] = useState(false);
 
-  useEffect(() => {
-    getUnreadCount();
-    const interval = setInterval(getUnreadCount, 30000);
-    return () => clearInterval(interval);
-  }, [getUnreadCount]);
+  const unreadCount = unreadData?.unreadCount || 0;
 
   return (
     <div className="relative">

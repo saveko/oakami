@@ -209,57 +209,79 @@ export class WasteService {
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
-    const records = await this.db.wasteRecord.findMany({
-      where: {
-        organizationId,
-        createdAt: { gte: startDate },
-        status: 'APPROVED',
-      },
-      include: {
-        category: true,
-        ingredient: true,
-      },
-    });
+    const where = {
+      organizationId,
+      createdAt: { gte: startDate },
+      status: 'APPROVED',
+    };
 
-    const totalWaste = records.reduce((sum, r) => sum + r.costImpact, 0);
-    const totalQuantity = records.reduce((sum, r) => sum + r.quantity, 0);
-    const recordCount = records.length;
+    // Get overall totals with single aggregation query
+    const [totalStats, categoryStats, ingredientStats] = await Promise.all([
+      this.db.wasteRecord.aggregate({
+        where,
+        _sum: { costImpact: true, quantity: true },
+        _count: true,
+      }),
+      // Get category breakdown with database groupBy
+      this.db.wasteRecord.groupBy({
+        by: ['categoryId'],
+        where,
+        _sum: { costImpact: true, quantity: true },
+        _count: true,
+        orderBy: { _sum: { costImpact: 'desc' } },
+      }),
+      // Get ingredient breakdown with database groupBy
+      this.db.wasteRecord.groupBy({
+        by: ['ingredientId'],
+        where,
+        _sum: { costImpact: true, quantity: true },
+        _count: true,
+        orderBy: { _sum: { costImpact: 'desc' } },
+        take: 10,
+      }),
+    ]);
 
-    const categoryBreakdown = records.reduce((acc, r) => {
-      const existing = acc.find((c) => c.categoryId === r.categoryId);
-      if (existing) {
-        existing.cost += r.costImpact;
-        existing.quantity += r.quantity;
-        existing.count += 1;
-      } else {
-        acc.push({
-          categoryId: r.categoryId,
-          categoryName: r.category.name,
-          cost: r.costImpact,
-          quantity: r.quantity,
-          count: 1,
-        });
-      }
-      return acc;
-    }, []);
+    const totalWaste = totalStats._sum.costImpact || 0;
+    const totalQuantity = totalStats._sum.quantity || 0;
+    const recordCount = totalStats._count;
 
-    const topIngredients = records.reduce((acc, r) => {
-      const existing = acc.find((i) => i.ingredientId === r.ingredientId);
-      if (existing) {
-        existing.cost += r.costImpact;
-        existing.quantity += r.quantity;
-        existing.count += 1;
-      } else {
-        acc.push({
-          ingredientId: r.ingredientId,
-          ingredientName: r.ingredient.name,
-          cost: r.costImpact,
-          quantity: r.quantity,
-          count: 1,
-        });
-      }
-      return acc;
-    }, []);
+    // Fetch only category names for matching categories
+    const categoryIds = categoryStats.map((c) => c.categoryId);
+    const categories = categoryIds.length
+      ? await this.db.wasteCategory.findMany({
+          where: { id: { in: categoryIds }, organizationId },
+          select: { id: true, name: true },
+        })
+      : [];
+
+    const categoryMap = new Map(categories.map((c) => [c.id, c.name]));
+
+    const categoryBreakdown = categoryStats.map((c) => ({
+      categoryId: c.categoryId,
+      categoryName: categoryMap.get(c.categoryId) || 'Unknown',
+      cost: c._sum.costImpact || 0,
+      quantity: c._sum.quantity || 0,
+      count: c._count,
+    }));
+
+    // Fetch only ingredient names for matching ingredients
+    const ingredientIds = ingredientStats.map((i) => i.ingredientId);
+    const ingredients = ingredientIds.length
+      ? await this.db.ingredient.findMany({
+          where: { id: { in: ingredientIds }, organizationId },
+          select: { id: true, name: true },
+        })
+      : [];
+
+    const ingredientMap = new Map(ingredients.map((i) => [i.id, i.name]));
+
+    const topIngredients = ingredientStats.map((i) => ({
+      ingredientId: i.ingredientId,
+      ingredientName: ingredientMap.get(i.ingredientId) || 'Unknown',
+      cost: i._sum.costImpact || 0,
+      quantity: i._sum.quantity || 0,
+      count: i._count,
+    }));
 
     return {
       summary: {
@@ -269,10 +291,8 @@ export class WasteService {
         averageWastePerRecord: recordCount > 0 ? totalWaste / recordCount : 0,
         period: `Last ${days} days`,
       },
-      categoryBreakdown: categoryBreakdown.sort((a, b) => b.cost - a.cost),
-      topIngredients: topIngredients
-        .sort((a, b) => b.cost - a.cost)
-        .slice(0, 10),
+      categoryBreakdown,
+      topIngredients,
     };
   }
 }

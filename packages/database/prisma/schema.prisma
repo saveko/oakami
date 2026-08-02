@@ -25,7 +25,7 @@ model User {
   wasteRecords  WasteRecord[]
   reports       Report[]
   auditLogs     AuditLog[]
-  organization  Organization? @relation("organizationMembers")
+  organization  Organization? @relation("organizationMembers", fields: [organizationId], references: [id])
   organizationId String?
   refreshTokens RefreshToken[]
 
@@ -251,6 +251,8 @@ model InventoryItem {
   @@index([organizationId])
   @@index([ingredientId])
   @@index([expiryDate])
+  @@index([organizationId, expiryDate])
+  @@index([organizationId, quantity, minThreshold])
 }
 
 model InventoryMovement {
@@ -276,6 +278,7 @@ model InventoryMovement {
   @@index([inventoryId])
   @@index([ingredientId])
   @@index([createdAt])
+  @@index([inventoryId, createdAt])
 }
 
 enum MovementType {
@@ -361,6 +364,9 @@ model WasteRecord {
   @@index([recordedById])
   @@index([status])
   @@index([createdAt])
+  @@index([organizationId, status, createdAt])
+  @@index([organizationId, categoryId, status])
+  @@index([organizationId, createdAt, status])
 }
 
 enum WasteStatus {
@@ -451,6 +457,7 @@ model AIPrediction {
   @@index([ingredientId])
   @@index([predictionType])
   @@index([predictedFor])
+  @@index([organizationId, ingredientId, predictionType])
 }
 
 enum PredictionType {

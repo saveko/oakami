@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import AuthProvider from '@/components/AuthProvider';
 import ErrorBoundary from '@/components/ErrorBoundary';
+import QueryProvider from '@/components/QueryProvider';
 import '../styles/globals.css';
 
 export const metadata: Metadata = {
@@ -22,7 +23,9 @@ export default function RootLayout({
       </head>
       <body>
         <ErrorBoundary>
-          <AuthProvider>{children}</AuthProvider>
+          <QueryProvider>
+            <AuthProvider>{children}</AuthProvider>
+          </QueryProvider>
         </ErrorBoundary>
       </body>
     </html>

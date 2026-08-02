@@ -1,24 +1,29 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useNotificationStore } from '@/lib/store';
+import {
+  useNotifications,
+  useMarkAsRead,
+  useMarkAllAsRead,
+} from '@/lib/hooks/useNotifications';
 
 interface NotificationCenterProps {
   onClose: () => void;
 }
 
 export default function NotificationCenter({ onClose }: NotificationCenterProps) {
-  const {
-    notifications,
-    isLoading,
-    fetchNotifications,
-    markAsRead,
-    markAllAsRead,
-  } = useNotificationStore();
+  const { data: notificationData, isLoading } = useNotifications(50);
+  const markAsReadMutation = useMarkAsRead();
+  const markAllAsReadMutation = useMarkAllAsRead();
 
-  useEffect(() => {
-    fetchNotifications(50);
-  }, []);
+  const notifications = notificationData?.data || [];
+
+  const handleMarkAsRead = (id: string) => {
+    markAsReadMutation.mutate(id);
+  };
+
+  const handleMarkAllAsRead = () => {
+    markAllAsReadMutation.mutate();
+  };
 
   const severityColor = (severity: string) => {
     if (severity === 'CRITICAL')
@@ -34,10 +39,11 @@ export default function NotificationCenter({ onClose }: NotificationCenterProps)
     <div className="fixed right-0 top-16 w-96 max-h-screen bg-white shadow-2xl rounded-lg overflow-hidden z-50">
       <div className="sticky top-0 p-4 border-b bg-white flex justify-between items-center">
         <h3 className="font-semibold text-gray-900">Notifications</h3>
-        {unreadNotifications.length > 0 && (
+        {notifications.some((n) => !n.isRead) && (
           <button
-            onClick={markAllAsRead}
-            className="text-sm text-sky-500 hover:text-sky-600 font-medium"
+            onClick={handleMarkAllAsRead}
+            disabled={markAllAsReadMutation.isPending}
+            className="text-sm text-sky-500 hover:text-sky-600 font-medium disabled:opacity-50"
           >
             Mark all read
           </button>
@@ -64,7 +70,7 @@ export default function NotificationCenter({ onClose }: NotificationCenterProps)
               )}`}
               onClick={() => {
                 if (!notification.isRead) {
-                  markAsRead(notification.id);
+                  handleMarkAsRead(notification.id);
                 }
               }}
             >

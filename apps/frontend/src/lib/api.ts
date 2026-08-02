@@ -234,6 +234,27 @@ class ApiClient {
     return response.data;
   }
 
+  // Notifications
+  async getNotifications(params?: { limit?: number; skip?: number; unreadOnly?: boolean }) {
+    const response = await this.client.get('/notifications', { params });
+    return response.data;
+  }
+
+  async getUnreadCount() {
+    const response = await this.client.get('/notifications/unread/count');
+    return response.data;
+  }
+
+  async markAsRead(id: string) {
+    const response = await this.client.patch(`/notifications/${id}/read`, {});
+    return response.data;
+  }
+
+  async markAllAsRead() {
+    const response = await this.client.patch('/notifications/read-all', {});
+    return response.data;
+  }
+
   // Health
   async checkHealth() {
     const response = await this.client.get('/health');

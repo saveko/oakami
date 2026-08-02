@@ -1,5 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { DatabaseService } from '@/database/database.service';
+import { NotificationsService } from '@/notifications/notifications.service';
 import { PredictionType } from '@prisma/client';
 
 interface WasteDataPoint {
@@ -17,7 +18,10 @@ interface InventoryData {
 
 @Injectable()
 export class AiService {
-  constructor(private db: DatabaseService) {}
+  constructor(
+    private db: DatabaseService,
+    private notificationsService: NotificationsService,
+  ) {}
 
   async generatePredictions(
     organizationId: string,
@@ -43,6 +47,13 @@ export class AiService {
         );
         if (prediction) {
           predictions.push(prediction);
+          // Trigger notification for high-confidence predictions
+          if (prediction.confidence >= 0.7) {
+            await this.notificationsService.onPredictionGenerated(
+              organizationId,
+              prediction,
+            );
+          }
         }
       } catch (error) {
         console.error(`Error generating ${type} prediction:`, error);

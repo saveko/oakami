@@ -14,7 +14,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
-import { useDashboardStore, usePredictionStore } from '@/lib/store';
+import { useDashboardStore, usePredictionStore, useNotificationStore } from '@/lib/store';
 import PredictionCard from '@/components/PredictionCard';
 
 const COLORS = ['#0ea5e9', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6'];
@@ -22,10 +22,12 @@ const COLORS = ['#0ea5e9', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'
 export default function DashboardPage() {
   const { metrics, isLoading, error, fetchMetrics } = useDashboardStore();
   const { predictions, isLoading: predLoading, error: predError, fetchPredictions, generatePredictions } = usePredictionStore();
+  const { unreadCount, getUnreadCount } = useNotificationStore();
 
   useEffect(() => {
     fetchMetrics(7);
     fetchPredictions(7);
+    getUnreadCount();
   }, []);
 
   const MetricCard = ({ label, value, unit = '' }: { label: string; value: number | string; unit?: string }) => (
@@ -68,6 +70,14 @@ export default function DashboardPage() {
 
   return (
     <div className="p-8">
+      {unreadCount > 0 && (
+        <div className="mb-8 p-4 bg-sky-50 border border-sky-200 rounded-lg">
+          <p className="text-sky-900 font-medium">
+            You have {unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}
+          </p>
+        </div>
+      )}
+
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
         <p className="text-gray-600 mt-2">Last 7 days overview</p>

@@ -196,3 +196,92 @@ export const usePredictionStore = create<PredictionStore>((set) => ({
     }
   },
 }));
+
+// Notification Store
+interface Notification {
+  id: string;
+  type: string;
+  title: string;
+  message: string;
+  severity: 'INFO' | 'WARNING' | 'CRITICAL';
+  isRead: boolean;
+  readAt?: string;
+  createdAt: string;
+  relatedId?: string;
+}
+
+interface NotificationStore {
+  notifications: Notification[];
+  unreadCount: number;
+  isLoading: boolean;
+  error: string | null;
+  fetchNotifications: (limit?: number) => Promise<void>;
+  getUnreadCount: () => Promise<void>;
+  markAsRead: (id: string) => Promise<void>;
+  markAllAsRead: () => Promise<void>;
+}
+
+export const useNotificationStore = create<NotificationStore>((set) => ({
+  notifications: [],
+  unreadCount: 0,
+  isLoading: false,
+  error: null,
+
+  fetchNotifications: async (limit = 20) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await api.getNotifications({ limit });
+      const data = response.data || response;
+      set({
+        notifications: data.data || [],
+        unreadCount: data.unreadCount || 0,
+        isLoading: false,
+      });
+    } catch (error: any) {
+      set({
+        error: error.response?.data?.message || 'Failed to fetch notifications',
+        isLoading: false,
+      });
+    }
+  },
+
+  getUnreadCount: async () => {
+    try {
+      const response = await api.getUnreadCount();
+      const data = response || response.data;
+      set({ unreadCount: data.unreadCount || 0 });
+    } catch (error: any) {
+      console.error('Failed to fetch unread count:', error);
+    }
+  },
+
+  markAsRead: async (id: string) => {
+    try {
+      await api.markAsRead(id);
+      set((state) => ({
+        notifications: state.notifications.map((n) =>
+          n.id === id ? { ...n, isRead: true } : n
+        ),
+        unreadCount: Math.max(0, state.unreadCount - 1),
+      }));
+    } catch (error: any) {
+      set({
+        error: error.response?.data?.message || 'Failed to mark notification as read',
+      });
+    }
+  },
+
+  markAllAsRead: async () => {
+    try {
+      await api.markAllAsRead();
+      set((state) => ({
+        notifications: state.notifications.map((n) => ({ ...n, isRead: true })),
+        unreadCount: 0,
+      }));
+    } catch (error: any) {
+      set({
+        error: error.response?.data?.message || 'Failed to mark all as read',
+      });
+    }
+  },
+}));

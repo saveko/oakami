@@ -1,11 +1,15 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { DatabaseService } from '@/database/database.service';
+import { NotificationsService } from '@/notifications/notifications.service';
 import { CreateWasteRecordDto } from './dto/create-waste-record.dto';
 import { ListWasteRecordsDto } from './dto/list-waste-records.dto';
 
 @Injectable()
 export class WasteService {
-  constructor(private db: DatabaseService) {}
+  constructor(
+    private db: DatabaseService,
+    private notificationsService: NotificationsService,
+  ) {}
 
   async create(organizationId: string, userId: string, createWasteRecordDto: CreateWasteRecordDto) {
     const { ingredientId, categoryId, wasteReasonId, quantity, unit, costImpact, ...rest } = createWasteRecordDto;
@@ -68,6 +72,8 @@ export class WasteService {
         },
       },
     });
+
+    await this.notificationsService.onWasteRecordCreated(organizationId, wasteRecord);
 
     return wasteRecord;
   }
@@ -168,7 +174,7 @@ export class WasteService {
       throw new BadRequestException('Record is not pending approval');
     }
 
-    return this.db.wasteRecord.update({
+    const updated = await this.db.wasteRecord.update({
       where: { id },
       data: {
         status: 'APPROVED',
@@ -180,6 +186,10 @@ export class WasteService {
         category: true,
       },
     });
+
+    await this.notificationsService.onWasteRecordApproved(organizationId, updated);
+
+    return updated;
   }
 
   async reject(organizationId: string, id: string) {

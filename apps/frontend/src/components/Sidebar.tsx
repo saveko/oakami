@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuthStore } from '@/lib/store';
+import NotificationBell from './NotificationBell';
 import clsx from 'clsx';
 
 export default function Sidebar() {
@@ -23,9 +24,12 @@ export default function Sidebar() {
 
   return (
     <aside className="w-64 bg-gray-900 text-white h-screen flex flex-col">
-      <div className="p-6 border-b border-gray-800">
-        <h1 className="text-2xl font-bold">Oakami</h1>
-        <p className="text-gray-400 text-sm">Waste Intelligence</p>
+      <div className="p-6 border-b border-gray-800 flex justify-between items-start">
+        <div>
+          <h1 className="text-2xl font-bold">Oakami</h1>
+          <p className="text-gray-400 text-sm">Waste Intelligence</p>
+        </div>
+        <NotificationBell />
       </div>
 
       <nav className="flex-1 p-6 space-y-2">

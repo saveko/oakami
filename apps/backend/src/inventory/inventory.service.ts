@@ -1,12 +1,16 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { DatabaseService } from '@/database/database.service';
+import { NotificationsService } from '@/notifications/notifications.service';
 import { CreateInventoryItemDto } from './dto/create-inventory-item.dto';
 import { UpdateInventoryItemDto } from './dto/update-inventory-item.dto';
 import { ListInventoryDto } from './dto/list-inventory.dto';
 
 @Injectable()
 export class InventoryService {
-  constructor(private db: DatabaseService) {}
+  constructor(
+    private db: DatabaseService,
+    private notificationsService: NotificationsService,
+  ) {}
 
   async create(organizationId: string, createInventoryItemDto: CreateInventoryItemDto) {
     const { ingredientId, batch, ...rest } = createInventoryItemDto;
@@ -185,6 +189,11 @@ export class InventoryService {
         },
       }),
     ]);
+
+    // Check if item is now low stock after adjustment
+    if (updated.quantity <= updated.minThreshold) {
+      await this.notificationsService.onInventoryLow(organizationId, updated);
+    }
 
     return updated;
   }

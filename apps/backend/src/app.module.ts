@@ -10,12 +10,14 @@ import { ReportsModule } from './reports/reports.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { SuppliersModule } from './suppliers/suppliers.module';
 import { AiModule } from './ai/ai.module';
+import { NotificationsModule } from './notifications/notifications.module';
 import { HealthController } from './health/health.controller';
 
 @Module({
   imports: [
     DatabaseModule,
     AuthModule,
+    NotificationsModule,
     WasteModule,
     InventoryModule,
     OrganizationsModule,

@@ -119,12 +119,13 @@ export default function ReportSchedulePanel() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center gap-4">
         <h2 className="text-2xl font-bold text-gray-900">Report Schedules</h2>
         {!isCreating && !editingId && (
           <button
             onClick={() => setIsCreating(true)}
-            className="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition"
+            className="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
+            aria-label="Create a new report schedule"
           >
             + New Schedule
           </button>
@@ -143,23 +144,28 @@ export default function ReportSchedulePanel() {
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="schedule-name" className="block text-sm font-medium text-gray-700 mb-2">
                     Schedule Name
+                    <span aria-label="required" className="text-red-600 ml-1">*</span>
                   </label>
                   <input
+                    id="schedule-name"
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
                     required
+                    aria-required="true"
+                    aria-label="Enter a name for the schedule"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="schedule-frequency" className="block text-sm font-medium text-gray-700 mb-2">
                     Frequency
                   </label>
                   <select
+                    id="schedule-frequency"
                     value={formData.frequency}
                     onChange={(e) =>
                       setFormData({
@@ -167,7 +173,8 @@ export default function ReportSchedulePanel() {
                         frequency: e.target.value as 'DAILY' | 'WEEKLY' | 'MONTHLY',
                       })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
+                    aria-label="Select report frequency"
                   >
                     <option value="DAILY">Daily</option>
                     <option value="WEEKLY">Weekly</option>
@@ -176,29 +183,34 @@ export default function ReportSchedulePanel() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Time (24h format)
+                  <label htmlFor="schedule-time" className="block text-sm font-medium text-gray-700 mb-2">
+                    Time (24-hour format)
                   </label>
                   <input
+                    id="schedule-time"
                     type="time"
                     value={formData.time}
                     onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
                     required
+                    aria-required="true"
+                    aria-label="Select time in 24-hour format"
                   />
                 </div>
 
                 {formData.frequency === 'WEEKLY' && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="day-of-week" className="block text-sm font-medium text-gray-700 mb-2">
                       Day of Week
                     </label>
                     <select
+                      id="day-of-week"
                       value={formData.dayOfWeek}
                       onChange={(e) =>
                         setFormData({ ...formData, dayOfWeek: Number(e.target.value) })
                       }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
+                      aria-label="Select the day of week for the report"
                     >
                       <option value="0">Sunday</option>
                       <option value="1">Monday</option>
@@ -213,10 +225,11 @@ export default function ReportSchedulePanel() {
 
                 {formData.frequency === 'MONTHLY' && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="day-of-month" className="block text-sm font-medium text-gray-700 mb-2">
                       Day of Month
                     </label>
                     <input
+                      id="day-of-month"
                       type="number"
                       min="1"
                       max="31"
@@ -224,46 +237,58 @@ export default function ReportSchedulePanel() {
                       onChange={(e) =>
                         setFormData({ ...formData, dayOfMonth: Number(e.target.value) })
                       }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
+                      aria-label="Enter day of month (1-31)"
                     />
                   </div>
                 )}
 
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="recipient-emails" className="block text-sm font-medium text-gray-700 mb-2">
                     Recipient Emails (comma-separated)
+                    <span aria-label="required" className="text-red-600 ml-1">*</span>
                   </label>
                   <input
+                    id="recipient-emails"
                     type="text"
                     value={formData.recipientEmails}
                     onChange={(e) => setFormData({ ...formData, recipientEmails: e.target.value })}
                     placeholder="user@example.com, another@example.com"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
                     required
+                    aria-required="true"
+                    aria-label="Enter one or more email addresses separated by commas"
+                    aria-describedby="email-help"
                   />
+                  <p id="email-help" className="text-xs text-gray-500 mt-1">
+                    Separate multiple addresses with commas
+                  </p>
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="schedule-description" className="block text-sm font-medium text-gray-700 mb-2">
                     Description
                   </label>
                   <textarea
+                    id="schedule-description"
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
                     rows={2}
+                    aria-label="Enter an optional description for this schedule"
                   />
                 </div>
 
-                <div className="md:col-span-2 flex items-center">
+                <div className="md:col-span-2 flex items-center gap-2">
                   <input
                     type="checkbox"
                     id="enabled"
                     checked={formData.enabled}
                     onChange={(e) => setFormData({ ...formData, enabled: e.target.checked })}
-                    className="h-4 w-4 text-sky-600"
+                    className="h-5 w-5 text-sky-600 rounded focus:ring-sky-500 focus:ring-1 cursor-pointer"
+                    aria-label="Enable this schedule"
                   />
-                  <label htmlFor="enabled" className="ml-2 text-sm font-medium text-gray-700">
+                  <label htmlFor="enabled" className="text-sm font-medium text-gray-700 cursor-pointer">
                     Enable this schedule
                   </label>
                 </div>
@@ -273,9 +298,18 @@ export default function ReportSchedulePanel() {
                 <button
                   type="submit"
                   disabled={createMutation.isPending || updateMutation.isPending}
-                  className="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition disabled:opacity-50"
+                  className="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
+                  aria-busy={createMutation.isPending || updateMutation.isPending}
+                  aria-label={editingId ? 'Update report schedule' : 'Create new report schedule'}
                 >
-                  {editingId ? 'Update Schedule' : 'Create Schedule'}
+                  {createMutation.isPending || updateMutation.isPending ? (
+                    <>
+                      <span className="inline-block mr-2">⏳</span>
+                      {editingId ? 'Updating...' : 'Creating...'}
+                    </>
+                  ) : (
+                    editingId ? 'Update Schedule' : 'Create Schedule'
+                  )}
                 </button>
                 <button
                   type="button"
@@ -284,7 +318,8 @@ export default function ReportSchedulePanel() {
                     setEditingId(null);
                     resetForm();
                   }}
-                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
+                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-400"
+                  aria-label="Cancel and close form"
                 >
                   Cancel
                 </button>
@@ -338,16 +373,19 @@ export default function ReportSchedulePanel() {
                       <>
                         <button
                           onClick={() => handleEdit(schedule)}
-                          className="px-3 py-1 text-sm bg-sky-100 text-sky-700 rounded hover:bg-sky-200 transition"
+                          className="px-3 py-2 text-sm bg-sky-100 text-sky-700 rounded hover:bg-sky-200 transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"
+                          aria-label={`Edit ${schedule.name} schedule`}
                         >
                           Edit
                         </button>
                         <button
                           onClick={() => deleteMutation.mutate(schedule.id)}
                           disabled={deleteMutation.isPending}
-                          className="px-3 py-1 text-sm bg-red-100 text-red-700 rounded hover:bg-red-200 transition disabled:opacity-50"
+                          className="px-3 py-2 text-sm bg-red-100 text-red-700 rounded hover:bg-red-200 transition disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500"
+                          aria-label={`Delete ${schedule.name} schedule`}
+                          aria-busy={deleteMutation.isPending}
                         >
-                          Delete
+                          {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
                         </button>
                       </>
                     )}

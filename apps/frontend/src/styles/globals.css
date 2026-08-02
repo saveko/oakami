@@ -1,6 +1,21 @@
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --color-primary: #0F172A;
+  --color-on-primary: #FFFFFF;
+  --color-secondary: #334155;
+  --color-accent: #0369A1;
+  --color-background: #F8FAFC;
+  --color-foreground: #020617;
+  --color-muted: #E8ECF1;
+  --color-border: #E2E8F0;
+  --color-destructive: #DC2626;
+  --color-ring: #0F172A;
+}
 
 * {
   margin: 0;
@@ -10,6 +25,18 @@
 
 html {
   scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 body {
@@ -31,9 +58,52 @@ button {
   cursor: pointer;
   border: none;
   background: none;
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
 a {
   text-decoration: none;
   color: inherit;
+}
+
+a:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+@media (min-width: 768px) {
+  button,
+  a,
+  input,
+  textarea,
+  select {
+    transition: all 150ms ease-out;
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }

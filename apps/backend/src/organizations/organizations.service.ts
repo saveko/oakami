@@ -1,169 +1,210 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { DatabaseService } from '@/database/database.service';
-import { CreateOrganizationDto } from './dto/create-organization.dto';
-import { UpdateOrganizationSettingsDto } from './dto/update-organization-settings.dto';
+import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { DatabaseService } from '../database/database.service';
+import { UserRole } from '@prisma/client';
 
 @Injectable()
 export class OrganizationsService {
   constructor(private db: DatabaseService) {}
 
-  async create(userId: string, createOrganizationDto: CreateOrganizationDto) {
-    const organization = await this.db.organization.create({
-      data: {
-        name: createOrganizationDto.name,
-        description: createOrganizationDto.description,
-        website: createOrganizationDto.website,
-        phone: createOrganizationDto.phone,
-        address: createOrganizationDto.address,
-        city: createOrganizationDto.city,
-        state: createOrganizationDto.state,
-        zipCode: createOrganizationDto.zipCode,
-        country: createOrganizationDto.country,
-        settings: {
-          create: {},
-        },
-      },
+  async getUserOrganizations(userId: string) {
+    return this.db.userOrganization.findMany({
+      where: { userId },
       include: {
-        settings: true,
+        organization: true,
       },
     });
-
-    // Update user with organization
-    await this.db.user.update({
-      where: { id: userId },
-      data: { organizationId: organization.id },
-    });
-
-    return organization;
   }
 
-  async findById(id: string) {
-    const organization = await this.db.organization.findUnique({
-      where: { id },
+  async getOrganizationUsers(organizationId: string, userId: string) {
+    // Verify user is admin in this organization
+    const userOrg = await this.db.userOrganization.findUnique({
+      where: { userId_organizationId: { userId, organizationId } },
+    });
+
+    if (!userOrg || userOrg.role !== UserRole.ADMIN) {
+      throw new ForbiddenException('Only admins can view organization users');
+    }
+
+    return this.db.userOrganization.findMany({
+      where: { organizationId },
       include: {
-        settings: true,
-        _count: {
+        user: {
           select: {
-            members: true,
-            ingredients: true,
-            wasteRecords: true,
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+            isActive: true,
           },
         },
       },
     });
-
-    if (!organization) {
-      throw new NotFoundException('Organization not found');
-    }
-
-    return organization;
   }
 
-  async getSettings(organizationId: string) {
-    const settings = await this.db.organizationSettings.findUnique({
-      where: { organizationId },
-    });
-
-    if (!settings) {
-      throw new NotFoundException('Organization settings not found');
-    }
-
-    return settings;
-  }
-
-  async updateSettings(
+  async addUserToOrganization(
     organizationId: string,
-    updateSettingsDto: UpdateOrganizationSettingsDto,
+    targetUserId: string,
+    role: UserRole,
+    requestingUserId: string
   ) {
-    return this.db.organizationSettings.update({
-      where: { organizationId },
-      data: updateSettingsDto,
-    });
-  }
-
-  async getMembers(organizationId: string) {
-    return this.db.user.findMany({
-      where: { organizationId },
-      select: {
-        id: true,
-        email: true,
-        firstName: true,
-        lastName: true,
-        role: true,
-        isActive: true,
-        createdAt: true,
+    // Verify requesting user is admin
+    const requestingUserOrg = await this.db.userOrganization.findUnique({
+      where: {
+        userId_organizationId: { userId: requestingUserId, organizationId },
       },
     });
-  }
 
-  async addMember(organizationId: string, email: string, role: string) {
-    const user = await this.db.user.findUnique({ where: { email } });
-
-    if (!user) {
-      throw new NotFoundException('User not found');
+    if (!requestingUserOrg || requestingUserOrg.role !== UserRole.ADMIN) {
+      throw new ForbiddenException('Only admins can add users to organization');
     }
 
-    if (user.organizationId && user.organizationId !== organizationId) {
-      throw new BadRequestException('User already belongs to another organization');
+    // Check if user already in organization
+    const existing = await this.db.userOrganization.findUnique({
+      where: {
+        userId_organizationId: { userId: targetUserId, organizationId },
+      },
+    });
+
+    if (existing) {
+      throw new BadRequestException('User already in organization');
     }
 
-    return this.db.user.update({
-      where: { id: user.id },
+    return this.db.userOrganization.create({
       data: {
+        userId: targetUserId,
         organizationId,
         role,
       },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
     });
   }
 
-  async removeMember(organizationId: string, userId: string) {
-    const user = await this.db.user.findUnique({ where: { id: userId } });
+  async updateUserRole(
+    organizationId: string,
+    targetUserId: string,
+    newRole: UserRole,
+    requestingUserId: string
+  ) {
+    // Verify requesting user is admin
+    const requestingUserOrg = await this.db.userOrganization.findUnique({
+      where: {
+        userId_organizationId: { userId: requestingUserId, organizationId },
+      },
+    });
 
-    if (!user || user.organizationId !== organizationId) {
+    if (!requestingUserOrg || requestingUserOrg.role !== UserRole.ADMIN) {
+      throw new ForbiddenException('Only admins can update user roles');
+    }
+
+    // Prevent users from removing their own admin role
+    if (requestingUserId === targetUserId && newRole !== UserRole.ADMIN) {
+      throw new BadRequestException('Cannot remove your own admin role');
+    }
+
+    const userOrg = await this.db.userOrganization.findUnique({
+      where: {
+        userId_organizationId: { userId: targetUserId, organizationId },
+      },
+    });
+
+    if (!userOrg) {
       throw new NotFoundException('User not found in organization');
     }
 
-    return this.db.user.update({
-      where: { id: userId },
-      data: { organizationId: null },
+    return this.db.userOrganization.update({
+      where: {
+        userId_organizationId: { userId: targetUserId, organizationId },
+      },
+      data: { role: newRole },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
     });
   }
 
-  async getStats(organizationId: string) {
-    const organization = await this.findById(organizationId);
-
-    const [wasteRecords, totalWasteCost, ingredients, suppliers] = await Promise.all([
-      this.db.wasteRecord.count({
-        where: {
-          organizationId,
-          status: 'APPROVED',
-        },
-      }),
-      this.db.wasteRecord.aggregate({
-        where: {
-          organizationId,
-          status: 'APPROVED',
-        },
-        _sum: {
-          costImpact: true,
-        },
-      }),
-      this.db.ingredient.count({ where: { organizationId } }),
-      this.db.supplier.count({ where: { organizationId } }),
-    ]);
-
-    return {
-      organization: {
-        id: organization.id,
-        name: organization.name,
+  async removeUserFromOrganization(
+    organizationId: string,
+    targetUserId: string,
+    requestingUserId: string
+  ) {
+    // Verify requesting user is admin
+    const requestingUserOrg = await this.db.userOrganization.findUnique({
+      where: {
+        userId_organizationId: { userId: requestingUserId, organizationId },
       },
-      stats: {
-        members: organization._count.members,
-        wasteRecords,
-        totalWasteCost: totalWasteCost._sum.costImpact || 0,
-        ingredients,
-        suppliers,
+    });
+
+    if (!requestingUserOrg || requestingUserOrg.role !== UserRole.ADMIN) {
+      throw new ForbiddenException('Only admins can remove users');
+    }
+
+    // Prevent users from removing themselves
+    if (requestingUserId === targetUserId) {
+      throw new BadRequestException('Cannot remove yourself from organization');
+    }
+
+    const userOrg = await this.db.userOrganization.findUnique({
+      where: {
+        userId_organizationId: { userId: targetUserId, organizationId },
       },
-    };
+    });
+
+    if (!userOrg) {
+      throw new NotFoundException('User not found in organization');
+    }
+
+    return this.db.userOrganization.delete({
+      where: {
+        userId_organizationId: { userId: targetUserId, organizationId },
+      },
+    });
+  }
+
+  async getOrganization(organizationId: string, userId: string) {
+    // Verify user is member of organization
+    const userOrg = await this.db.userOrganization.findUnique({
+      where: {
+        userId_organizationId: { userId, organizationId },
+      },
+    });
+
+    if (!userOrg) {
+      throw new ForbiddenException('User not member of this organization');
+    }
+
+    return this.db.organization.findUnique({
+      where: { id: organizationId },
+      include: {
+        settings: true,
+        userOrganizations: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                email: true,
+                firstName: true,
+                lastName: true,
+              },
+            },
+          },
+        },
+      },
+    });
   }
 }

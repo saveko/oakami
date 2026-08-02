@@ -1,71 +1,91 @@
 import {
   Controller,
-  Post,
   Get,
   Patch,
+  Post,
   Delete,
-  Body,
   Param,
+  Body,
   UseGuards,
   Request,
 } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/guards/jwt.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { UserRole } from '@prisma/client';
 import { OrganizationsService } from './organizations.service';
-import { CreateOrganizationDto } from './dto/create-organization.dto';
-import { UpdateOrganizationSettingsDto } from './dto/update-organization-settings.dto';
-import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
 
 @Controller('organizations')
 @UseGuards(JwtAuthGuard)
 export class OrganizationsController {
   constructor(private organizationsService: OrganizationsService) {}
 
-  @Post()
-  async create(
-    @Body() createOrganizationDto: CreateOrganizationDto,
-    @Request() req: any,
+  @Get('my-organizations')
+  async getMyOrganizations(@Request() req) {
+    return this.organizationsService.getUserOrganizations(req.user.id);
+  }
+
+  @Get(':organizationId')
+  async getOrganization(@Param('organizationId') organizationId: string, @Request() req) {
+    return this.organizationsService.getOrganization(organizationId, req.user.id);
+  }
+
+  @Get(':organizationId/users')
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.ADMIN)
+  async getOrganizationUsers(
+    @Param('organizationId') organizationId: string,
+    @Request() req
   ) {
-    return this.organizationsService.create(req.user.id, createOrganizationDto);
+    return this.organizationsService.getOrganizationUsers(organizationId, req.user.id);
   }
 
-  @Get(':id')
-  async findById(@Param('id') id: string) {
-    return this.organizationsService.findById(id);
-  }
-
-  @Get(':id/settings')
-  async getSettings(@Param('id') id: string) {
-    return this.organizationsService.getSettings(id);
-  }
-
-  @Patch(':id/settings')
-  async updateSettings(
-    @Param('id') id: string,
-    @Body() updateSettingsDto: UpdateOrganizationSettingsDto,
+  @Post(':organizationId/users')
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.ADMIN)
+  async addUserToOrganization(
+    @Param('organizationId') organizationId: string,
+    @Body('userId') targetUserId: string,
+    @Body('role') role: UserRole,
+    @Request() req
   ) {
-    return this.organizationsService.updateSettings(id, updateSettingsDto);
+    return this.organizationsService.addUserToOrganization(
+      organizationId,
+      targetUserId,
+      role,
+      req.user.id
+    );
   }
 
-  @Get(':id/members')
-  async getMembers(@Param('id') id: string) {
-    return this.organizationsService.getMembers(id);
-  }
-
-  @Post(':id/members')
-  async addMember(
-    @Param('id') id: string,
-    @Body('email') email: string,
-    @Body('role') role: string,
+  @Patch(':organizationId/users/:userId')
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.ADMIN)
+  async updateUserRole(
+    @Param('organizationId') organizationId: string,
+    @Param('userId') targetUserId: string,
+    @Body('role') newRole: UserRole,
+    @Request() req
   ) {
-    return this.organizationsService.addMember(id, email, role);
+    return this.organizationsService.updateUserRole(
+      organizationId,
+      targetUserId,
+      newRole,
+      req.user.id
+    );
   }
 
-  @Delete(':id/members/:userId')
-  async removeMember(@Param('id') id: string, @Param('userId') userId: string) {
-    return this.organizationsService.removeMember(id, userId);
-  }
-
-  @Get(':id/stats')
-  async getStats(@Param('id') id: string) {
-    return this.organizationsService.getStats(id);
+  @Delete(':organizationId/users/:userId')
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.ADMIN)
+  async removeUserFromOrganization(
+    @Param('organizationId') organizationId: string,
+    @Param('userId') targetUserId: string,
+    @Request() req
+  ) {
+    return this.organizationsService.removeUserFromOrganization(
+      organizationId,
+      targetUserId,
+      req.user.id
+    );
   }
 }

@@ -181,6 +181,31 @@ class ApiClient {
     return response.data;
   }
 
+  async listReportSchedules() {
+    const response = await this.client.get('/reports/schedules');
+    return response.data;
+  }
+
+  async getReportSchedule(scheduleId: string) {
+    const response = await this.client.get(`/reports/schedules/${scheduleId}`);
+    return response.data;
+  }
+
+  async createReportSchedule(data: any) {
+    const response = await this.client.post('/reports/schedules', data);
+    return response.data;
+  }
+
+  async updateReportSchedule(scheduleId: string, data: any) {
+    const response = await this.client.patch(`/reports/schedules/${scheduleId}`, data);
+    return response.data;
+  }
+
+  async deleteReportSchedule(scheduleId: string) {
+    const response = await this.client.delete(`/reports/schedules/${scheduleId}`);
+    return response.data;
+  }
+
   // Suppliers
   async listSuppliers(params?: any) {
     const response = await this.client.get('/suppliers', { params });

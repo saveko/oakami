@@ -115,6 +115,7 @@ model Organization {
   aiPredictions        AIPrediction[]
   auditLogs            AuditLog[]
   filterPresets        FilterPreset[]
+  reportSchedules      ReportSchedule[]
 }
 
 model OrganizationSettings {
@@ -447,6 +448,35 @@ model Report {
   @@index([organizationId])
   @@index([type])
   @@index([frequency])
+}
+
+model ReportSchedule {
+  id               String   @id @default(cuid())
+  organizationId   String
+  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  name             String
+  description      String?
+  enabled          Boolean  @default(true)
+
+  frequency        String   // DAILY, WEEKLY, MONTHLY
+  time             String   // HH:mm format
+  dayOfWeek        Int?     // 0-6 for WEEKLY
+  dayOfMonth       Int?     // 1-31 for MONTHLY
+
+  recipientEmails  String[] // Array of email addresses
+
+  lastRunAt        DateTime?
+  nextRunAt        DateTime?
+
+  createdBy        String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([organizationId, name])
+  @@index([organizationId])
+  @@index([enabled])
+  @@index([nextRunAt])
 }
 
 enum ReportType {

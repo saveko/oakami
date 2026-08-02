@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/lib/store';
+import ReportSchedulePanel from '@/components/ReportSchedulePanel';
 
 export default function SettingsPage() {
   const { user } = useAuthStore();
@@ -240,6 +241,11 @@ export default function SettingsPage() {
               {isLoading ? 'Saving...' : 'Save Settings'}
             </button>
           </form>
+        </div>
+
+        {/* Report Schedules */}
+        <div className="bg-white rounded-lg shadow p-6 mb-6">
+          <ReportSchedulePanel />
         </div>
 
         {/* Danger Zone */}

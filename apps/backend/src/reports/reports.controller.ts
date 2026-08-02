@@ -3,6 +3,7 @@ import {
   Post,
   Get,
   Delete,
+  Patch,
   Body,
   Param,
   Query,
@@ -10,14 +11,19 @@ import {
   Request,
 } from '@nestjs/common';
 import { ReportsService } from './reports.service';
+import { ReportScheduleService } from './report-schedule.service';
 import { CreateReportDto } from './dto/create-report.dto';
 import { ListReportsDto } from './dto/list-reports.dto';
+import { ConfigureReportScheduleDto, UpdateReportScheduleDto } from './dto/configure-report-schedule.dto';
 import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
 
 @Controller('reports')
 @UseGuards(JwtAuthGuard)
 export class ReportsController {
-  constructor(private reportsService: ReportsService) {}
+  constructor(
+    private reportsService: ReportsService,
+    private reportScheduleService: ReportScheduleService,
+  ) {}
 
   @Post()
   async createTemplate(
@@ -67,7 +73,7 @@ export class ReportsController {
   }
 
   @Get('daily/today')
-  async getDailyReport(@Query('date') date?: string, @Request() req: any) {
+  async getDailyReport(@Request() req: any, @Query('date') date?: string) {
     return this.reportsService.getDailyReport(req.user.organizationId, date);
   }
 
@@ -78,14 +84,60 @@ export class ReportsController {
 
   @Get('monthly/current')
   async getMonthlyReport(
+    @Request() req: any,
     @Query('month') month?: number,
     @Query('year') year?: number,
-    @Request() req: any,
   ) {
     return this.reportsService.getMonthlyReport(
       req.user.organizationId,
       month,
       year,
     );
+  }
+
+  @Post('schedules')
+  async createSchedule(
+    @Body() configureReportScheduleDto: ConfigureReportScheduleDto,
+    @Request() req: any,
+  ) {
+    return this.reportScheduleService.createSchedule(
+      req.user.organizationId,
+      req.user.id,
+      configureReportScheduleDto,
+    );
+  }
+
+  @Get('schedules')
+  async listSchedules(@Request() req: any) {
+    return this.reportScheduleService.listSchedules(req.user.organizationId);
+  }
+
+  @Get('schedules/:scheduleId')
+  async getSchedule(
+    @Param('scheduleId') scheduleId: string,
+    @Request() req: any,
+  ) {
+    return this.reportScheduleService.getSchedule(req.user.organizationId, scheduleId);
+  }
+
+  @Patch('schedules/:scheduleId')
+  async updateSchedule(
+    @Param('scheduleId') scheduleId: string,
+    @Body() updateReportScheduleDto: UpdateReportScheduleDto,
+    @Request() req: any,
+  ) {
+    return this.reportScheduleService.updateSchedule(
+      req.user.organizationId,
+      scheduleId,
+      updateReportScheduleDto,
+    );
+  }
+
+  @Delete('schedules/:scheduleId')
+  async deleteSchedule(
+    @Param('scheduleId') scheduleId: string,
+    @Request() req: any,
+  ) {
+    return this.reportScheduleService.deleteSchedule(req.user.organizationId, scheduleId);
   }
 }

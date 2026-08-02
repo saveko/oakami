@@ -8,7 +8,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "analyze": "ANALYZE=true next build",
+    "analyze-prod": "ANALYZE=true NODE_ENV=production next build"
   },
   "dependencies": {
     "react": "^18.2.0",
@@ -32,6 +34,7 @@
     "@types/node": "^20.4.2",
     "eslint": "^8.45.0",
     "eslint-config-next": "^14.0.0",
-    "prettier": "^3.0.0"
+    "prettier": "^3.0.0",
+    "@next/bundle-analyzer": "^14.0.0"
   }
 }

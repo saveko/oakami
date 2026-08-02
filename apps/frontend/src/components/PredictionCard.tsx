@@ -1,3 +1,7 @@
+'use client';
+
+import { memo } from 'react';
+
 interface AIPrediction {
   id: string;
   ingredientId?: string;
@@ -10,7 +14,7 @@ interface AIPrediction {
   predictedFor: string;
 }
 
-export default function PredictionCard({ prediction }: { prediction: AIPrediction }) {
+function PredictionCard({ prediction }: { prediction: AIPrediction }) {
   const icons: Record<string, string> = {
     WASTE: '🚨',
     DEMAND: '📦',
@@ -50,3 +54,5 @@ export default function PredictionCard({ prediction }: { prediction: AIPredictio
     </div>
   );
 }
+
+export default memo(PredictionCard);

@@ -23,7 +23,8 @@ export type { HeaderProps, Breadcrumb } from './layout';
 export { Footer } from './layout';
 export type { FooterProps, FooterSection, FooterLink, FooterSocialLink } from './layout';
 
-// Drawer - to be implemented
+export { Drawer } from './layout';
+export type { DrawerProps } from './layout';
 
 // ===== DATA DISPLAY COMPONENTS =====
 // Table, Pagination, KPICard, Chart - to be implemented

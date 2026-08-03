@@ -10,5 +10,6 @@ export type { HeaderProps, Breadcrumb } from './Header';
 
 export { Footer } from './Footer';
 export type { FooterProps, FooterSection, FooterLink, FooterSocialLink } from './Footer';
-// export { Drawer } from './Drawer';
-// export type { DrawerProps } from './Drawer';
+
+export { Drawer } from './Drawer';
+export type { DrawerProps } from './Drawer';

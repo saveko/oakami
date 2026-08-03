@@ -28,7 +28,10 @@ export type { TableProps, Column } from './Table';
 export { Pagination } from './Pagination';
 export type { PaginationProps } from './Pagination';
 
+export { KPICard } from './KPICard';
+export type { KPICardProps } from './KPICard';
+
 // Data Display Components
-// KPICard, Chart exports will be added as components are implemented
+// Chart exports will be added as component is implemented
 
 // Modal, Toast exports will be added as components are implemented

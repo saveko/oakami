@@ -25,7 +25,7 @@ describe('AiService', () => {
             inventoryItem: {
               findMany: jest.fn(),
             },
-            aiPrediction: {
+            aIPrediction: {
               create: jest.fn(),
               findMany: jest.fn(),
               count: jest.fn(),
@@ -65,7 +65,7 @@ describe('AiService', () => {
 
       jest.spyOn(db.wasteRecord, 'findMany').mockResolvedValue(mockWasteRecords as any);
       jest.spyOn(db.inventoryItem, 'findMany').mockResolvedValue([]);
-      jest.spyOn(db.aiPrediction, 'create').mockResolvedValue({
+      jest.spyOn(db.aIPrediction, 'create').mockResolvedValue({
         id: 'pred-1',
         organizationId: mockOrganizationId,
         predictionType: PredictionType.WASTE,
@@ -105,7 +105,7 @@ describe('AiService', () => {
         predictedFor: new Date(),
       };
 
-      jest.spyOn(db.aiPrediction, 'create').mockResolvedValue(highConfPrediction as any);
+      jest.spyOn(db.aIPrediction, 'create').mockResolvedValue(highConfPrediction as any);
       jest.spyOn(notificationsService, 'onPredictionGenerated').mockResolvedValue(null);
 
       await service.generatePredictions(mockOrganizationId, 30);
@@ -119,27 +119,39 @@ describe('AiService', () => {
     });
 
     it('should not trigger notification for low-confidence predictions', async () => {
-      jest.spyOn(db.wasteRecord, 'findMany').mockResolvedValue([]);
+      const mockWasteRecords = [
+        {
+          quantity: 5,
+          costImpact: 10,
+          createdAt: new Date(),
+          unit: 'kg',
+        },
+      ];
+
+      jest.spyOn(db.wasteRecord, 'findMany').mockResolvedValue(mockWasteRecords as any);
       jest.spyOn(db.inventoryItem, 'findMany').mockResolvedValue([]);
 
       const lowConfPrediction = {
         id: 'pred-1',
         organizationId: mockOrganizationId,
-        predictionType: PredictionType.DEMAND,
-        value: 5,
-        confidence: 0.5, // Low confidence
-        unit: 'kg',
-        recommendation: 'Demand may increase',
+        predictionType: PredictionType.WASTE,
+        value: 10,
+        confidence: 0.55, // Low confidence (below 0.7 threshold)
+        unit: '$',
+        reason: 'Waste forecast',
+        recommendation: 'Monitor waste levels',
+        ingredientId: null,
         predictedFor: new Date(),
       };
 
-      jest.spyOn(db.aiPrediction, 'create').mockResolvedValue(lowConfPrediction as any);
+      jest.spyOn(db.aIPrediction, 'create').mockResolvedValue(lowConfPrediction as any);
       jest.spyOn(notificationsService, 'onPredictionGenerated').mockResolvedValue(null);
 
       await service.generatePredictions(mockOrganizationId, 30);
 
-      // Prediction created but notification not called for low confidence
-      expect(db.aiPrediction.create).toHaveBeenCalled();
+      // Prediction created but notification NOT called for low confidence
+      expect(db.aIPrediction.create).toHaveBeenCalled();
+      expect(notificationsService.onPredictionGenerated).not.toHaveBeenCalled();
     });
   });
 
@@ -147,7 +159,7 @@ describe('AiService', () => {
     it('should continue processing on individual prediction errors', async () => {
       jest.spyOn(db.wasteRecord, 'findMany').mockResolvedValue([]);
       jest.spyOn(db.inventoryItem, 'findMany').mockResolvedValue([]);
-      jest.spyOn(db.aiPrediction, 'create')
+      jest.spyOn(db.aIPrediction, 'create')
         .mockRejectedValueOnce(new Error('Database error'))
         .mockResolvedValueOnce({
           id: 'pred-2',

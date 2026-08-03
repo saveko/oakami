@@ -1,7 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
-import { NotificationsService, NotificationType, NotificationSeverity } from './notifications.service';
+import { NotificationsService } from './notifications.service';
 import { DatabaseService } from '@/database/database.service';
+import { NotificationType, NotificationSeverity } from '@prisma/client';
 
 describe('NotificationsService', () => {
   let service: NotificationsService;
@@ -56,7 +57,7 @@ describe('NotificationsService', () => {
       jest.spyOn(db.notification, 'create').mockResolvedValue({
         id: 'notif-1',
         organizationId: mockOrganizationId,
-        type: NotificationType.WASTE_CREATED,
+        type: NotificationType.WASTE_ALERT,
         title: 'New Waste Record',
         message: 'Waste recorded',
         severity: NotificationSeverity.INFO,
@@ -65,7 +66,7 @@ describe('NotificationsService', () => {
 
       const result = await service.createNotification({
         organizationId: mockOrganizationId,
-        type: NotificationType.WASTE_CREATED,
+        type: NotificationType.WASTE_ALERT,
         title: 'New Waste Record',
         message: 'Waste recorded',
       });
@@ -85,7 +86,7 @@ describe('NotificationsService', () => {
 
       const result = await service.createNotification({
         organizationId: mockOrganizationId,
-        type: NotificationType.WASTE_CREATED,
+        type: NotificationType.WASTE_ALERT,
         title: 'New Waste Record',
         message: 'Waste recorded',
       });
@@ -100,7 +101,7 @@ describe('NotificationsService', () => {
       await expect(
         service.createNotification({
           organizationId: 'invalid-org',
-          type: NotificationType.WASTE_CREATED,
+          type: NotificationType.WASTE_ALERT,
           title: 'Test',
           message: 'Test',
         }),
@@ -224,7 +225,7 @@ describe('NotificationsService', () => {
 
       expect(db.notification.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
-          type: NotificationType.WASTE_CREATED,
+          type: NotificationType.WASTE_ALERT,
           severity: NotificationSeverity.INFO,
         }),
       });

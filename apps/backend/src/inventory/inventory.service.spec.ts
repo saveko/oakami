@@ -85,8 +85,8 @@ describe('InventoryService', () => {
         quantity: mockInventoryItem.quantity + quantity,
       };
 
-      jest.spyOn(db.inventoryItem, 'findFirst').mockResolvedValue(mockInventoryItem);
-      jest.spyOn(db.inventoryItem, 'update').mockResolvedValue(updatedItem);
+      jest.spyOn(db.inventoryItem, 'findFirst' as any).mockResolvedValue(mockInventoryItem as any);
+      jest.spyOn(db.inventoryItem, 'update' as any).mockResolvedValue(updatedItem as any);
       jest.spyOn(db.inventoryMovement, 'create').mockResolvedValue({} as any);
       jest.spyOn(notificationsService, 'onInventoryLow').mockResolvedValue(null);
 
@@ -113,8 +113,8 @@ describe('InventoryService', () => {
         quantity: 5, // Below minThreshold of 10
       };
 
-      jest.spyOn(db.inventoryItem, 'findFirst').mockResolvedValue(mockInventoryItem);
-      jest.spyOn(db.inventoryItem, 'update').mockResolvedValue(lowStockItem);
+      jest.spyOn(db.inventoryItem, 'findFirst' as any).mockResolvedValue(mockInventoryItem as any);
+      jest.spyOn(db.inventoryItem, 'update' as any).mockResolvedValue(lowStockItem as any);
       jest.spyOn(db.inventoryMovement, 'create').mockResolvedValue({} as any);
       jest.spyOn(notificationsService, 'onInventoryLow').mockResolvedValue(null);
 
@@ -137,8 +137,8 @@ describe('InventoryService', () => {
         quantity: 40, // Still above minThreshold of 10
       };
 
-      jest.spyOn(db.inventoryItem, 'findFirst').mockResolvedValue(mockInventoryItem);
-      jest.spyOn(db.inventoryItem, 'update').mockResolvedValue(aboveThresholdItem);
+      jest.spyOn(db.inventoryItem, 'findFirst' as any).mockResolvedValue(mockInventoryItem as any);
+      jest.spyOn(db.inventoryItem, 'update' as any).mockResolvedValue(aboveThresholdItem as any);
       jest.spyOn(db.inventoryMovement, 'create').mockResolvedValue({} as any);
       jest.spyOn(notificationsService, 'onInventoryLow').mockResolvedValue(null);
 
@@ -151,7 +151,7 @@ describe('InventoryService', () => {
       const itemId = 'inv-123';
       const quantity = -100;
 
-      jest.spyOn(db.inventoryItem, 'findFirst').mockResolvedValue(mockInventoryItem);
+      jest.spyOn(db.inventoryItem, 'findFirst' as any).mockResolvedValue(mockInventoryItem as any);
 
       await expect(
         service.adjustQuantity(mockOrganizationId, itemId, quantity),
@@ -172,7 +172,7 @@ describe('InventoryService', () => {
         expiryDate: new Date(Date.now() + 35 * 24 * 60 * 60 * 1000), // 35 days from now
       };
 
-      jest.spyOn(db.inventoryItem, 'findMany').mockResolvedValue([expiringItem]);
+      jest.spyOn(db.inventoryItem, 'findMany' as any).mockResolvedValue([expiringItem] as any);
 
       const result = await service.getExpiringItems(mockOrganizationId, 30);
 
@@ -181,7 +181,7 @@ describe('InventoryService', () => {
     });
 
     it('should exclude items with null expiryDate', async () => {
-      jest.spyOn(db.inventoryItem, 'findMany').mockResolvedValue([mockInventoryItem]);
+      jest.spyOn(db.inventoryItem, 'findMany' as any).mockResolvedValue([mockInventoryItem] as any);
 
       const result = await service.getExpiringItems(mockOrganizationId, 30);
 
@@ -196,7 +196,7 @@ describe('InventoryService', () => {
         quantity: 5,
       };
 
-      jest.spyOn(db.inventoryItem, 'findMany').mockResolvedValue([lowStockItem]);
+      jest.spyOn(db.inventoryItem, 'findMany' as any).mockResolvedValue([lowStockItem] as any);
 
       const result = await service.getLowStockItems(mockOrganizationId);
 
@@ -210,7 +210,7 @@ describe('InventoryService', () => {
         quantity: 15,
       };
 
-      jest.spyOn(db.inventoryItem, 'findMany').mockResolvedValue([normalStockItem]);
+      jest.spyOn(db.inventoryItem, 'findMany' as any).mockResolvedValue([normalStockItem] as any);
 
       const result = await service.getLowStockItems(mockOrganizationId);
 
@@ -234,7 +234,7 @@ describe('InventoryService', () => {
         },
       ];
 
-      jest.spyOn(db.inventoryItem, 'findMany').mockResolvedValue(items as any);
+      jest.spyOn(db.inventoryItem, 'findMany' as any).mockResolvedValue(items as any);
 
       const result = await service.getInventorySummary(mockOrganizationId);
 

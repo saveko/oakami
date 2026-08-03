@@ -39,9 +39,11 @@ describe('WasteService', () => {
           useValue: {
             ingredient: {
               findFirst: jest.fn(),
+              findMany: jest.fn(),
             },
             wasteCategory: {
               findFirst: jest.fn(),
+              findMany: jest.fn(),
             },
             wasteRecord: {
               create: jest.fn(),
@@ -49,6 +51,8 @@ describe('WasteService', () => {
               findFirst: jest.fn(),
               update: jest.fn(),
               count: jest.fn(),
+              aggregate: jest.fn(),
+              groupBy: jest.fn(),
             },
           },
         },
@@ -102,9 +106,9 @@ describe('WasteService', () => {
         },
       };
 
-      jest.spyOn(db.ingredient, 'findFirst').mockResolvedValue(mockIngredient);
-      jest.spyOn(db.wasteCategory, 'findFirst').mockResolvedValue(mockCategory);
-      jest.spyOn(db.wasteRecord, 'create').mockResolvedValue(expectedRecord);
+      jest.spyOn(db.ingredient, 'findFirst').mockResolvedValue(mockIngredient as any);
+      jest.spyOn(db.wasteCategory, 'findFirst').mockResolvedValue(mockCategory as any);
+      jest.spyOn(db.wasteRecord, 'create').mockResolvedValue(expectedRecord as any);
       jest.spyOn(notificationsService, 'onWasteRecordCreated').mockResolvedValue(null);
 
       const result = await service.create(mockOrganizationId, mockUserId, createDto);
@@ -150,7 +154,7 @@ describe('WasteService', () => {
         costImpact: 25,
       };
 
-      jest.spyOn(db.ingredient, 'findFirst').mockResolvedValue(mockIngredient);
+      jest.spyOn(db.ingredient, 'findFirst').mockResolvedValue(mockIngredient as any);
       jest.spyOn(db.wasteCategory, 'findFirst').mockResolvedValue(null);
 
       await expect(
@@ -191,9 +195,9 @@ describe('WasteService', () => {
         },
       };
 
-      jest.spyOn(db.ingredient, 'findFirst').mockResolvedValue(mockIngredient);
-      jest.spyOn(db.wasteCategory, 'findFirst').mockResolvedValue(mockCategory);
-      jest.spyOn(db.wasteRecord, 'create').mockResolvedValue(recordWithPercentage);
+      jest.spyOn(db.ingredient, 'findFirst').mockResolvedValue(mockIngredient as any);
+      jest.spyOn(db.wasteCategory, 'findFirst').mockResolvedValue(mockCategory as any);
+      jest.spyOn(db.wasteRecord, 'create').mockResolvedValue(recordWithPercentage as any);
       jest.spyOn(notificationsService, 'onWasteRecordCreated').mockResolvedValue(null);
 
       await service.create(mockOrganizationId, mockUserId, createDto);
@@ -229,8 +233,8 @@ describe('WasteService', () => {
         approvedBy: mockUserId,
       };
 
-      jest.spyOn(db.wasteRecord, 'findFirst').mockResolvedValue(pendingRecord);
-      jest.spyOn(db.wasteRecord, 'update').mockResolvedValue(approvedRecord);
+      jest.spyOn(db.wasteRecord, 'findFirst').mockResolvedValue(pendingRecord as any);
+      jest.spyOn(db.wasteRecord, 'update').mockResolvedValue(approvedRecord as any);
       jest.spyOn(notificationsService, 'onWasteRecordApproved').mockResolvedValue(null);
 
       const result = await service.approve(mockOrganizationId, recordId, mockUserId);
@@ -261,7 +265,7 @@ describe('WasteService', () => {
         ingredientId: mockIngredientId,
       };
 
-      jest.spyOn(db.wasteRecord, 'findFirst').mockResolvedValue(approvedRecord);
+      jest.spyOn(db.wasteRecord, 'findFirst').mockResolvedValue(approvedRecord as any);
 
       await expect(
         service.approve(mockOrganizationId, recordId, mockUserId),
@@ -290,7 +294,7 @@ describe('WasteService', () => {
         },
       ];
 
-      jest.spyOn(db.wasteRecord, 'findMany').mockResolvedValue(mockRecords);
+      jest.spyOn(db.wasteRecord, 'findMany').mockResolvedValue(mockRecords as any);
       jest.spyOn(db.wasteRecord, 'count').mockResolvedValue(1);
 
       const result = await service.list(mockOrganizationId, { skip: 0, take: 20 });
@@ -303,28 +307,40 @@ describe('WasteService', () => {
 
   describe('getDashboardStats', () => {
     it('should return correct aggregates for date range', async () => {
-      const mockRecords = [
-        {
-          quantity: 10,
-          cost: 25,
-          costImpact: 25,
-          createdAt: new Date(),
-          unit: 'kg',
-          category: { id: mockCategoryId, name: 'Produce' },
-          ingredient: { id: mockIngredientId, name: 'Tomato' },
+      const mockAggregateResult = {
+        _sum: {
+          costImpact: 37.5,
+          quantity: 15,
         },
+        _count: 2,
+      };
+
+      const mockCategoryStats = [
         {
-          quantity: 5,
-          cost: 12.5,
-          costImpact: 12.5,
-          createdAt: new Date(),
-          unit: 'kg',
-          category: { id: mockCategoryId, name: 'Produce' },
-          ingredient: { id: mockIngredientId, name: 'Tomato' },
+          categoryId: mockCategoryId,
+          _sum: { costImpact: 37.5, quantity: 15 },
+          _count: 2,
         },
       ];
 
-      jest.spyOn(db.wasteRecord, 'findMany').mockResolvedValue(mockRecords as any);
+      const mockIngredientStats = [
+        {
+          ingredientId: mockIngredientId,
+          _sum: { costImpact: 37.5, quantity: 15 },
+          _count: 2,
+        },
+      ];
+
+      jest.spyOn(db.wasteRecord, 'aggregate' as any).mockResolvedValue(mockAggregateResult as any);
+      jest.spyOn(db.wasteRecord, 'groupBy' as any)
+        .mockResolvedValueOnce(mockCategoryStats as any)
+        .mockResolvedValueOnce(mockIngredientStats as any);
+      jest.spyOn(db.wasteCategory, 'findMany').mockResolvedValue([
+        { id: mockCategoryId, name: 'Produce' },
+      ] as any);
+      jest.spyOn(db.ingredient, 'findMany').mockResolvedValue([
+        { id: mockIngredientId, name: 'Tomato' },
+      ] as any);
 
       const result = await service.getDashboardStats(mockOrganizationId, 7);
 
@@ -335,9 +351,19 @@ describe('WasteService', () => {
     });
 
     it('should only include APPROVED records', async () => {
+      const mockAggregateResult = {
+        _sum: { costImpact: 0, quantity: 0 },
+        _count: 0,
+      };
+
+      jest.spyOn(db.wasteRecord, 'aggregate' as any).mockResolvedValue(mockAggregateResult as any);
+      jest.spyOn(db.wasteRecord, 'groupBy' as any).mockResolvedValue([] as any);
+      jest.spyOn(db.wasteCategory, 'findMany' as any).mockResolvedValue([] as any);
+      jest.spyOn(db.ingredient, 'findMany' as any).mockResolvedValue([] as any);
+
       await service.getDashboardStats(mockOrganizationId, 7);
 
-      const callArgs = (db.wasteRecord.findMany as jest.Mock).mock.calls[0][0];
+      const callArgs = (db.wasteRecord.aggregate as jest.Mock).mock.calls[0][0];
       expect(callArgs.where.status).toBe('APPROVED');
     });
   });

@@ -22,4 +22,13 @@ export type { RadioProps, RadioOption, RadioGroupProps } from './Radio';
 export { Switch } from './Switch';
 export type { SwitchProps } from './Switch';
 
+export { Table } from './Table';
+export type { TableProps, Column } from './Table';
+
+export { Pagination } from './Pagination';
+export type { PaginationProps } from './Pagination';
+
+// Data Display Components
+// KPICard, Chart exports will be added as components are implemented
+
 // Modal, Toast exports will be added as components are implemented

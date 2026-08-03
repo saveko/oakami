@@ -8,10 +8,9 @@ import {
 
 interface NotificationCenterProps {
   onClose: () => void;
-  isTabVisible?: boolean;
 }
 
-export default function NotificationCenter({ onClose, isTabVisible = true }: NotificationCenterProps) {
+export default function NotificationCenter({ onClose }: NotificationCenterProps) {
   const { data: notificationData, isLoading } = useNotifications(50);
   const markAsReadMutation = useMarkAsRead();
   const markAllAsReadMutation = useMarkAllAsRead();

@@ -8,17 +8,13 @@ export default function NotificationBell() {
   const { data: unreadData, refetch } = useUnreadCount();
   const [isOpen, setIsOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const [isTabVisible, setIsTabVisible] = useState(true);
 
   const unreadCount = unreadData?.unreadCount || 0;
 
-  // Pause polling when tab is hidden, resume when visible
+  // Refetch unread count when tab becomes visible
   useEffect(() => {
     const handleVisibilityChange = () => {
-      const hidden = document.hidden;
-      setIsTabVisible(!hidden);
-      if (!hidden) {
-        // Refetch unread count when tab becomes visible
+      if (!document.hidden) {
         refetch?.();
       }
     };
@@ -87,7 +83,6 @@ export default function NotificationBell() {
             setIsOpen(false);
             buttonRef.current?.focus();
           }}
-          isTabVisible={isTabVisible}
         />
       )}
     </div>

@@ -97,6 +97,11 @@ class ApiClient {
     return response.data;
   }
 
+  async rejectWasteRecord(id: string) {
+    const response = await this.client.patch(`/waste/${id}/reject`, {});
+    return response.data;
+  }
+
   // Analytics
   async getDashboardMetrics(days: number = 7) {
     const response = await this.client.get('/analytics/dashboard', { params: { days } });

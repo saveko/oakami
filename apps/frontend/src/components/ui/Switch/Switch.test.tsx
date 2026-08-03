@@ -81,7 +81,7 @@ describe('Switch - Accessibility', () => {
     });
 
     it('should set aria-checked false for off state', () => {
-      render(<Switch id="toggle" checked={false} />);
+      render(<Switch id="toggle" defaultChecked={false} />);
 
       const toggle = screen.getByRole('switch');
       expect(toggle).toHaveAttribute('aria-checked', 'false');
@@ -375,21 +375,23 @@ describe('Switch - Accessibility', () => {
 
   describe('state transitions', () => {
     it('should update aria-checked when toggled', () => {
-      const { rerender } = render(<Switch id="toggle" checked={false} />);
+      const handleChange = vi.fn();
+      const { rerender } = render(<Switch id="toggle" checked={false} onChange={handleChange} />);
       let toggle = screen.getByRole('switch');
       expect(toggle).toHaveAttribute('aria-checked', 'false');
 
-      rerender(<Switch id="toggle" checked={true} />);
+      rerender(<Switch id="toggle" checked={true} onChange={handleChange} />);
       toggle = screen.getByRole('switch');
       expect(toggle).toHaveAttribute('aria-checked', 'true');
     });
 
     it('should announce state change to screen readers', () => {
-      const { rerender } = render(<Switch id="toggle" checked={false} label="Notifications" />);
+      const handleChange = vi.fn();
+      const { rerender } = render(<Switch id="toggle" checked={false} onChange={handleChange} label="Notifications" />);
       let toggle = screen.getByRole('switch');
       expect(toggle).toHaveAttribute('aria-checked', 'false');
 
-      rerender(<Switch id="toggle" checked={true} label="Notifications" />);
+      rerender(<Switch id="toggle" checked={true} onChange={handleChange} label="Notifications" />);
       toggle = screen.getByRole('switch');
       expect(toggle).toHaveAttribute('aria-checked', 'true');
     });

@@ -55,13 +55,13 @@ describe('Checkbox', () => {
     });
 
     it('should render checked state', () => {
-      render(<Checkbox checked />);
+      render(<Checkbox defaultChecked />);
       const checkbox = screen.getByRole('checkbox') as HTMLInputElement;
       expect(checkbox.checked).toBe(true);
     });
 
     it('should render unchecked state', () => {
-      render(<Checkbox checked={false} />);
+      render(<Checkbox defaultChecked={false} />);
       const checkbox = screen.getByRole('checkbox') as HTMLInputElement;
       expect(checkbox.checked).toBe(false);
     });

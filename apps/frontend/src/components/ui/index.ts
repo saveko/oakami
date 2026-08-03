@@ -16,5 +16,10 @@ export type { UseSelectOptions, UseSelectReturn } from './Select';
 export { Checkbox, CheckboxGroup } from './Checkbox';
 export type { CheckboxProps, CheckboxOption, CheckboxGroupProps } from './Checkbox';
 
-// Modal, Toast, Radio, Switch exports will be added
-// as components are implemented
+export { Radio, RadioGroup } from './Radio';
+export type { RadioProps, RadioOption, RadioGroupProps } from './Radio';
+
+export { Switch } from './Switch';
+export type { SwitchProps } from './Switch';
+
+// Modal, Toast exports will be added as components are implemented

@@ -46,4 +46,8 @@ export type { EmptyProps } from './Empty';
 export { Error } from './Error';
 export type { ErrorProps } from './Error';
 
-// SearchBar, FilterPanel exports will be added as components are implemented
+export { SearchBar } from './SearchBar';
+export type { SearchBarProps } from './SearchBar';
+
+export { FilterPanel, useFilterPanel } from './FilterPanel';
+export type { FilterPanelProps, UseFilterPanelReturn, FilterState, Filter, FilterOption, FilterType } from './FilterPanel';

@@ -23,3 +23,11 @@ export {
   useInventorySummary,
   useExpiringItems,
 } from './useInventory';
+
+export {
+  useWasteRecords,
+  useCreateWasteRecord,
+  useApproveWasteRecord,
+  useRejectWasteRecord,
+  useWasteDashboardStats,
+} from './useWaste';

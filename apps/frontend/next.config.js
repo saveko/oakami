@@ -25,7 +25,7 @@ const nextConfig = {
   },
   webpack: (config, { isServer }) => {
     // Avoid conflicts with Next.js 14's default caching strategy
-    // Removed usedExports: true as it conflicts with cacheUnaffected
+    // Next.js 14 uses cacheUnaffected strategy which conflicts with usedExports
     if (!isServer) {
       config.optimization = {
         ...config.optimization,
@@ -35,6 +35,7 @@ const nextConfig = {
     return config;
   },
   // Enable code splitting for large libraries
+  // Next.js 14+ automatically code-splits large dependencies like recharts
   experimental: {
     optimizePackageImports: ['recharts'],
   },

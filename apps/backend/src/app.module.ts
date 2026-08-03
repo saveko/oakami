@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { ConfigService } from './config/config.service';
 import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './auth/auth.module';
@@ -15,6 +16,18 @@ import { HealthController } from './health/health.controller';
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot([
+      {
+        name: 'short',
+        ttl: 1000,  // 1 second
+        limit: 10,  // 10 requests per second
+      },
+      {
+        name: 'long',
+        ttl: 60000,  // 1 minute
+        limit: 100,  // 100 requests per minute
+      },
+    ]),
     DatabaseModule,
     AuthModule,
     NotificationsModule,

@@ -1,5 +1,6 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen } from '@/test/utils';
 import userEvent from '@testing-library/user-event';
 import { Input } from './Input';
 import { Mail, Lock } from 'lucide-react';
@@ -163,7 +164,7 @@ describe('Input', () => {
     });
 
     it('handles onChange events', async () => {
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(<Input onChange={handleChange} />);
       const input = screen.getByRole('textbox');
 

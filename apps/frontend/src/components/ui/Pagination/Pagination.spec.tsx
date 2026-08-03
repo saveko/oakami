@@ -1,12 +1,13 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent } from '@/test/utils';
 import userEvent from '@testing-library/user-event';
 import { Pagination, PaginationProps } from './Pagination';
 
 const createPaginationProps = (overrides?: Partial<PaginationProps>): PaginationProps => ({
   currentPage: 1,
   totalPages: 10,
-  onPageChange: jest.fn(),
+  onPageChange: vi.fn(),
   ...overrides,
 });
 
@@ -69,7 +70,7 @@ describe('Pagination', () => {
 
   describe('Navigation', () => {
     it('should call onPageChange with next page when next button is clicked', async () => {
-      const onPageChange = jest.fn();
+      const onPageChange = vi.fn();
       const user = userEvent.setup();
 
       render(
@@ -88,7 +89,7 @@ describe('Pagination', () => {
     });
 
     it('should call onPageChange with previous page when previous button is clicked', async () => {
-      const onPageChange = jest.fn();
+      const onPageChange = vi.fn();
       const user = userEvent.setup();
 
       render(
@@ -107,7 +108,7 @@ describe('Pagination', () => {
     });
 
     it('should call onPageChange with selected page number', async () => {
-      const onPageChange = jest.fn();
+      const onPageChange = vi.fn();
       const user = userEvent.setup();
 
       render(
@@ -199,7 +200,7 @@ describe('Pagination', () => {
 
   describe('Jump to Page', () => {
     it('should navigate to entered page number', async () => {
-      const onPageChange = jest.fn();
+      const onPageChange = vi.fn();
       const user = userEvent.setup();
 
       render(
@@ -220,7 +221,7 @@ describe('Pagination', () => {
     });
 
     it('should not navigate if page number is out of range', async () => {
-      const onPageChange = jest.fn();
+      const onPageChange = vi.fn();
       const user = userEvent.setup();
 
       render(
@@ -241,7 +242,7 @@ describe('Pagination', () => {
     });
 
     it('should clear input after successful navigation', async () => {
-      const onPageChange = jest.fn();
+      const onPageChange = vi.fn();
       const user = userEvent.setup();
 
       render(
@@ -467,7 +468,7 @@ describe('Pagination', () => {
 
   describe('Edge Cases', () => {
     it('should handle single page', () => {
-      const onPageChange = jest.fn();
+      const onPageChange = vi.fn();
       render(
         <Pagination
           {...createPaginationProps({

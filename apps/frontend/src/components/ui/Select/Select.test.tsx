@@ -1,5 +1,6 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@/test/utils';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import Select from './Select';
 
@@ -55,7 +56,7 @@ describe('Select - Accessibility', () => {
     });
 
     it('should select option with Space key', async () => {
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(
         <Select
           options={mockOptions}
@@ -460,15 +461,15 @@ describe('Select - Accessibility', () => {
       // Mock matchMedia for prefers-reduced-motion
       Object.defineProperty(window, 'matchMedia', {
         writable: true,
-        value: jest.fn().mockImplementation((query) => ({
+        value: vi.fn().mockImplementation((query) => ({
           matches: query === '(prefers-reduced-motion: reduce)',
           media: query,
           onchange: null,
-          addListener: jest.fn(),
-          removeListener: jest.fn(),
-          addEventListener: jest.fn(),
-          removeEventListener: jest.fn(),
-          dispatchEvent: jest.fn(),
+          addListener: vi.fn(),
+          removeListener: vi.fn(),
+          addEventListener: vi.fn(),
+          removeEventListener: vi.fn(),
+          dispatchEvent: vi.fn(),
         })),
       });
 

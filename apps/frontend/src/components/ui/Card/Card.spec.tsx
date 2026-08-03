@@ -1,5 +1,6 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen } from '@/test/utils';
 import { Card } from './Card';
 
 describe('Card', () => {
@@ -105,7 +106,7 @@ describe('Card', () => {
 
   describe('Accessibility', () => {
     it('is keyboard accessible when interactive', () => {
-      const handleClick = jest.fn();
+      const handleClick = vi.fn();
       render(
         <Card interactive onClick={handleClick} role="button" tabIndex={0}>
           Interactive

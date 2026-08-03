@@ -1,3 +1,4 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -113,7 +114,7 @@ describe('Table', () => {
     });
 
     it('should update aria-sort when sorting', () => {
-      const onSort = jest.fn();
+      const onSort = vi.fn();
       render(
         <Table
           {...createTableProps({
@@ -129,7 +130,7 @@ describe('Table', () => {
     });
 
     it('should call onSort when sortable column header is clicked', () => {
-      const onSort = jest.fn();
+      const onSort = vi.fn();
       render(<Table {...createTableProps({ onSort })} />);
 
       fireEvent.click(screen.getByText('Name'));
@@ -138,7 +139,7 @@ describe('Table', () => {
     });
 
     it('should toggle sort direction on repeated clicks', () => {
-      const onSort = jest.fn();
+      const onSort = vi.fn();
       render(
         <Table
           {...createTableProps({
@@ -155,7 +156,7 @@ describe('Table', () => {
     });
 
     it('should not call onSort for non-sortable columns', () => {
-      const onSort = jest.fn();
+      const onSort = vi.fn();
       render(<Table {...createTableProps({ onSort })} />);
 
       fireEvent.click(screen.getByText('Status'));
@@ -180,7 +181,7 @@ describe('Table', () => {
 
   describe('Row Selection', () => {
     it('should render checkboxes when onRowSelect is provided', () => {
-      render(<Table {...createTableProps({ onRowSelect: jest.fn() })} />);
+      render(<Table {...createTableProps({ onRowSelect: vi.fn() })} />);
 
       const checkboxes = screen.getAllByRole('checkbox');
       expect(checkboxes.length).toBeGreaterThan(0);
@@ -193,7 +194,7 @@ describe('Table', () => {
     });
 
     it('should call onRowSelect with selected row id when checkbox is clicked', async () => {
-      const onRowSelect = jest.fn();
+      const onRowSelect = vi.fn();
       const user = userEvent.setup();
 
       render(
@@ -212,7 +213,7 @@ describe('Table', () => {
     });
 
     it('should handle multiple row selections', async () => {
-      const onRowSelect = jest.fn();
+      const onRowSelect = vi.fn();
       const user = userEvent.setup();
 
       render(
@@ -232,7 +233,7 @@ describe('Table', () => {
     });
 
     it('should deselect row when already selected checkbox is clicked', async () => {
-      const onRowSelect = jest.fn();
+      const onRowSelect = vi.fn();
       const user = userEvent.setup();
 
       render(
@@ -251,7 +252,7 @@ describe('Table', () => {
     });
 
     it('should select all rows when header checkbox is clicked', async () => {
-      const onRowSelect = jest.fn();
+      const onRowSelect = vi.fn();
       const user = userEvent.setup();
 
       render(
@@ -270,7 +271,7 @@ describe('Table', () => {
     });
 
     it('should deselect all rows when header checkbox is clicked and all are selected', async () => {
-      const onRowSelect = jest.fn();
+      const onRowSelect = vi.fn();
       const user = userEvent.setup();
 
       render(
@@ -292,7 +293,7 @@ describe('Table', () => {
       const { container } = render(
         <Table
           {...createTableProps({
-            onRowSelect: jest.fn(),
+            onRowSelect: vi.fn(),
             selectedRows: ['1'],
           })}
         />
@@ -350,7 +351,7 @@ describe('Table', () => {
     });
 
     it('should call onPageChange when page changes', async () => {
-      const onPageChange = jest.fn();
+      const onPageChange = vi.fn();
       const { rerender } = render(
         <Table
           {...createTableProps({
@@ -505,7 +506,7 @@ describe('Table', () => {
       render(
         <Table
           {...createTableProps({
-            onRowSelect: jest.fn(),
+            onRowSelect: vi.fn(),
           })}
         />
       );
@@ -573,7 +574,7 @@ describe('Table', () => {
     });
 
     it('should handle sorting with undefined sortBy', () => {
-      const onSort = jest.fn();
+      const onSort = vi.fn();
       render(
         <Table
           {...createTableProps({
@@ -604,7 +605,7 @@ describe('Table', () => {
 
   describe('Controlled vs Uncontrolled', () => {
     it('should work as controlled component when onSort and sortBy are provided', () => {
-      const onSort = jest.fn();
+      const onSort = vi.fn();
       const { rerender } = render(
         <Table
           {...createTableProps({

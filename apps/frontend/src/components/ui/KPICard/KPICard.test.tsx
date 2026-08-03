@@ -1,5 +1,6 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render } from '@/test/utils';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { KPICard, KPICardProps } from './KPICard';
 
@@ -34,7 +35,7 @@ describe('KPICard - Accessibility', () => {
 
     it('should have no accessibility violations when clickable', async () => {
       const { container } = render(
-        <KPICard {...createKPICardProps({ onClick: jest.fn() })} />
+        <KPICard {...createKPICardProps({ onClick: vi.fn() })} />
       );
       const results = await axe(container);
       expect(results).toHaveNoViolations();
@@ -94,7 +95,7 @@ describe('KPICard - Accessibility', () => {
 
     it('should use button role when interactive', () => {
       const { container } = render(
-        <KPICard {...createKPICardProps({ onClick: jest.fn() })} />
+        <KPICard {...createKPICardProps({ onClick: vi.fn() })} />
       );
       expect(container.querySelector('[role="button"]')).toBeInTheDocument();
     });
@@ -137,7 +138,7 @@ describe('KPICard - Accessibility', () => {
   describe('Keyboard Navigation', () => {
     it('should have tabindex when interactive', () => {
       const { container } = render(
-        <KPICard {...createKPICardProps({ onClick: jest.fn() })} />
+        <KPICard {...createKPICardProps({ onClick: vi.fn() })} />
       );
       expect(container.querySelector('[tabindex="0"]')).toBeInTheDocument();
     });
@@ -151,7 +152,7 @@ describe('KPICard - Accessibility', () => {
 
     it('should have visible focus state', () => {
       const { container } = render(
-        <KPICard {...createKPICardProps({ onClick: jest.fn() })} />
+        <KPICard {...createKPICardProps({ onClick: vi.fn() })} />
       );
       const card = container.querySelector('article');
       expect(card?.className).toContain('focus:');
@@ -161,7 +162,7 @@ describe('KPICard - Accessibility', () => {
   describe('Touch Targets', () => {
     it('should have adequate size for touch interaction', () => {
       const { container } = render(
-        <KPICard {...createKPICardProps({ onClick: jest.fn() })} />
+        <KPICard {...createKPICardProps({ onClick: vi.fn() })} />
       );
       const card = container.querySelector('article');
       expect(card).toHaveClass('h-32');
@@ -364,7 +365,7 @@ describe('KPICard - Accessibility', () => {
   describe('Interactive Elements Accessibility', () => {
     it('should be keyboard accessible when interactive', () => {
       const { container } = render(
-        <KPICard {...createKPICardProps({ onClick: jest.fn() })} />
+        <KPICard {...createKPICardProps({ onClick: vi.fn() })} />
       );
       const button = container.querySelector('[role="button"]');
       expect(button).toHaveAttribute('tabindex', '0');
@@ -372,7 +373,7 @@ describe('KPICard - Accessibility', () => {
 
     it('should provide visual feedback for interactions', () => {
       const { container } = render(
-        <KPICard {...createKPICardProps({ onClick: jest.fn() })} />
+        <KPICard {...createKPICardProps({ onClick: vi.fn() })} />
       );
       const card = container.querySelector('article');
       expect(card?.className).toContain('cursor-pointer');
@@ -389,7 +390,7 @@ describe('KPICard - Accessibility', () => {
     });
 
     it('should prevent interaction during loading', () => {
-      const onClick = jest.fn();
+      const onClick = vi.fn();
       const { container } = render(
         <KPICard {...createKPICardProps({ isLoading: true, onClick })} />
       );

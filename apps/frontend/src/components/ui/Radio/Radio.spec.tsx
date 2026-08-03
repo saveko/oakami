@@ -1,5 +1,6 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent } from '@/test/utils';
 import Radio, { RadioGroup } from './Radio';
 
 describe('Radio', () => {
@@ -67,7 +68,7 @@ describe('Radio', () => {
 
   describe('interaction', () => {
     it('should select radio on click', () => {
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(<Radio name="option" onChange={handleChange} />);
 
       const radio = screen.getByRole('radio');
@@ -77,7 +78,7 @@ describe('Radio', () => {
     });
 
     it('should not toggle when disabled', () => {
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(<Radio name="option" disabled onChange={handleChange} />);
 
       const radio = screen.getByRole('radio');
@@ -87,7 +88,7 @@ describe('Radio', () => {
     });
 
     it('should select on space key', () => {
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(<Radio name="option" onChange={handleChange} />);
 
       const radio = screen.getByRole('radio');
@@ -98,7 +99,7 @@ describe('Radio', () => {
     });
 
     it('should select on enter key', () => {
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(<Radio name="option" onChange={handleChange} />);
 
       const radio = screen.getByRole('radio');
@@ -176,7 +177,7 @@ describe('RadioGroup', () => {
         <RadioGroup
           options={mockOptions}
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Choose option"
         />
@@ -191,7 +192,7 @@ describe('RadioGroup', () => {
         <RadioGroup
           options={mockOptions}
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Choose"
         />
@@ -206,7 +207,7 @@ describe('RadioGroup', () => {
         <RadioGroup
           options={mockOptions}
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Choose"
         />
@@ -223,7 +224,7 @@ describe('RadioGroup', () => {
         <RadioGroup
           options={mockOptions}
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Choose"
           required
@@ -238,7 +239,7 @@ describe('RadioGroup', () => {
         <RadioGroup
           options={mockOptions}
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Choose"
           error
@@ -254,7 +255,7 @@ describe('RadioGroup', () => {
         <RadioGroup
           options={mockOptions}
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Choose"
           helpText="Select one"
@@ -269,7 +270,7 @@ describe('RadioGroup', () => {
         <RadioGroup
           options={mockOptions}
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Choose"
         />
@@ -284,7 +285,7 @@ describe('RadioGroup', () => {
         <RadioGroup
           options={mockOptions}
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Choose"
           layout="horizontal"
@@ -298,7 +299,7 @@ describe('RadioGroup', () => {
 
   describe('interaction', () => {
     it('should select option on click', () => {
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(
         <RadioGroup
           options={mockOptions}
@@ -316,7 +317,7 @@ describe('RadioGroup', () => {
     });
 
     it('should replace previous selection', () => {
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(
         <RadioGroup
           options={mockOptions}
@@ -334,7 +335,7 @@ describe('RadioGroup', () => {
     });
 
     it('should not select disabled option', () => {
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(
         <RadioGroup
           options={mockOptions}
@@ -352,7 +353,7 @@ describe('RadioGroup', () => {
     });
 
     it('should disable all options when group is disabled', () => {
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(
         <RadioGroup
           options={mockOptions}
@@ -375,7 +376,7 @@ describe('RadioGroup', () => {
         <RadioGroup
           options={mockOptions}
           value="opt2"
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Choose"
         />
@@ -392,7 +393,7 @@ describe('RadioGroup', () => {
         <RadioGroup
           options={mockOptions}
           value="opt1"
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Choose"
         />
@@ -415,7 +416,7 @@ describe('RadioGroup', () => {
         <RadioGroup
           options={mockOptions}
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Choose"
         />
@@ -430,7 +431,7 @@ describe('RadioGroup', () => {
         <RadioGroup
           options={mockOptions}
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Choose options"
         />
@@ -445,7 +446,7 @@ describe('RadioGroup', () => {
         <RadioGroup
           options={mockOptions}
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Choose"
         />
@@ -460,7 +461,7 @@ describe('RadioGroup', () => {
         <RadioGroup
           options={mockOptions}
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Choose"
           required
@@ -476,7 +477,7 @@ describe('RadioGroup', () => {
         <RadioGroup
           options={mockOptions}
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Choose"
           error
@@ -492,7 +493,7 @@ describe('RadioGroup', () => {
         <RadioGroup
           options={mockOptions}
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Choose"
           helpText="Help text"
@@ -509,7 +510,7 @@ describe('RadioGroup', () => {
         <RadioGroup
           options={mockOptions}
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Choose"
           error
@@ -527,7 +528,7 @@ describe('RadioGroup', () => {
         <RadioGroup
           options={mockOptions}
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Choose"
         />
@@ -543,7 +544,7 @@ describe('RadioGroup', () => {
         <RadioGroup
           options={mockOptions}
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group-name"
           legend="Choose"
         />
@@ -564,7 +565,7 @@ describe('RadioGroup', () => {
           ref={ref}
           options={mockOptions}
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Choose"
         />
@@ -576,7 +577,7 @@ describe('RadioGroup', () => {
 
   describe('mutual exclusivity', () => {
     it('should only allow one selection', () => {
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(
         <RadioGroup
           options={mockOptions}

@@ -1,11 +1,12 @@
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen } from '@/test/utils';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { Drawer } from './Drawer';
 
 expect.extend(toHaveNoViolations);
 
 describe('Drawer Accessibility (jest-axe)', () => {
-  const mockOnOpenChange = jest.fn();
+  const mockOnOpenChange = vi.fn();
 
   beforeEach(() => {
     mockOnOpenChange.mockClear();

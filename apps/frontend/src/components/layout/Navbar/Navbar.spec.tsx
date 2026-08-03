@@ -1,9 +1,10 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent } from '@/test/utils';
 import { usePathname } from 'next/navigation';
 import { Navbar } from './Navbar';
 
 jest.mock('next/navigation', () => ({
-  usePathname: jest.fn(),
+  usePathname: vi.fn(),
 }));
 
 jest.mock('next/link', () => {
@@ -97,7 +98,7 @@ describe('Navbar Component', () => {
     });
 
     it('calls onMenuToggle when button clicked', () => {
-      const onMenuToggle = jest.fn();
+      const onMenuToggle = vi.fn();
       render(<Navbar items={mockItems} onMenuToggle={onMenuToggle} />);
       const button = screen.getByLabelText('Toggle navigation menu');
       fireEvent.click(button);

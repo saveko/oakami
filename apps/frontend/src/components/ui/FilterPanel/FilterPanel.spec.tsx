@@ -1,5 +1,6 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@/test/utils';
 import userEvent from '@testing-library/user-event';
 import { FilterPanel } from './FilterPanel';
 import type { Filter, FilterState } from './useFilterPanel';
@@ -44,7 +45,7 @@ describe('FilterPanel - Unit Tests', () => {
   const defaultProps = {
     filters: defaultFilters,
     values: {} as FilterState,
-    onFilterChange: jest.fn(),
+    onFilterChange: vi.fn(),
   };
 
   describe('Rendering', () => {
@@ -95,7 +96,7 @@ describe('FilterPanel - Unit Tests', () => {
 
     it('should call onFilterChange when select value changes', async () => {
       const user = userEvent.setup();
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(<FilterPanel {...defaultProps} onFilterChange={handleChange} />);
 
       const selects = screen.getAllByRole('combobox');
@@ -110,7 +111,7 @@ describe('FilterPanel - Unit Tests', () => {
 
     it('should set initial select value', () => {
       const values = { category: 'fruits' };
-      render(<FilterPanel {...defaultProps} values={values} onFilterChange={jest.fn()} />);
+      render(<FilterPanel {...defaultProps} values={values} onFilterChange={vi.fn()} />);
 
       const select = screen.getByDisplayValue('Fruits');
       expect(select).toBeInTheDocument();
@@ -126,7 +127,7 @@ describe('FilterPanel - Unit Tests', () => {
 
     it('should call onFilterChange when checkbox is checked', async () => {
       const user = userEvent.setup();
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(<FilterPanel {...defaultProps} onFilterChange={handleChange} />);
 
       const activeCheckbox = screen.getByLabelText('Active');
@@ -137,7 +138,7 @@ describe('FilterPanel - Unit Tests', () => {
 
     it('should support multiple checkbox selections', async () => {
       const user = userEvent.setup();
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(<FilterPanel {...defaultProps} onFilterChange={handleChange} />);
 
       const activeCheckbox = screen.getByLabelText('Active');
@@ -151,7 +152,7 @@ describe('FilterPanel - Unit Tests', () => {
 
     it('should set initial checkbox values', () => {
       const values = { status: ['active', 'archived'] };
-      render(<FilterPanel {...defaultProps} values={values} onFilterChange={jest.fn()} />);
+      render(<FilterPanel {...defaultProps} values={values} onFilterChange={vi.fn()} />);
 
       expect(screen.getByLabelText('Active')).toBeChecked();
       expect(screen.getByLabelText('Archived')).toBeChecked();
@@ -160,7 +161,7 @@ describe('FilterPanel - Unit Tests', () => {
     it('should uncheck checkbox when clicked again', async () => {
       const user = userEvent.setup();
       const values = { status: ['active'] };
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(<FilterPanel {...defaultProps} values={values} onFilterChange={handleChange} />);
 
       const activeCheckbox = screen.getByLabelText('Active') as HTMLInputElement;
@@ -180,7 +181,7 @@ describe('FilterPanel - Unit Tests', () => {
 
     it('should call onFilterChange for start date', async () => {
       const user = userEvent.setup();
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(<FilterPanel {...defaultProps} onFilterChange={handleChange} />);
 
       const dateInputs = screen.getAllByRole('textbox').filter((el) => el instanceof HTMLInputElement && el.type === 'date');
@@ -195,7 +196,7 @@ describe('FilterPanel - Unit Tests', () => {
 
     it('should call onFilterChange for end date', async () => {
       const user = userEvent.setup();
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(<FilterPanel {...defaultProps} onFilterChange={handleChange} />);
 
       const dateInputs = screen.getAllByRole('textbox').filter((el) => el instanceof HTMLInputElement && el.type === 'date');
@@ -218,7 +219,7 @@ describe('FilterPanel - Unit Tests', () => {
 
     it('should call onFilterChange for min value', async () => {
       const user = userEvent.setup();
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(<FilterPanel {...defaultProps} onFilterChange={handleChange} />);
 
       const spinButtons = screen.getAllByRole('spinbutton');
@@ -234,7 +235,7 @@ describe('FilterPanel - Unit Tests', () => {
 
     it('should call onFilterChange for max value', async () => {
       const user = userEvent.setup();
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(<FilterPanel {...defaultProps} onFilterChange={handleChange} />);
 
       const spinButtons = screen.getAllByRole('spinbutton');
@@ -315,14 +316,14 @@ describe('FilterPanel - Unit Tests', () => {
 
     it('should call onApply when apply button clicked', async () => {
       const user = userEvent.setup();
-      const handleApply = jest.fn();
+      const handleApply = vi.fn();
       const values = { category: 'fruits' };
       render(
         <FilterPanel
           {...defaultProps}
           values={values}
           onApply={handleApply}
-          onFilterChange={jest.fn()}
+          onFilterChange={vi.fn()}
         />
       );
 
@@ -332,14 +333,14 @@ describe('FilterPanel - Unit Tests', () => {
 
     it('should call onReset when reset button clicked', async () => {
       const user = userEvent.setup();
-      const handleReset = jest.fn();
+      const handleReset = vi.fn();
       const values = { category: 'fruits' };
       render(
         <FilterPanel
           {...defaultProps}
           values={values}
           onReset={handleReset}
-          onFilterChange={jest.fn()}
+          onFilterChange={vi.fn()}
         />
       );
 
@@ -361,13 +362,13 @@ describe('FilterPanel - Unit Tests', () => {
 
     it('should call onClearAll when clear all button clicked', async () => {
       const user = userEvent.setup();
-      const handleClearAll = jest.fn();
+      const handleClearAll = vi.fn();
       render(
         <FilterPanel
           {...defaultProps}
           activeFilterCount={2}
           onClearAll={handleClearAll}
-          onFilterChange={jest.fn()}
+          onFilterChange={vi.fn()}
         />
       );
 
@@ -437,7 +438,7 @@ describe('FilterPanel - Unit Tests', () => {
         <FilterPanel
           {...defaultProps}
           values={values}
-          onFilterChange={jest.fn()}
+          onFilterChange={vi.fn()}
         />
       );
 
@@ -448,7 +449,7 @@ describe('FilterPanel - Unit Tests', () => {
         <FilterPanel
           {...defaultProps}
           values={values}
-          onFilterChange={jest.fn()}
+          onFilterChange={vi.fn()}
         />
       );
 
@@ -463,7 +464,7 @@ describe('FilterPanel - Unit Tests', () => {
         <FilterPanel
           {...defaultProps}
           filters={[]}
-          onFilterChange={jest.fn()}
+          onFilterChange={vi.fn()}
         />
       );
 
@@ -474,8 +475,8 @@ describe('FilterPanel - Unit Tests', () => {
   describe('Combination Scenarios', () => {
     it('should handle multiple filters in workflow', async () => {
       const user = userEvent.setup();
-      const handleChange = jest.fn();
-      const handleApply = jest.fn();
+      const handleChange = vi.fn();
+      const handleApply = vi.fn();
 
       render(
         <FilterPanel

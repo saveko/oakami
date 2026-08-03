@@ -1,5 +1,6 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen } from '@/test/utils';
 import userEvent from '@testing-library/user-event';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { Button } from './Button';
@@ -20,7 +21,7 @@ describe('Button Accessibility', () => {
 
     it('triggers click on Enter key', async () => {
       const user = userEvent.setup();
-      const handleClick = jest.fn();
+      const handleClick = vi.fn();
       render(<Button onClick={handleClick}>Enter key</Button>);
 
       const button = screen.getByRole('button');
@@ -32,7 +33,7 @@ describe('Button Accessibility', () => {
 
     it('triggers click on Space key', async () => {
       const user = userEvent.setup();
-      const handleClick = jest.fn();
+      const handleClick = vi.fn();
       render(<Button onClick={handleClick}>Space key</Button>);
 
       const button = screen.getByRole('button');
@@ -182,7 +183,7 @@ describe('Button Accessibility', () => {
     });
 
     it('disables interactions during loading', () => {
-      const handleClick = jest.fn();
+      const handleClick = vi.fn();
       render(
         <Button isLoading onClick={handleClick}>
           Loading

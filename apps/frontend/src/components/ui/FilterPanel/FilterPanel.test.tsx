@@ -1,5 +1,6 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@/test/utils';
 import userEvent from '@testing-library/user-event';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { FilterPanel } from './FilterPanel';
@@ -40,7 +41,7 @@ describe('FilterPanel - Accessibility Tests', () => {
   const defaultProps = {
     filters: defaultFilters,
     values: {} as FilterState,
-    onFilterChange: jest.fn(),
+    onFilterChange: vi.fn(),
   };
 
   describe('WCAG 2.1 Compliance', () => {
@@ -55,7 +56,7 @@ describe('FilterPanel - Accessibility Tests', () => {
         <FilterPanel
           {...defaultProps}
           values={{ category: 'fruits', status: ['active'] }}
-          onFilterChange={jest.fn()}
+          onFilterChange={vi.fn()}
           activeFilterCount={2}
         />
       );
@@ -178,7 +179,7 @@ describe('FilterPanel - Accessibility Tests', () => {
 
     it('should activate button with Enter key', async () => {
       const user = userEvent.setup();
-      const handleApply = jest.fn();
+      const handleApply = vi.fn();
       render(<FilterPanel {...defaultProps} onApply={handleApply} />);
       const applyButton = screen.getByText('Apply Filters');
 
@@ -190,7 +191,7 @@ describe('FilterPanel - Accessibility Tests', () => {
 
     it('should activate button with Space key', async () => {
       const user = userEvent.setup();
-      const handleApply = jest.fn();
+      const handleApply = vi.fn();
       render(<FilterPanel {...defaultProps} onApply={handleApply} />);
       const applyButton = screen.getByText('Apply Filters');
 
@@ -213,12 +214,12 @@ describe('FilterPanel - Accessibility Tests', () => {
 
     it('should be fully navigable without mouse', async () => {
       const user = userEvent.setup();
-      const handleApply = jest.fn();
+      const handleApply = vi.fn();
       render(
         <FilterPanel
           {...defaultProps}
           onApply={handleApply}
-          onFilterChange={jest.fn()}
+          onFilterChange={vi.fn()}
         />
       );
 
@@ -478,10 +479,10 @@ describe('FilterPanel - Accessibility Tests', () => {
           activeFilterCount={2}
           variant="default"
           values={{ category: 'fruits' }}
-          onFilterChange={jest.fn()}
-          onApply={jest.fn()}
-          onReset={jest.fn()}
-          onClearAll={jest.fn()}
+          onFilterChange={vi.fn()}
+          onApply={vi.fn()}
+          onReset={vi.fn()}
+          onClearAll={vi.fn()}
         />
       );
 
@@ -494,8 +495,8 @@ describe('FilterPanel - Accessibility Tests', () => {
       const { container } = render(
         <FilterPanel
           {...defaultProps}
-          onFilterChange={jest.fn()}
-          onApply={jest.fn()}
+          onFilterChange={vi.fn()}
+          onApply={vi.fn()}
           activeFilterCount={1}
         />
       );
@@ -515,7 +516,7 @@ describe('FilterPanel - Accessibility Tests', () => {
         <FilterPanel
           {...defaultProps}
           collapsible
-          onFilterChange={jest.fn()}
+          onFilterChange={vi.fn()}
         />
       );
 

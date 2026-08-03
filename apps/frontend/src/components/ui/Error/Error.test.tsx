@@ -1,5 +1,6 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent } from '@/test/utils';
 import userEvent from '@testing-library/user-event';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { Error as ErrorComponent } from './Error';
@@ -83,7 +84,7 @@ describe('Error - Accessibility', () => {
           severity="error"
           variant="card"
           dismissible
-          action={{ label: 'Action', onClick: jest.fn() }}
+          action={{ label: 'Action', onClick: vi.fn() }}
         />
       );
       const results = await axe(container);
@@ -205,7 +206,7 @@ describe('Error - Accessibility', () => {
 
     it('should dismiss on Enter key', async () => {
       const user = userEvent.setup();
-      const handleDismiss = jest.fn();
+      const handleDismiss = vi.fn();
       const { container } = render(
         <ErrorComponent
           {...defaultProps}
@@ -223,7 +224,7 @@ describe('Error - Accessibility', () => {
 
     it('should dismiss on Space key', async () => {
       const user = userEvent.setup();
-      const handleDismiss = jest.fn();
+      const handleDismiss = vi.fn();
       const { container } = render(
         <ErrorComponent
           {...defaultProps}
@@ -241,7 +242,7 @@ describe('Error - Accessibility', () => {
 
     it('should activate action button via keyboard', async () => {
       const user = userEvent.setup();
-      const handleClick = jest.fn();
+      const handleClick = vi.fn();
       render(
         <ErrorComponent
           {...defaultProps}
@@ -398,7 +399,7 @@ describe('Error - Accessibility', () => {
           severity="error"
           variant="card"
           dismissible
-          action={{ label: 'Retry', onClick: jest.fn() }}
+          action={{ label: 'Retry', onClick: vi.fn() }}
         />
       );
 

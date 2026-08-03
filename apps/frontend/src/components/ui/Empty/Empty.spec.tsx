@@ -1,5 +1,6 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent } from '@/test/utils';
 import { Empty } from './Empty';
 
 describe('Empty Component', () => {
@@ -123,7 +124,7 @@ describe('Empty Component', () => {
           {...defaultProps}
           action={{
             label: 'Create New',
-            onClick: jest.fn(),
+            onClick: vi.fn(),
           }}
         />
       );
@@ -136,7 +137,7 @@ describe('Empty Component', () => {
     });
 
     it('should call onClick handler when button clicked', () => {
-      const handleClick = jest.fn();
+      const handleClick = vi.fn();
       render(
         <Empty
           {...defaultProps}
@@ -157,7 +158,7 @@ describe('Empty Component', () => {
           {...defaultProps}
           action={{
             label: 'Delete',
-            onClick: jest.fn(),
+            onClick: vi.fn(),
             variant: 'destructive',
           }}
         />
@@ -173,7 +174,7 @@ describe('Empty Component', () => {
           {...defaultProps}
           action={{
             label: 'Action',
-            onClick: jest.fn(),
+            onClick: vi.fn(),
             size: 'lg',
           }}
         />
@@ -296,7 +297,7 @@ describe('Empty Component', () => {
           {...defaultProps}
           icon={<span>📭</span>}
           description="Test"
-          action={{ label: 'Action', onClick: jest.fn() }}
+          action={{ label: 'Action', onClick: vi.fn() }}
         />
       );
       expect(container.firstChild).toBeInTheDocument();
@@ -362,7 +363,7 @@ describe('Empty Component', () => {
 
   describe('Combinations', () => {
     it('should render with all props', () => {
-      const handleClick = jest.fn();
+      const handleClick = vi.fn();
       render(
         <Empty
           title="No results"
@@ -394,7 +395,7 @@ describe('Empty Component', () => {
           description="Description"
           icon={<span>📭</span>}
           variant="compact"
-          action={{ label: 'Action', onClick: jest.fn() }}
+          action={{ label: 'Action', onClick: vi.fn() }}
         />
       );
 

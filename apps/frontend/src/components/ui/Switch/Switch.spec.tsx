@@ -1,5 +1,6 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent } from '@/test/utils';
 import Switch from './Switch';
 
 describe('Switch', () => {
@@ -63,7 +64,7 @@ describe('Switch', () => {
 
   describe('interaction', () => {
     it('should toggle on click', () => {
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(<Switch id="toggle" onChange={handleChange} />);
 
       const toggle = screen.getByRole('switch');
@@ -73,7 +74,7 @@ describe('Switch', () => {
     });
 
     it('should not toggle when disabled', () => {
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(<Switch id="toggle" disabled onChange={handleChange} />);
 
       const toggle = screen.getByRole('switch');
@@ -83,7 +84,7 @@ describe('Switch', () => {
     });
 
     it('should toggle with Space key', () => {
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(<Switch id="toggle" onChange={handleChange} />);
 
       const toggle = screen.getByRole('switch');
@@ -94,7 +95,7 @@ describe('Switch', () => {
     });
 
     it('should toggle with Enter key', () => {
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(<Switch id="toggle" onChange={handleChange} />);
 
       const toggle = screen.getByRole('switch');
@@ -207,7 +208,7 @@ describe('Switch', () => {
     });
 
     it('should call onChange when toggled', () => {
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(<Switch id="toggle" onChange={handleChange} />);
 
       const toggle = screen.getByRole('switch');
@@ -225,7 +226,7 @@ describe('Switch', () => {
     });
 
     it('should toggle when label is clicked', () => {
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(<Switch id="toggle" label="Toggle" onChange={handleChange} />);
 
       const label = screen.getByText('Toggle');

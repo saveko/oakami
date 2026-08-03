@@ -1,5 +1,6 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@/test/utils';
 import Checkbox, { CheckboxGroup } from './Checkbox';
 
 describe('Checkbox', () => {
@@ -68,7 +69,7 @@ describe('Checkbox', () => {
 
   describe('interaction', () => {
     it('should toggle checked state on click', () => {
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(<Checkbox onChange={handleChange} />);
 
       const checkbox = screen.getByRole('checkbox');
@@ -78,7 +79,7 @@ describe('Checkbox', () => {
     });
 
     it('should not toggle when disabled', () => {
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(<Checkbox disabled onChange={handleChange} />);
 
       const checkbox = screen.getByRole('checkbox');
@@ -88,7 +89,7 @@ describe('Checkbox', () => {
     });
 
     it('should toggle on space key', () => {
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(<Checkbox onChange={handleChange} />);
 
       const checkbox = screen.getByRole('checkbox') as HTMLInputElement;
@@ -99,7 +100,7 @@ describe('Checkbox', () => {
     });
 
     it('should call onChange with correct value', () => {
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(<Checkbox value="test-value" onChange={handleChange} />);
 
       const checkbox = screen.getByRole('checkbox');
@@ -210,7 +211,7 @@ describe('CheckboxGroup', () => {
         <CheckboxGroup
           options={mockOptions}
           values={[]}
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           legend="Choose options"
         />
       );
@@ -224,7 +225,7 @@ describe('CheckboxGroup', () => {
         <CheckboxGroup
           options={mockOptions}
           values={[]}
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           legend="Choose"
         />
       );
@@ -238,7 +239,7 @@ describe('CheckboxGroup', () => {
         <CheckboxGroup
           options={mockOptions}
           values={[]}
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           legend="Choose"
         />
       );
@@ -254,7 +255,7 @@ describe('CheckboxGroup', () => {
         <CheckboxGroup
           options={mockOptions}
           values={[]}
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           legend="Choose"
           required
         />
@@ -268,7 +269,7 @@ describe('CheckboxGroup', () => {
         <CheckboxGroup
           options={mockOptions}
           values={[]}
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           legend="Choose"
           error
           errorMessage="Select at least one"
@@ -283,7 +284,7 @@ describe('CheckboxGroup', () => {
         <CheckboxGroup
           options={mockOptions}
           values={[]}
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           legend="Choose"
           helpText="Select all that apply"
         />
@@ -297,7 +298,7 @@ describe('CheckboxGroup', () => {
         <CheckboxGroup
           options={mockOptions}
           values={[]}
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           legend="Choose"
         />
       );
@@ -311,7 +312,7 @@ describe('CheckboxGroup', () => {
         <CheckboxGroup
           options={mockOptions}
           values={[]}
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           legend="Choose"
           layout="horizontal"
         />
@@ -324,7 +325,7 @@ describe('CheckboxGroup', () => {
 
   describe('interaction', () => {
     it('should select option on click', () => {
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(
         <CheckboxGroup
           options={mockOptions}
@@ -341,7 +342,7 @@ describe('CheckboxGroup', () => {
     });
 
     it('should add to selected values', () => {
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(
         <CheckboxGroup
           options={mockOptions}
@@ -358,7 +359,7 @@ describe('CheckboxGroup', () => {
     });
 
     it('should remove from selected values', () => {
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(
         <CheckboxGroup
           options={mockOptions}
@@ -375,7 +376,7 @@ describe('CheckboxGroup', () => {
     });
 
     it('should not select disabled option', () => {
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(
         <CheckboxGroup
           options={mockOptions}
@@ -392,7 +393,7 @@ describe('CheckboxGroup', () => {
     });
 
     it('should disable all options when group is disabled', () => {
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(
         <CheckboxGroup
           options={mockOptions}
@@ -414,7 +415,7 @@ describe('CheckboxGroup', () => {
         <CheckboxGroup
           options={mockOptions}
           values={['opt1', 'opt3']}
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           legend="Choose"
         />
       );
@@ -433,7 +434,7 @@ describe('CheckboxGroup', () => {
         <CheckboxGroup
           options={mockOptions}
           values={[]}
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           legend="Choose"
         />
       );
@@ -447,7 +448,7 @@ describe('CheckboxGroup', () => {
         <CheckboxGroup
           options={mockOptions}
           values={[]}
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           legend="Choose options"
         />
       );
@@ -461,7 +462,7 @@ describe('CheckboxGroup', () => {
         <CheckboxGroup
           options={mockOptions}
           values={[]}
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           legend="Choose"
           required
         />
@@ -476,7 +477,7 @@ describe('CheckboxGroup', () => {
         <CheckboxGroup
           options={mockOptions}
           values={[]}
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           legend="Choose"
           error
         />
@@ -491,7 +492,7 @@ describe('CheckboxGroup', () => {
         <CheckboxGroup
           options={mockOptions}
           values={[]}
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           legend="Choose"
           helpText="Help text"
         />
@@ -507,7 +508,7 @@ describe('CheckboxGroup', () => {
         <CheckboxGroup
           options={mockOptions}
           values={[]}
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           legend="Choose"
           error
           errorMessage="Error"
@@ -524,7 +525,7 @@ describe('CheckboxGroup', () => {
         <CheckboxGroup
           options={mockOptions}
           values={[]}
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           legend="Choose"
         />
       );
@@ -539,7 +540,7 @@ describe('CheckboxGroup', () => {
         <CheckboxGroup
           options={mockOptions}
           values={[]}
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           legend="Choose"
         />
       );
@@ -557,7 +558,7 @@ describe('CheckboxGroup', () => {
           ref={ref}
           options={mockOptions}
           values={[]}
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           legend="Choose"
         />
       );

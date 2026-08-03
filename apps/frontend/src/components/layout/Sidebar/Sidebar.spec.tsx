@@ -1,9 +1,10 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent } from '@/test/utils';
 import { usePathname } from 'next/navigation';
 import { Sidebar, SidebarItem } from './Sidebar';
 
 jest.mock('next/navigation', () => ({
-  usePathname: jest.fn(),
+  usePathname: vi.fn(),
 }));
 
 jest.mock('next/link', () => {
@@ -118,7 +119,7 @@ describe('Sidebar Component', () => {
     });
 
     it('calls onOpenChange when collapse button clicked', () => {
-      const onOpenChange = jest.fn();
+      const onOpenChange = vi.fn();
       render(
         <Sidebar items={mockItems} open={true} onOpenChange={onOpenChange} />
       );
@@ -380,7 +381,7 @@ describe('Sidebar Component', () => {
     });
 
     it('handles rapid collapse/expand', () => {
-      const onOpenChange = jest.fn();
+      const onOpenChange = vi.fn();
       render(
         <Sidebar items={mockItems} open={true} onOpenChange={onOpenChange} />
       );

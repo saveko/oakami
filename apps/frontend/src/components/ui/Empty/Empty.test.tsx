@@ -1,5 +1,6 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen } from '@/test/utils';
 import userEvent from '@testing-library/user-event';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { Empty } from './Empty';
@@ -40,7 +41,7 @@ describe('Empty - Accessibility', () => {
           {...defaultProps}
           action={{
             label: 'Create New',
-            onClick: jest.fn(),
+            onClick: vi.fn(),
           }}
         />
       );
@@ -56,7 +57,7 @@ describe('Empty - Accessibility', () => {
           icon={<span>🔍</span>}
           action={{
             label: 'Reset',
-            onClick: jest.fn(),
+            onClick: vi.fn(),
           }}
         />
       );
@@ -112,7 +113,7 @@ describe('Empty - Accessibility', () => {
           {...defaultProps}
           action={{
             label: 'Action',
-            onClick: jest.fn(),
+            onClick: vi.fn(),
           }}
         />
       );
@@ -150,7 +151,7 @@ describe('Empty - Accessibility', () => {
           {...defaultProps}
           action={{
             label: 'Create New Item',
-            onClick: jest.fn(),
+            onClick: vi.fn(),
           }}
         />
       );
@@ -235,7 +236,7 @@ describe('Empty - Accessibility', () => {
           {...defaultProps}
           action={{
             label: 'Action',
-            onClick: jest.fn(),
+            onClick: vi.fn(),
           }}
         />
       );
@@ -247,7 +248,7 @@ describe('Empty - Accessibility', () => {
 
     it('should activate button with Enter key', async () => {
       const user = userEvent.setup();
-      const handleClick = jest.fn();
+      const handleClick = vi.fn();
       const { container } = render(
         <Empty
           {...defaultProps}
@@ -267,7 +268,7 @@ describe('Empty - Accessibility', () => {
 
     it('should activate button with Space key', async () => {
       const user = userEvent.setup();
-      const handleClick = jest.fn();
+      const handleClick = vi.fn();
       const { container } = render(
         <Empty
           {...defaultProps}
@@ -293,7 +294,7 @@ describe('Empty - Accessibility', () => {
           {...defaultProps}
           action={{
             label: 'Action',
-            onClick: jest.fn(),
+            onClick: vi.fn(),
           }}
         />
       );
@@ -309,7 +310,7 @@ describe('Empty - Accessibility', () => {
           {...defaultProps}
           action={{
             label: 'Action',
-            onClick: jest.fn(),
+            onClick: vi.fn(),
           }}
         />
       );

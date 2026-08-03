@@ -1,5 +1,6 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render } from '@/test/utils';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { Pagination, PaginationProps } from './Pagination';
 
@@ -8,7 +9,7 @@ expect.extend(toHaveNoViolations);
 const createPaginationProps = (overrides?: Partial<PaginationProps>): PaginationProps => ({
   currentPage: 1,
   totalPages: 10,
-  onPageChange: jest.fn(),
+  onPageChange: vi.fn(),
   ...overrides,
 });
 

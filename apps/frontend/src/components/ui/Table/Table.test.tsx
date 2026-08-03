@@ -1,5 +1,6 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render } from '@/test/utils';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { Table, Column, TableProps } from './Table';
 
@@ -47,7 +48,7 @@ describe('Table - Accessibility', () => {
           {...createTableProps({
             sortBy: 'name',
             sortDirection: 'asc',
-            onSort: jest.fn(),
+            onSort: vi.fn(),
           })}
         />
       );
@@ -59,7 +60,7 @@ describe('Table - Accessibility', () => {
       const { container } = render(
         <Table
           {...createTableProps({
-            onRowSelect: jest.fn(),
+            onRowSelect: vi.fn(),
             selectedRows: [],
           })}
         />
@@ -74,7 +75,7 @@ describe('Table - Accessibility', () => {
           {...createTableProps({
             rowsPerPage: 2,
             currentPage: 1,
-            onPageChange: jest.fn(),
+            onPageChange: vi.fn(),
           })}
         />
       );
@@ -141,7 +142,7 @@ describe('Table - Accessibility', () => {
       const { container } = render(
         <Table
           {...createTableProps({
-            onRowSelect: jest.fn(),
+            onRowSelect: vi.fn(),
           })}
         />
       );
@@ -193,7 +194,7 @@ describe('Table - Accessibility', () => {
       const { container } = render(
         <Table
           {...createTableProps({
-            onRowSelect: jest.fn(),
+            onRowSelect: vi.fn(),
           })}
         />
       );
@@ -209,7 +210,7 @@ describe('Table - Accessibility', () => {
       const { container } = render(
         <Table
           {...createTableProps({
-            onRowSelect: jest.fn(),
+            onRowSelect: vi.fn(),
           })}
         />
       );
@@ -222,7 +223,7 @@ describe('Table - Accessibility', () => {
       const { container } = render(
         <Table
           {...createTableProps({
-            onRowSelect: jest.fn(),
+            onRowSelect: vi.fn(),
           })}
         />
       );
@@ -262,7 +263,7 @@ describe('Table - Accessibility', () => {
       const { container } = render(
         <Table
           {...createTableProps({
-            onRowSelect: jest.fn(),
+            onRowSelect: vi.fn(),
           })}
         />
       );
@@ -278,7 +279,7 @@ describe('Table - Accessibility', () => {
       const { container } = render(
         <Table
           {...createTableProps({
-            onRowSelect: jest.fn(),
+            onRowSelect: vi.fn(),
           })}
         />
       );
@@ -306,7 +307,7 @@ describe('Table - Accessibility', () => {
       const { container } = render(
         <Table
           {...createTableProps({
-            onRowSelect: jest.fn(),
+            onRowSelect: vi.fn(),
           })}
         />
       );
@@ -324,7 +325,7 @@ describe('Table - Accessibility', () => {
       const { container } = render(
         <Table
           {...createTableProps({
-            onRowSelect: jest.fn(),
+            onRowSelect: vi.fn(),
           })}
         />
       );
@@ -340,7 +341,7 @@ describe('Table - Accessibility', () => {
       const { container } = render(
         <Table
           {...createTableProps({
-            onRowSelect: jest.fn(),
+            onRowSelect: vi.fn(),
           })}
         />
       );
@@ -391,7 +392,7 @@ describe('Table - Accessibility', () => {
       const { container } = render(
         <Table
           {...createTableProps({
-            onRowSelect: jest.fn(),
+            onRowSelect: vi.fn(),
           })}
         />
       );
@@ -465,7 +466,7 @@ describe('Table - Accessibility', () => {
       const { container } = render(
         <Table
           {...createTableProps({
-            onRowSelect: jest.fn(),
+            onRowSelect: vi.fn(),
           })}
         />
       );
@@ -521,7 +522,7 @@ describe('Table - Accessibility', () => {
       const { container } = render(
         <Table
           {...createTableProps({
-            onRowSelect: jest.fn(),
+            onRowSelect: vi.fn(),
             selectedRows: ['1'],
           })}
         />
@@ -556,7 +557,7 @@ describe('Table - Accessibility', () => {
       const { container } = render(
         <Table
           {...createTableProps({
-            onRowSelect: jest.fn(),
+            onRowSelect: vi.fn(),
           })}
         />
       );

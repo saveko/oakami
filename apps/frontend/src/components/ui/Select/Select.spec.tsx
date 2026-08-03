@@ -1,3 +1,4 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -176,7 +177,7 @@ describe('Select', () => {
 
   describe('option selection', () => {
     it('should select single option', async () => {
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(
         <Select
           options={mockOptions}
@@ -215,7 +216,7 @@ describe('Select', () => {
     });
 
     it('should select multiple options in multi-select mode', async () => {
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(
         <Select
           options={mockOptions}
@@ -257,7 +258,7 @@ describe('Select', () => {
     });
 
     it('should not select disabled option', async () => {
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(
         <Select
           options={mockOptions}
@@ -281,7 +282,7 @@ describe('Select', () => {
     });
 
     it('should deselect option in multi-select mode', async () => {
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(
         <Select
           options={mockOptions}
@@ -381,7 +382,7 @@ describe('Select', () => {
 
   describe('clear functionality', () => {
     it('should clear selection with clear button', async () => {
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(
         <Select
           options={mockOptions}
@@ -439,7 +440,7 @@ describe('Select', () => {
     });
 
     it('should clear all selections in multi-select mode', async () => {
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(
         <Select
           options={mockOptions}
@@ -505,7 +506,7 @@ describe('Select', () => {
     });
 
     it('should select option with enter key', async () => {
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(
         <Select
           options={mockOptions}

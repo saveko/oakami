@@ -1,10 +1,11 @@
-import { render } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render } from '@/test/utils';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { usePathname } from 'next/navigation';
 import { Sidebar, SidebarItem } from './Sidebar';
 
 jest.mock('next/navigation', () => ({
-  usePathname: jest.fn(),
+  usePathname: vi.fn(),
 }));
 
 jest.mock('next/link', () => {

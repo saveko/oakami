@@ -1,5 +1,6 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen, fireEvent } from '@/test/utils';
 import userEvent from '@testing-library/user-event';
 import { KPICard, KPICardProps } from './KPICard';
 
@@ -54,8 +55,9 @@ describe('KPICard', () => {
         <KPICard {...createKPICardProps({ isLoading: true })} />
       );
 
-      expect(container.querySelector('.animate-pulse')).toBeInTheDocument();
-      expect(screen.getByRole('article', { hidden: true })).toHaveAttribute('aria-busy', 'true');
+      const skeleton = container.querySelector('.animate-pulse');
+      expect(skeleton).toBeInTheDocument();
+      expect(skeleton).toHaveAttribute('aria-busy', 'true');
     });
 
     it('should render with numeric value', () => {
@@ -190,7 +192,7 @@ describe('KPICard', () => {
 
   describe('Interactivity', () => {
     it('should call onClick when card is clicked', async () => {
-      const onClick = jest.fn();
+      const onClick = vi.fn();
       const user = userEvent.setup();
 
       render(
@@ -203,7 +205,7 @@ describe('KPICard', () => {
     });
 
     it('should call onClick when Enter key is pressed', async () => {
-      const onClick = jest.fn();
+      const onClick = vi.fn();
       const user = userEvent.setup();
 
       render(
@@ -218,7 +220,7 @@ describe('KPICard', () => {
     });
 
     it('should call onClick when Space key is pressed', async () => {
-      const onClick = jest.fn();
+      const onClick = vi.fn();
       const user = userEvent.setup();
 
       render(
@@ -234,7 +236,7 @@ describe('KPICard', () => {
 
     it('should apply hover styles when clickable', () => {
       const { container } = render(
-        <KPICard {...createKPICardProps({ onClick: jest.fn() })} />
+        <KPICard {...createKPICardProps({ onClick: vi.fn() })} />
       );
 
       const card = container.querySelector('article');
@@ -250,7 +252,7 @@ describe('KPICard', () => {
 
     it('should have tabindex when clickable', () => {
       render(
-        <KPICard {...createKPICardProps({ onClick: jest.fn() })} />
+        <KPICard {...createKPICardProps({ onClick: vi.fn() })} />
       );
 
       expect(screen.getByRole('button')).toHaveAttribute('tabindex', '0');
@@ -272,7 +274,7 @@ describe('KPICard', () => {
 
     it('should use button role when clickable', () => {
       render(
-        <KPICard {...createKPICardProps({ onClick: jest.fn() })} />
+        <KPICard {...createKPICardProps({ onClick: vi.fn() })} />
       );
 
       expect(screen.getByRole('button')).toBeInTheDocument();
@@ -320,20 +322,23 @@ describe('KPICard', () => {
     });
 
     it('should have aria-busy during loading', () => {
-      render(
+      const { container } = render(
         <KPICard {...createKPICardProps({ isLoading: true })} />
       );
 
-      expect(screen.getByRole('article', { hidden: true })).toHaveAttribute('aria-busy', 'true');
+      const loadingElement = container.querySelector('[aria-busy="true"]');
+      expect(loadingElement).toBeInTheDocument();
+      expect(loadingElement).toHaveAttribute('aria-busy', 'true');
     });
   });
 
   describe('Ref Forwarding', () => {
     it('should forward ref to article element', () => {
-      const ref = React.createRef<HTMLDivElement>();
+      const ref = React.createRef<HTMLElement>();
       render(<KPICard {...createKPICardProps()} ref={ref} />);
 
-      expect(ref.current).toBeInstanceOf(HTMLDivElement);
+      expect(ref.current).toBeInstanceOf(HTMLElement);
+      expect(ref.current?.tagName).toBe('ARTICLE');
     });
   });
 

@@ -1,5 +1,6 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@/test/utils';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import Checkbox, { CheckboxGroup } from './Checkbox';
 
@@ -16,7 +17,7 @@ describe('Checkbox - Accessibility', () => {
     });
 
     it('should toggle with Space key', () => {
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(<Checkbox onChange={handleChange} />);
 
       const checkbox = screen.getByRole('checkbox');
@@ -27,7 +28,7 @@ describe('Checkbox - Accessibility', () => {
     });
 
     it('should toggle with Enter key', () => {
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(<Checkbox onChange={handleChange} />);
 
       const checkbox = screen.getByRole('checkbox');
@@ -63,7 +64,7 @@ describe('Checkbox - Accessibility', () => {
             { id: 'opt2', label: 'Option 2', value: 'opt2' },
           ]}
           values={[]}
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           legend="Choose"
         />
       );
@@ -86,7 +87,7 @@ describe('Checkbox - Accessibility', () => {
             { id: 'opt3', label: 'Option 3', value: 'opt3' },
           ]}
           values={[]}
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           legend="Choose"
         />
       );
@@ -213,7 +214,7 @@ describe('Checkbox - Accessibility', () => {
             { id: 'opt3', label: 'Option 3', value: 'opt3' },
           ]}
           values={[]}
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           legend="Choose"
         />
       );
@@ -254,7 +255,7 @@ describe('Checkbox - Accessibility', () => {
             { id: 'opt2', label: 'Option 2', value: 'opt2' },
           ]}
           values={[]}
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           legend="Choose"
         />
       );
@@ -270,7 +271,7 @@ describe('Checkbox - Accessibility', () => {
             { id: 'opt1', label: 'Option 1', value: 'opt1' },
           ]}
           values={[]}
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           legend="Options"
         />
       );
@@ -298,7 +299,7 @@ describe('Checkbox - Accessibility', () => {
             { id: 'opt1', label: 'Option 1', value: 'opt1' },
           ]}
           values={[]}
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           legend="Choose"
         />
       );
@@ -368,15 +369,15 @@ describe('Checkbox - Accessibility', () => {
     it('should respect prefers-reduced-motion', () => {
       Object.defineProperty(window, 'matchMedia', {
         writable: true,
-        value: jest.fn().mockImplementation((query) => ({
+        value: vi.fn().mockImplementation((query) => ({
           matches: query === '(prefers-reduced-motion: reduce)',
           media: query,
           onchange: null,
-          addListener: jest.fn(),
-          removeListener: jest.fn(),
-          addEventListener: jest.fn(),
-          removeEventListener: jest.fn(),
-          dispatchEvent: jest.fn(),
+          addListener: vi.fn(),
+          removeListener: vi.fn(),
+          addEventListener: vi.fn(),
+          removeEventListener: vi.fn(),
+          dispatchEvent: vi.fn(),
         })),
       });
 
@@ -441,7 +442,7 @@ describe('Checkbox - Accessibility', () => {
             { id: 'opt2', label: 'Option 2', value: 'opt2' },
           ]}
           values={[]}
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           legend="Choose"
         />
       );
@@ -467,7 +468,7 @@ describe('Checkbox - Accessibility', () => {
             { id: 'opt2', label: 'Option 2', value: 'opt2', disabled: true },
           ]}
           values={[]}
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           legend="Choose"
         />
       );
@@ -484,7 +485,7 @@ describe('Checkbox - Accessibility', () => {
             { id: 'opt2', label: 'Option 2', value: 'opt2' },
           ]}
           values={[]}
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           legend="Choose"
           layout="horizontal"
         />
@@ -519,7 +520,7 @@ describe('Checkbox - Accessibility', () => {
             { id: 'opt2', label: 'Option 2', value: 'opt2' },
           ]}
           values={[]}
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           legend="Options"
         />
       );
@@ -538,7 +539,7 @@ describe('Checkbox - Accessibility', () => {
             { id: 'opt1', label: 'Option 1', value: 'opt1' },
           ]}
           values={[]}
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           legend="Options"
         />
       );
@@ -554,7 +555,7 @@ describe('Checkbox - Accessibility', () => {
             { id: 'opt1', label: 'Option 1', value: 'opt1' },
           ]}
           values={[]}
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           legend="Options"
         />
       );

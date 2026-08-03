@@ -1,8 +1,9 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent, waitFor } from '@/test/utils';
 import { Drawer } from './Drawer';
 
 describe('Drawer Component', () => {
-  const mockOnOpenChange = jest.fn();
+  const mockOnOpenChange = vi.fn();
 
   beforeEach(() => {
     mockOnOpenChange.mockClear();

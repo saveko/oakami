@@ -1,5 +1,6 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@/test/utils';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import Radio, { RadioGroup } from './Radio';
 
@@ -16,7 +17,7 @@ describe('Radio - Accessibility', () => {
     });
 
     it('should select radio with Space key', () => {
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(<Radio name="option" onChange={handleChange} id="radio-1" />);
 
       const radio = screen.getByRole('radio');
@@ -27,7 +28,7 @@ describe('Radio - Accessibility', () => {
     });
 
     it('should select radio with Enter key', () => {
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(<Radio name="option" onChange={handleChange} id="radio-1" />);
 
       const radio = screen.getByRole('radio');
@@ -46,7 +47,7 @@ describe('Radio - Accessibility', () => {
             { value: 'opt3', label: 'Option 3' },
           ]}
           value="opt1"
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Choose"
         />
@@ -78,7 +79,7 @@ describe('Radio - Accessibility', () => {
             { value: 'opt3', label: 'Option 3' },
           ]}
           value="opt1"
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Choose"
         />
@@ -106,7 +107,7 @@ describe('Radio - Accessibility', () => {
             { value: 'opt2', label: 'Option 2' },
           ]}
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Choose"
         />
@@ -158,7 +159,7 @@ describe('Radio - Accessibility', () => {
             { value: 'opt1', label: 'Option 1' },
           ]}
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Choose"
           required
@@ -176,7 +177,7 @@ describe('Radio - Accessibility', () => {
             { value: 'opt1', label: 'Option 1' },
           ]}
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Choose"
           error
@@ -194,7 +195,7 @@ describe('Radio - Accessibility', () => {
             { value: 'opt1', label: 'Option 1' },
           ]}
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Choose"
           helpText="Help text"
@@ -213,7 +214,7 @@ describe('Radio - Accessibility', () => {
             { value: 'opt1', label: 'Option 1' },
           ]}
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Choose"
           error
@@ -234,7 +235,7 @@ describe('Radio - Accessibility', () => {
             { value: 'opt2', label: 'Option 2' },
           ]}
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Choose"
         />
@@ -253,7 +254,7 @@ describe('Radio - Accessibility', () => {
             { value: 'opt2', label: 'Option 2' },
           ]}
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group-name"
           legend="Choose"
         />
@@ -282,7 +283,7 @@ describe('Radio - Accessibility', () => {
             { value: 'opt1', label: 'Option 1' },
           ]}
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Choose"
           error
@@ -323,7 +324,7 @@ describe('Radio - Accessibility', () => {
             { value: 'opt3', label: 'Option 3' },
           ]}
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Choose"
         />
@@ -365,7 +366,7 @@ describe('Radio - Accessibility', () => {
             { value: 'opt2', label: 'Option 2' },
           ]}
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Choose"
         />
@@ -382,7 +383,7 @@ describe('Radio - Accessibility', () => {
             { value: 'opt1', label: 'Option 1' },
           ]}
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Options"
         />
@@ -399,7 +400,7 @@ describe('Radio - Accessibility', () => {
             { value: 'opt1', label: 'Option 1' },
           ]}
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Choose"
           error
@@ -418,7 +419,7 @@ describe('Radio - Accessibility', () => {
             { value: 'opt1', label: 'Option 1' },
           ]}
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Choose"
         />
@@ -451,7 +452,7 @@ describe('Radio - Accessibility', () => {
             { value: 'opt1', label: 'Option 1' },
           ]}
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Choose"
           helpText="Select one"
@@ -470,7 +471,7 @@ describe('Radio - Accessibility', () => {
             { value: 'opt1', label: 'Option 1' },
           ]}
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Choose"
           error
@@ -489,7 +490,7 @@ describe('Radio - Accessibility', () => {
             { value: 'opt1', label: 'Option 1' },
           ]}
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Field"
           error
@@ -506,15 +507,15 @@ describe('Radio - Accessibility', () => {
     it('should respect prefers-reduced-motion', () => {
       Object.defineProperty(window, 'matchMedia', {
         writable: true,
-        value: jest.fn().mockImplementation((query) => ({
+        value: vi.fn().mockImplementation((query) => ({
           matches: query === '(prefers-reduced-motion: reduce)',
           media: query,
           onchange: null,
-          addListener: jest.fn(),
-          removeListener: jest.fn(),
-          addEventListener: jest.fn(),
-          removeEventListener: jest.fn(),
-          dispatchEvent: jest.fn(),
+          addListener: vi.fn(),
+          removeListener: vi.fn(),
+          addEventListener: vi.fn(),
+          removeEventListener: vi.fn(),
+          dispatchEvent: vi.fn(),
         })),
       });
 
@@ -564,7 +565,7 @@ describe('Radio - Accessibility', () => {
             { value: 'opt1', label: 'Option 1' },
           ]}
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Choose"
           error
@@ -584,7 +585,7 @@ describe('Radio - Accessibility', () => {
             { value: 'opt2', label: 'Option 2' },
           ]}
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Choose"
         />
@@ -611,7 +612,7 @@ describe('Radio - Accessibility', () => {
             { value: 'opt2', label: 'Option 2', disabled: true },
           ]}
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Choose"
         />
@@ -629,7 +630,7 @@ describe('Radio - Accessibility', () => {
             { value: 'opt2', label: 'Option 2' },
           ]}
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Choose"
           layout="horizontal"
@@ -665,7 +666,7 @@ describe('Radio - Accessibility', () => {
             { value: 'opt2', label: 'Option 2' },
           ]}
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Options"
         />
@@ -685,7 +686,7 @@ describe('Radio - Accessibility', () => {
             { value: 'opt1', label: 'Option 1' },
           ]}
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Options"
         />
@@ -702,7 +703,7 @@ describe('Radio - Accessibility', () => {
             { value: 'opt1', label: 'Option 1' },
           ]}
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Options"
         />
@@ -721,7 +722,7 @@ describe('Radio - Accessibility', () => {
             { value: 'opt3', label: 'Option 3' },
           ]}
           value="opt1"
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           name="group"
           legend="Choose"
         />

@@ -1,5 +1,6 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent } from '@/test/utils';
 import { Badge } from './Badge';
 
 describe('Badge Component', () => {
@@ -134,7 +135,7 @@ describe('Badge Component', () => {
     });
 
     it('should call onRemove when remove button clicked', () => {
-      const handleRemove = jest.fn();
+      const handleRemove = vi.fn();
       render(
         <Badge removable onRemove={handleRemove}>
           Removable
@@ -148,7 +149,7 @@ describe('Badge Component', () => {
     });
 
     it('should stop propagation when remove button clicked', () => {
-      const handleClick = jest.fn();
+      const handleClick = vi.fn();
       render(
         <Badge removable onClick={handleClick}>
           Removable
@@ -257,7 +258,7 @@ describe('Badge Component', () => {
     });
 
     it('should render with icon, removable, and custom class', () => {
-      const handleRemove = jest.fn();
+      const handleRemove = vi.fn();
       render(
         <Badge
           icon={<span>🎯</span>}

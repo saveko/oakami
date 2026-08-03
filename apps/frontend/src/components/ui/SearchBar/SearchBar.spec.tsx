@@ -1,3 +1,4 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -54,7 +55,7 @@ describe('SearchBar - Unit Tests', () => {
 
     it('should call onChange callback when value changes', async () => {
       const user = userEvent.setup();
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(<SearchBar {...defaultProps} onChange={handleChange} />);
       const input = screen.getByPlaceholderText('Search...');
 
@@ -64,11 +65,11 @@ describe('SearchBar - Unit Tests', () => {
 
     it('should handle controlled value prop', async () => {
       const { rerender } = render(
-        <SearchBar {...defaultProps} value="Apple" onChange={jest.fn()} />
+        <SearchBar {...defaultProps} value="Apple" onChange={vi.fn()} />
       );
       expect(screen.getByDisplayValue('Apple')).toBeInTheDocument();
 
-      rerender(<SearchBar {...defaultProps} value="Banana" onChange={jest.fn()} />);
+      rerender(<SearchBar {...defaultProps} value="Banana" onChange={vi.fn()} />);
       expect(screen.getByDisplayValue('Banana')).toBeInTheDocument();
     });
 
@@ -167,7 +168,7 @@ describe('SearchBar - Unit Tests', () => {
 
     it('should debounce onSearch callback', async () => {
       const user = userEvent.setup({ delay: null });
-      const handleSearch = jest.fn();
+      const handleSearch = vi.fn();
       render(<SearchBar {...defaultProps} onSearch={handleSearch} debounceMs={300} />);
       const input = screen.getByPlaceholderText('Search...');
 
@@ -186,7 +187,7 @@ describe('SearchBar - Unit Tests', () => {
 
     it('should cancel previous debounce on new input', async () => {
       const user = userEvent.setup({ delay: null });
-      const handleSearch = jest.fn();
+      const handleSearch = vi.fn();
       render(<SearchBar {...defaultProps} onSearch={handleSearch} debounceMs={300} />);
       const input = screen.getByPlaceholderText('Search...');
 
@@ -203,7 +204,7 @@ describe('SearchBar - Unit Tests', () => {
 
     it('should respect custom debounceMs', async () => {
       const user = userEvent.setup({ delay: null });
-      const handleSearch = jest.fn();
+      const handleSearch = vi.fn();
       render(<SearchBar {...defaultProps} onSearch={handleSearch} debounceMs={500} />);
       const input = screen.getByPlaceholderText('Search...');
 
@@ -277,8 +278,8 @@ describe('SearchBar - Unit Tests', () => {
 
     it('should select suggestion with Enter key', async () => {
       const user = userEvent.setup();
-      const handleSearch = jest.fn();
-      const handleSelect = jest.fn();
+      const handleSearch = vi.fn();
+      const handleSelect = vi.fn();
       render(
         <SearchBar
           {...defaultProps}
@@ -304,7 +305,7 @@ describe('SearchBar - Unit Tests', () => {
 
     it('should search when Enter pressed without selection', async () => {
       const user = userEvent.setup();
-      const handleSearch = jest.fn();
+      const handleSearch = vi.fn();
       render(<SearchBar {...defaultProps} onSearch={handleSearch} />);
       const input = screen.getByPlaceholderText('Search...');
 
@@ -356,7 +357,7 @@ describe('SearchBar - Unit Tests', () => {
 
     it('should clear value when clear button clicked', async () => {
       const user = userEvent.setup();
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(<SearchBar {...defaultProps} clearable onChange={handleChange} />);
       const input = screen.getByPlaceholderText('Search...');
 
@@ -392,7 +393,7 @@ describe('SearchBar - Unit Tests', () => {
 
     it('should prevent clear button when loading', async () => {
       const user = userEvent.setup();
-      render(<SearchBar {...defaultProps} clearable isLoading value="test" onChange={jest.fn()} />);
+      render(<SearchBar {...defaultProps} clearable isLoading value="test" onChange={vi.fn()} />);
       expect(screen.queryByLabelText('Clear search')).not.toBeInTheDocument();
     });
   });
@@ -418,7 +419,7 @@ describe('SearchBar - Unit Tests', () => {
 
     it('should call onSuggestionSelect when suggestion clicked', async () => {
       const user = userEvent.setup();
-      const handleSelect = jest.fn();
+      const handleSelect = vi.fn();
       render(<SearchBar {...defaultProps} onSuggestionSelect={handleSelect} />);
       const input = screen.getByPlaceholderText('Search...');
 
@@ -508,17 +509,17 @@ describe('SearchBar - Unit Tests', () => {
   describe('External Value Sync', () => {
     it('should update when external value prop changes', () => {
       const { rerender } = render(
-        <SearchBar {...defaultProps} value="Apple" onChange={jest.fn()} />
+        <SearchBar {...defaultProps} value="Apple" onChange={vi.fn()} />
       );
       expect(screen.getByDisplayValue('Apple')).toBeInTheDocument();
 
-      rerender(<SearchBar {...defaultProps} value="Banana" onChange={jest.fn()} />);
+      rerender(<SearchBar {...defaultProps} value="Banana" onChange={vi.fn()} />);
       expect(screen.getByDisplayValue('Banana')).toBeInTheDocument();
       expect(screen.queryByDisplayValue('Apple')).not.toBeInTheDocument();
     });
 
     it('should handle undefined external value', () => {
-      render(<SearchBar {...defaultProps} value={undefined} onChange={jest.fn()} />);
+      render(<SearchBar {...defaultProps} value={undefined} onChange={vi.fn()} />);
       expect(screen.getByPlaceholderText('Search...')).toHaveValue('');
     });
   });
@@ -559,7 +560,7 @@ describe('SearchBar - Unit Tests', () => {
 
     it('should cleanup timers on unmount', async () => {
       const user = userEvent.setup();
-      const handleSearch = jest.fn();
+      const handleSearch = vi.fn();
       const { unmount } = render(
         <SearchBar {...defaultProps} onSearch={handleSearch} />
       );
@@ -576,9 +577,9 @@ describe('SearchBar - Unit Tests', () => {
   describe('Combination Scenarios', () => {
     it('should handle complete workflow', async () => {
       const user = userEvent.setup();
-      const handleSearch = jest.fn();
-      const handleSelect = jest.fn();
-      const handleChange = jest.fn();
+      const handleSearch = vi.fn();
+      const handleSelect = vi.fn();
+      const handleChange = vi.fn();
 
       render(
         <SearchBar

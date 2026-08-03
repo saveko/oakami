@@ -1,5 +1,6 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render } from '@/test/utils';
 import userEvent from '@testing-library/user-event';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { Badge } from './Badge';
@@ -44,7 +45,7 @@ describe('Badge - Accessibility', () => {
 
     it('should have no accessibility violations when removable', async () => {
       const { container } = render(
-        <Badge removable onRemove={jest.fn()}>
+        <Badge removable onRemove={vi.fn()}>
           Removable Badge
         </Badge>
       );
@@ -150,7 +151,7 @@ describe('Badge - Accessibility', () => {
     });
 
     it('should be keyboard accessible on remove button', async () => {
-      const handleRemove = jest.fn();
+      const handleRemove = vi.fn();
       const { container } = render(
         <Badge removable onRemove={handleRemove}>
           Removable
@@ -236,7 +237,7 @@ describe('Badge - Accessibility', () => {
     });
 
     it('should be activatable via Enter key', async () => {
-      const handleRemove = jest.fn();
+      const handleRemove = vi.fn();
       const user = userEvent.setup();
       const { container } = render(
         <Badge removable onRemove={handleRemove}>
@@ -252,7 +253,7 @@ describe('Badge - Accessibility', () => {
     });
 
     it('should be activatable via Space key', async () => {
-      const handleRemove = jest.fn();
+      const handleRemove = vi.fn();
       const user = userEvent.setup();
       const { container } = render(
         <Badge removable onRemove={handleRemove}>
@@ -357,7 +358,7 @@ describe('Badge - Accessibility', () => {
   describe('Combination Accessibility', () => {
     it('should be accessible with icon and removable', async () => {
       const { container } = render(
-        <Badge icon={<span>✓</span>} removable onRemove={jest.fn()}>
+        <Badge icon={<span>✓</span>} removable onRemove={vi.fn()}>
           Complex Badge
         </Badge>
       );

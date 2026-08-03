@@ -1,5 +1,6 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@/test/utils';
 import userEvent from '@testing-library/user-event';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { SearchBar } from './SearchBar';
@@ -25,8 +26,8 @@ describe('SearchBar - Accessibility Tests', () => {
         <SearchBar
           {...defaultProps}
           value="App"
-          onChange={jest.fn()}
-          onSearch={jest.fn()}
+          onChange={vi.fn()}
+          onSearch={vi.fn()}
         />
       );
 
@@ -58,7 +59,7 @@ describe('SearchBar - Accessibility Tests', () => {
 
     it('should have no violations with clearable button', async () => {
       const { container } = render(
-        <SearchBar {...defaultProps} clearable value="test" onChange={jest.fn()} />
+        <SearchBar {...defaultProps} clearable value="test" onChange={vi.fn()} />
       );
       const results = await axe(container);
       expect(results).toHaveNoViolations();
@@ -182,7 +183,7 @@ describe('SearchBar - Accessibility Tests', () => {
 
     it('should support entering from keyboard', async () => {
       const user = userEvent.setup();
-      const handleSelect = jest.fn();
+      const handleSelect = vi.fn();
       render(<SearchBar {...defaultProps} onSuggestionSelect={handleSelect} />);
       const input = screen.getByPlaceholderText('Search fruits...');
 
@@ -264,7 +265,7 @@ describe('SearchBar - Accessibility Tests', () => {
     it('should have proper tab order with clear button', async () => {
       const user = userEvent.setup();
       const { container } = render(
-        <SearchBar {...defaultProps} clearable value="test" onChange={jest.fn()} />
+        <SearchBar {...defaultProps} clearable value="test" onChange={vi.fn()} />
       );
       const input = screen.getByPlaceholderText('Search fruits...');
 
@@ -295,7 +296,7 @@ describe('SearchBar - Accessibility Tests', () => {
 
   describe('Screen Reader Support', () => {
     it('should announce clear button purpose', () => {
-      render(<SearchBar {...defaultProps} clearable value="test" onChange={jest.fn()} />);
+      render(<SearchBar {...defaultProps} clearable value="test" onChange={vi.fn()} />);
       const clearButton = screen.getByLabelText('Clear search');
       expect(clearButton).toHaveAttribute('aria-label', 'Clear search');
     });
@@ -368,7 +369,7 @@ describe('SearchBar - Accessibility Tests', () => {
 
   describe('Interactive Elements Accessibility', () => {
     it('should have proper button type for clear button', () => {
-      render(<SearchBar {...defaultProps} clearable value="test" onChange={jest.fn()} />);
+      render(<SearchBar {...defaultProps} clearable value="test" onChange={vi.fn()} />);
       const clearButton = screen.getByLabelText('Clear search');
       expect(clearButton).toHaveAttribute('type', 'button');
     });
@@ -387,7 +388,7 @@ describe('SearchBar - Accessibility Tests', () => {
 
     it('should have minimum touch target size for interactive elements', () => {
       const { container } = render(
-        <SearchBar {...defaultProps} clearable value="test" onChange={jest.fn()} />
+        <SearchBar {...defaultProps} clearable value="test" onChange={vi.fn()} />
       );
       const clearButton = screen.getByLabelText('Clear search');
 
@@ -423,7 +424,7 @@ describe('SearchBar - Accessibility Tests', () => {
         <SearchBar
           {...defaultProps}
           placeholder=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           aria-label="Fruit search box"
         />
       );
@@ -481,9 +482,9 @@ describe('SearchBar - Accessibility Tests', () => {
         <SearchBar
           {...defaultProps}
           value="App"
-          onChange={jest.fn()}
-          onSearch={jest.fn()}
-          onSuggestionSelect={jest.fn()}
+          onChange={vi.fn()}
+          onSearch={vi.fn()}
+          onSuggestionSelect={vi.fn()}
           clearable
           isLoading={false}
           variant="default"
@@ -499,8 +500,8 @@ describe('SearchBar - Accessibility Tests', () => {
       const { container } = render(
         <SearchBar
           {...defaultProps}
-          onSearch={jest.fn()}
-          onSuggestionSelect={jest.fn()}
+          onSearch={vi.fn()}
+          onSuggestionSelect={vi.fn()}
           clearable
           aria-label="Search fruits"
         />

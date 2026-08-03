@@ -1,5 +1,6 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent } from '@/test/utils';
 import { Error as ErrorComponent } from './Error';
 
 describe('Error Component', () => {
@@ -176,7 +177,7 @@ describe('Error Component', () => {
     });
 
     it('should call onDismiss handler when dismissed', () => {
-      const handleDismiss = jest.fn();
+      const handleDismiss = vi.fn();
       render(
         <ErrorComponent
           {...defaultProps}
@@ -214,7 +215,7 @@ describe('Error Component', () => {
           {...defaultProps}
           action={{
             label: 'Retry',
-            onClick: jest.fn(),
+            onClick: vi.fn(),
           }}
         />
       );
@@ -227,7 +228,7 @@ describe('Error Component', () => {
     });
 
     it('should call onClick handler when action clicked', () => {
-      const handleClick = jest.fn();
+      const handleClick = vi.fn();
       render(
         <ErrorComponent
           {...defaultProps}
@@ -244,7 +245,7 @@ describe('Error Component', () => {
 
     it('should render action in all variants', () => {
       const variants = ['inline', 'card', 'alert'] as const;
-      const handleClick = jest.fn();
+      const handleClick = vi.fn();
 
       variants.forEach((variant) => {
         const { unmount } = render(
@@ -345,8 +346,8 @@ describe('Error Component', () => {
 
   describe('Combinations', () => {
     it('should render with all elements', () => {
-      const handleAction = jest.fn();
-      const handleDismiss = jest.fn();
+      const handleAction = vi.fn();
+      const handleDismiss = vi.fn();
 
       render(
         <ErrorComponent
@@ -379,7 +380,7 @@ describe('Error Component', () => {
           severity="warning"
           variant="alert"
           dismissible
-          action={{ label: 'Fix', onClick: jest.fn() }}
+          action={{ label: 'Fix', onClick: vi.fn() }}
         />
       );
 

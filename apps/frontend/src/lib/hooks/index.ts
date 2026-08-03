@@ -17,3 +17,9 @@ export {
   useMarkAsRead,
   useMarkAllAsRead,
 } from './useNotifications';
+
+export {
+  useInventory,
+  useInventorySummary,
+  useExpiringItems,
+} from './useInventory';

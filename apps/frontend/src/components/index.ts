@@ -17,7 +17,10 @@ export type { SidebarProps, SidebarItem } from './layout';
 export { Navbar } from './layout';
 export type { NavbarProps, NavbarItem } from './layout';
 
-// Header, Footer, Drawer - to be implemented
+export { Header } from './layout';
+export type { HeaderProps, Breadcrumb } from './layout';
+
+// Footer, Drawer - to be implemented
 
 // ===== DATA DISPLAY COMPONENTS =====
 // Table, Pagination, KPICard, Chart - to be implemented

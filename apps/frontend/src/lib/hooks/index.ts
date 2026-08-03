@@ -3,6 +3,20 @@ export {
   useCategoryBreakdown,
   useWasteTrend,
   useTopIngredients,
+  useSupplierWasteAnalysis,
+  useCostAnalysis,
+  useHeatmapData,
+  useWasteRecordsList,
+  useInventoryList,
+  useIngredientsList,
+  useIngredientCategories,
+  useReportsList,
+  useDailyReport,
+  useWeeklyReport,
+  useMonthlyReport,
+  useSuppliersList,
+  useSupplierPerformance,
+  useSupplierComparison,
 } from './useMetrics';
 
 export {

@@ -20,7 +20,10 @@ export type { NavbarProps, NavbarItem } from './layout';
 export { Header } from './layout';
 export type { HeaderProps, Breadcrumb } from './layout';
 
-// Footer, Drawer - to be implemented
+export { Footer } from './layout';
+export type { FooterProps, FooterSection, FooterLink, FooterSocialLink } from './layout';
+
+// Drawer - to be implemented
 
 // ===== DATA DISPLAY COMPONENTS =====
 // Table, Pagination, KPICard, Chart - to be implemented

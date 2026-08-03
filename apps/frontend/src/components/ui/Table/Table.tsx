@@ -153,7 +153,7 @@ export const Table = React.forwardRef<HTMLTableElement, TableProps<any>>(
       <div className={cn('overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700', className)}>
         <table ref={ref} className="w-full" role="grid" aria-label="Data table">
           <thead>
-            <tr className="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-900">
+            <tr className="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-900 py-3">
               {onRowSelect && (
                 <th scope="col" className="w-12 px-4 py-3">
                   <label className="flex items-center justify-center">
@@ -183,7 +183,7 @@ export const Table = React.forwardRef<HTMLTableElement, TableProps<any>>(
                       col.width && `w-[${col.width}]`,
                       col.align === 'center' && 'text-center',
                       col.align === 'right' && 'text-right',
-                      col.sortable && 'cursor-pointer select-none hover:bg-gray-100 dark:hover:bg-gray-800'
+                      col.sortable && 'cursor-pointer select-none hover:bg-gray-100 dark:hover:bg-gray-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500'
                     )}
                     aria-sort={
                       col.sortable

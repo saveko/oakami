@@ -1,20 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
-
-export enum NotificationType {
-  WASTE_CREATED = 'WASTE_CREATED',
-  WASTE_APPROVED = 'WASTE_APPROVED',
-  INVENTORY_LOW = 'INVENTORY_LOW',
-  INVENTORY_EXPIRING = 'INVENTORY_EXPIRING',
-  PREDICTION_GENERATED = 'PREDICTION_GENERATED',
-  REPORT_GENERATED = 'REPORT_GENERATED',
-}
-
-export enum NotificationSeverity {
-  INFO = 'INFO',
-  WARNING = 'WARNING',
-  CRITICAL = 'CRITICAL',
-}
+import { NotificationType, NotificationSeverity } from '@prisma/client';
 
 interface CreateNotificationParams {
   organizationId: string;
@@ -153,7 +139,7 @@ export class NotificationsService {
 
     return this.createNotification({
       organizationId,
-      type: NotificationType.WASTE_CREATED,
+      type: NotificationType.WASTE_ALERT,
       title: 'New Waste Record',
       message: `${wasteRecord.category || 'Waste'} recorded: ${wasteRecord.quantityKg} kg, $${wasteRecord.costUsd.toFixed(2)}`,
       severity: NotificationSeverity.INFO,
@@ -174,7 +160,7 @@ export class NotificationsService {
 
     return this.createNotification({
       organizationId,
-      type: NotificationType.WASTE_APPROVED,
+      type: NotificationType.APPROVAL_NEEDED,
       title: 'Waste Record Approved',
       message: `${wasteRecord.category || 'Waste'} record approved: ${wasteRecord.quantityKg} kg`,
       severity: NotificationSeverity.INFO,
@@ -221,7 +207,7 @@ export class NotificationsService {
 
       await this.createNotification({
         organizationId,
-        type: NotificationType.INVENTORY_EXPIRING,
+        type: NotificationType.EXPIRY_ALERT,
         title: 'Item Expiring Soon',
         message: `${item.ingredient?.name || 'Item'} expires in ${daysUntilExpiry} day${daysUntilExpiry !== 1 ? 's' : ''}`,
         severity: daysUntilExpiry <= 1 ? NotificationSeverity.CRITICAL : NotificationSeverity.WARNING,
@@ -251,7 +237,7 @@ export class NotificationsService {
 
     return this.createNotification({
       organizationId,
-      type: NotificationType.PREDICTION_GENERATED,
+      type: NotificationType.WASTE_PREDICTION,
       title: `AI Prediction: ${prediction.predictionType}`,
       message: prediction.recommendation || `${prediction.predictionType} prediction: ${prediction.value.toFixed(2)} ${prediction.unit}`,
       severity: isCritical ? NotificationSeverity.CRITICAL : NotificationSeverity.INFO,
@@ -272,7 +258,7 @@ export class NotificationsService {
 
     return this.createNotification({
       organizationId,
-      type: NotificationType.REPORT_GENERATED,
+      type: NotificationType.REPORT_READY,
       title: `${report.reportType || 'Report'} Generated`,
       message: `Your ${report.reportType || 'report'} for ${report.period || 'the period'} is ready`,
       severity: NotificationSeverity.INFO,

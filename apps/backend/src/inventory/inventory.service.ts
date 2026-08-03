@@ -74,7 +74,13 @@ export class InventoryService {
     }
 
     if (showLow) {
-      where.quantity = { lte: this.db.raw('min_threshold') };
+      // Use raw query for column-to-column comparison
+      const lowStockIds = await this.db.$queryRaw<Array<{ id: string }>>`
+        SELECT id FROM inventory_item
+        WHERE organization_id = ${organizationId}
+        AND quantity <= min_threshold
+      `;
+      where.id = { in: lowStockIds.map((row) => row.id) };
     }
 
     if (showExpiring) {

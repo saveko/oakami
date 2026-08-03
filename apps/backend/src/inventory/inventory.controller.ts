@@ -40,8 +40,8 @@ export class InventoryController {
 
   @Get('expiring')
   async getExpiringItems(
-    @Query('days') days?: number,
     @Request() req: any,
+    @Query('days') days?: number,
   ) {
     return this.inventoryService.getExpiringItems(req.user.organizationId, days);
   }
@@ -72,9 +72,9 @@ export class InventoryController {
   @Patch(':id/adjust')
   async adjustQuantity(
     @Param('id') id: string,
+    @Request() req: any,
     @Body('quantity') quantity: number,
     @Body('notes') notes?: string,
-    @Request() req: any,
   ) {
     return this.inventoryService.adjustQuantity(
       req.user.organizationId,

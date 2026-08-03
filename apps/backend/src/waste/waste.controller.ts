@@ -69,7 +69,6 @@ export class WasteController {
     const organizationId = req.user.organizationId;
     return this.wasteService.reject(organizationId, id);
   }
-}
 
   @Get('filter/search')
   async filterRecords(
@@ -106,7 +105,7 @@ export class WasteController {
     if (!selectedPreset) {
       throw new NotFoundException('Filter preset not found');
     }
-    return this.wasteService.filterRecords(organizationId, selectedPreset.filterCriteria);
+    return this.wasteService.filterRecords(organizationId, selectedPreset.filterCriteria as any);
   }
 
   @Delete('filter/presets/:presetId')

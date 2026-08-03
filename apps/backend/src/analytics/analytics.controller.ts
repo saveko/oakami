@@ -15,8 +15,8 @@ export class AnalyticsController {
 
   @Get('dashboard')
   async getDashboardMetrics(
-    @Query('days') days?: number,
     @Request() req: any,
+    @Query('days') days?: number,
   ) {
     return this.analyticsService.getDashboardMetrics(
       req.user.organizationId,
@@ -26,8 +26,8 @@ export class AnalyticsController {
 
   @Get('waste-trend')
   async getWasteTrendAnalysis(
-    @Query('days') days?: number,
     @Request() req: any,
+    @Query('days') days?: number,
   ) {
     return this.analyticsService.getWasteTrendAnalysis(
       req.user.organizationId,
@@ -37,8 +37,8 @@ export class AnalyticsController {
 
   @Get('categories')
   async getCategoryAnalysis(
-    @Query('days') days?: number,
     @Request() req: any,
+    @Query('days') days?: number,
   ) {
     return this.analyticsService.getCategoryAnalysis(
       req.user.organizationId,
@@ -48,9 +48,9 @@ export class AnalyticsController {
 
   @Get('top-ingredients')
   async getTopWastedIngredients(
+    @Request() req: any,
     @Query('days') days?: number,
     @Query('limit') limit?: number,
-    @Request() req: any,
   ) {
     return this.analyticsService.getTopWastedIngredients(
       req.user.organizationId,
@@ -61,8 +61,8 @@ export class AnalyticsController {
 
   @Get('suppliers')
   async getSupplierWasteAnalysis(
-    @Query('days') days?: number,
     @Request() req: any,
+    @Query('days') days?: number,
   ) {
     return this.analyticsService.getSupplierWasteAnalysis(
       req.user.organizationId,
@@ -72,8 +72,8 @@ export class AnalyticsController {
 
   @Get('cost-analysis')
   async getCostAnalysis(
-    @Query('days') days?: number,
     @Request() req: any,
+    @Query('days') days?: number,
   ) {
     return this.analyticsService.getCostAnalysis(
       req.user.organizationId,
@@ -83,8 +83,8 @@ export class AnalyticsController {
 
   @Get('heatmap')
   async getHeatmapData(
-    @Query('metric') metric?: string,
     @Request() req: any,
+    @Query('metric') metric?: string,
   ) {
     return this.analyticsService.getHeatmapData(
       req.user.organizationId,

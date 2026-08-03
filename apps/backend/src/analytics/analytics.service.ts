@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '@/database/database.service';
+import { WasteStatus } from '@prisma/client';
 
 @Injectable()
 export class AnalyticsService {
@@ -45,10 +46,10 @@ export class AnalyticsService {
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
-    const where = {
+    const where: any = {
       organizationId,
       createdAt: { gte: startDate },
-      status: 'APPROVED',
+      status: 'APPROVED' as WasteStatus,
     };
 
     // Fetch raw records and group in application layer (Prisma doesn't support date grouping directly)
@@ -88,10 +89,10 @@ export class AnalyticsService {
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
-    const where = {
+    const where: any = {
       organizationId,
       createdAt: { gte: startDate },
-      status: 'APPROVED',
+      status: 'APPROVED' as WasteStatus,
     };
 
     // Use database groupBy for category aggregation
@@ -139,69 +140,73 @@ export class AnalyticsService {
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
-    const records = await this.db.wasteRecord.findMany({
+    // Use database groupBy for aggregation (eliminates N+1 query)
+    const stats = await this.db.wasteRecord.groupBy({
+      by: ['ingredientId'],
       where: {
         organizationId,
         createdAt: { gte: startDate },
-        status: 'APPROVED',
+        status: 'APPROVED' as WasteStatus,
       },
-      include: {
-        ingredient: {
-          include: {
-            category: true,
-          },
-        },
-      },
+      _sum: { costImpact: true, quantity: true },
+      _count: true,
+      orderBy: { _sum: { costImpact: 'desc' } },
     });
 
-    const ingredientAnalysis = records.reduce((acc, record) => {
-      const existing = acc.find((i) => i.ingredientId === record.ingredientId);
+    // Fetch only the ingredients we need (top limit)
+    const topIngredientIds = stats.slice(0, limit).map((s) => s.ingredientId);
+    const ingredients = topIngredientIds.length
+      ? await this.db.ingredient.findMany({
+          where: { id: { in: topIngredientIds }, organizationId },
+          select: { id: true, name: true, categoryId: true },
+        })
+      : [];
 
-      if (existing) {
-        existing.cost += record.costImpact;
-        existing.quantity += record.quantity;
-        existing.recordCount += 1;
-      } else {
-        acc.push({
-          ingredientId: record.ingredientId,
-          ingredientName: record.ingredient.name,
-          categoryName: record.ingredient.category.name,
-          cost: record.costImpact,
-          quantity: record.quantity,
-          recordCount: 1,
-        });
-      }
-      return acc;
-    }, []);
+    const ingredientMap = new Map(ingredients.map((i) => [i.id, i]));
 
-    return ingredientAnalysis
-      .sort((a, b) => b.cost - a.cost)
-      .slice(0, limit);
+    return stats.slice(0, limit).map((stat) => {
+      const ingredient = ingredientMap.get(stat.ingredientId);
+      return {
+        ingredientId: stat.ingredientId,
+        ingredientName: ingredient?.name || 'Unknown',
+        cost: stat._sum.costImpact || 0,
+        quantity: stat._sum.quantity || 0,
+        recordCount: stat._count,
+      };
+    });
   }
 
   async getSupplierWasteAnalysis(organizationId: string, days: number = 30) {
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
+    // Use database groupBy with supplier join (eliminates N+1 and JavaScript aggregation)
     const records = await this.db.wasteRecord.findMany({
       where: {
         organizationId,
         createdAt: { gte: startDate },
-        status: 'APPROVED',
+        status: 'APPROVED' as WasteStatus,
       },
-      include: {
+      select: {
+        costImpact: true,
+        quantity: true,
         ingredient: {
-          include: {
-            supplier: true,
+          select: {
+            supplierId: true,
+            supplier: {
+              select: { id: true, name: true },
+            },
           },
         },
       },
     });
 
+    // Group by supplier in application (minimal data transfer)
     const supplierAnalysis = records
       .filter((r) => r.ingredient.supplier)
       .reduce((acc, record) => {
-        const existing = acc.find((s) => s.supplierId === record.ingredient.supplierId);
+        const supplierId = record.ingredient.supplierId;
+        const existing = acc.find((s) => s.supplierId === supplierId);
 
         if (existing) {
           existing.wastedCost += record.costImpact;
@@ -209,7 +214,7 @@ export class AnalyticsService {
           existing.recordCount += 1;
         } else {
           acc.push({
-            supplierId: record.ingredient.supplierId,
+            supplierId,
             supplierName: record.ingredient.supplier.name,
             wastedCost: record.costImpact,
             wastedQuantity: record.quantity,
@@ -229,19 +234,19 @@ export class AnalyticsService {
     const where = {
       organizationId,
       createdAt: { gte: startDate },
-      status: 'APPROVED',
+      status: 'APPROVED' as WasteStatus,
     };
 
     // Use database aggregation for totals
     const result = await this.db.wasteRecord.aggregate({
       where,
       _sum: { costImpact: true, quantity: true },
-      _count: true,
+      _count: { _all: true },
     });
 
     const totalWasteCost = result._sum.costImpact || 0;
     const totalQuantity = result._sum.quantity || 0;
-    const recordCount = result._count;
+    const recordCount = (result._count as any)._all;
     const avgCostPerRecord = recordCount > 0 ? totalWasteCost / recordCount : 0;
 
     return {
@@ -265,7 +270,7 @@ export class AnalyticsService {
       where: {
         organizationId,
         createdAt: { gte: startDate },
-        status: 'APPROVED',
+        status: 'APPROVED' as WasteStatus,
       },
       select: {
         createdAt: true,
@@ -300,7 +305,7 @@ export class AnalyticsService {
       where: {
         organizationId,
         createdAt: { gte: startDate },
-        status: 'APPROVED',
+        status: 'APPROVED' as WasteStatus,
       },
       _sum: {
         costImpact: true,
@@ -315,7 +320,7 @@ export class AnalyticsService {
       where: {
         organizationId,
         createdAt: { gte: startDate },
-        status: 'APPROVED',
+        status: 'APPROVED' as WasteStatus,
       },
     });
   }
@@ -336,46 +341,47 @@ export class AnalyticsService {
   }
 
   private async getLowStockItemsCount(organizationId: string) {
-    // Fetch all items but with selective select to minimize memory usage
-    // Note: Database-level column comparison not directly supported in Prisma
-    // Consider using raw query or application-level filtering as compromise
-    const items = await this.db.inventoryItem.findMany({
-      where: { organizationId },
-      select: { quantity: true, minThreshold: true },
-    });
-
-    return items.filter((item) => item.quantity <= item.minThreshold).length;
+    const count = await this.db.$queryRaw<Array<{ count: number }>>`
+      SELECT COUNT(*) as count
+      FROM inventory_item
+      WHERE organization_id = ${organizationId}
+      AND quantity <= min_threshold
+    `;
+    return count[0]?.count || 0;
   }
 
   private async getCategoryBreakdown(organizationId: string, startDate: Date) {
-    const records = await this.db.wasteRecord.findMany({
+    const stats = await this.db.wasteRecord.groupBy({
+      by: ['categoryId'],
       where: {
         organizationId,
         createdAt: { gte: startDate },
-        status: 'APPROVED',
+        status: 'APPROVED' as WasteStatus,
       },
-      include: {
-        category: true,
-      },
+      _sum: { costImpact: true, quantity: true },
+      _count: true,
     });
 
-    return records.reduce((acc, record) => {
-      const existing = acc.find((c) => c.categoryId === record.categoryId);
-      if (existing) {
-        existing.cost += record.costImpact;
-        existing.quantity += record.quantity;
-        existing.count += 1;
-      } else {
-        acc.push({
-          categoryId: record.categoryId,
-          categoryName: record.category.name,
-          cost: record.costImpact,
-          quantity: record.quantity,
-          count: 1,
-        });
-      }
-      return acc;
-    }, []);
+    const categoryIds = stats.map((s) => s.categoryId);
+    const categories = categoryIds.length
+      ? await this.db.wasteCategory.findMany({
+          where: { id: { in: categoryIds }, organizationId },
+          select: { id: true, name: true },
+        })
+      : [];
+
+    const categoryMap = new Map(categories.map((c) => [c.id, c]));
+
+    return stats.map((stat) => {
+      const category = categoryMap.get(stat.categoryId);
+      return {
+        categoryId: stat.categoryId,
+        categoryName: category?.name || 'Unknown',
+        cost: stat._sum.costImpact || 0,
+        quantity: stat._sum.quantity || 0,
+        count: stat._count,
+      };
+    });
   }
 
   private async getDailyTrendData(organizationId: string, days: number) {
@@ -385,7 +391,7 @@ export class AnalyticsService {
         createdAt: {
           gte: new Date(Date.now() - days * 24 * 60 * 60 * 1000),
         },
-        status: 'APPROVED',
+        status: 'APPROVED' as WasteStatus,
       },
       select: {
         createdAt: true,

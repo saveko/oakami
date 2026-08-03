@@ -42,8 +42,8 @@ export class SuppliersController {
   @Get(':id/performance')
   async getSupplierPerformance(
     @Param('id') id: string,
-    @Query('days') days?: number,
     @Request() req: any,
+    @Query('days') days?: number,
   ) {
     return this.suppliersService.getSupplierPerformance(
       req.user.organizationId,
@@ -54,8 +54,8 @@ export class SuppliersController {
 
   @Get('comparison/all')
   async getSupplierComparison(
-    @Query('days') days?: number,
     @Request() req: any,
+    @Query('days') days?: number,
   ) {
     return this.suppliersService.getSupplierComparison(
       req.user.organizationId,

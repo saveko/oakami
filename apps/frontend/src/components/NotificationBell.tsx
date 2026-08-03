@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, memo } from 'react';
 import { useUnreadCount } from '@/lib/hooks/useNotifications';
 import NotificationCenter from './NotificationCenter';
 
-export default function NotificationBell() {
+function NotificationBellContent() {
   const { data: unreadData, refetch } = useUnreadCount();
   const [isOpen, setIsOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -88,3 +88,5 @@ export default function NotificationBell() {
     </div>
   );
 }
+
+export default memo(NotificationBellContent);

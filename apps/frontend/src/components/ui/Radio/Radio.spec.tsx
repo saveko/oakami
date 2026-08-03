@@ -42,13 +42,13 @@ describe('Radio', () => {
     });
 
     it('should render checked state', () => {
-      render(<Radio name="option" checked />);
+      render(<Radio name="option" defaultChecked />);
       const radio = screen.getByRole('radio') as HTMLInputElement;
       expect(radio.checked).toBe(true);
     });
 
     it('should render unchecked state', () => {
-      render(<Radio name="option" checked={false} />);
+      render(<Radio name="option" defaultChecked={false} />);
       const radio = screen.getByRole('radio') as HTMLInputElement;
       expect(radio.checked).toBe(false);
     });

@@ -11,7 +11,10 @@ export type { CardProps } from './ui/Card';
 // Modal, Toast, Select, Checkbox, Radio, Switch - to be implemented
 
 // ===== LAYOUT COMPONENTS =====
-// Sidebar, Navbar, Header, Footer, Drawer - to be implemented
+export { Sidebar } from './layout';
+export type { SidebarProps, SidebarItem } from './layout';
+
+// Navbar, Header, Footer, Drawer - to be implemented
 
 // ===== DATA DISPLAY COMPONENTS =====
 // Table, Pagination, KPICard, Chart - to be implemented

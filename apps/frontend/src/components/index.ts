@@ -14,7 +14,10 @@ export type { CardProps } from './ui/Card';
 export { Sidebar } from './layout';
 export type { SidebarProps, SidebarItem } from './layout';
 
-// Navbar, Header, Footer, Drawer - to be implemented
+export { Navbar } from './layout';
+export type { NavbarProps, NavbarItem } from './layout';
+
+// Header, Footer, Drawer - to be implemented
 
 // ===== DATA DISPLAY COMPONENTS =====
 // Table, Pagination, KPICard, Chart - to be implemented

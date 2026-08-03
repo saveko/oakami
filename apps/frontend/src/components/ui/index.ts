@@ -34,4 +34,16 @@ export type { KPICardProps } from './KPICard';
 export { Chart } from './Chart';
 export type { ChartProps, ChartSeries } from './Chart';
 
-// Modal, Toast exports will be added as components are implemented
+export { Badge } from './Badge';
+export type { BadgeProps } from './Badge';
+
+export { Loading } from './Loading';
+export type { LoadingProps } from './Loading';
+
+export { Empty } from './Empty';
+export type { EmptyProps } from './Empty';
+
+export { Error } from './Error';
+export type { ErrorProps } from './Error';
+
+// SearchBar, FilterPanel exports will be added as components are implemented

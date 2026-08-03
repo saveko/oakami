@@ -262,14 +262,21 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
               </span>
               <div className="flex items-center gap-1 ml-2">
                 {clearable && selectedValue !== '' && !(isValueArray && selectedValue.length === 0) && (
-                  <button
-                    type="button"
+                  <div
+                    role="button"
+                    tabIndex={0}
                     onClick={handleClear}
-                    className="p-1 hover:bg-gray-100 rounded transition"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleClear(e as any);
+                      }
+                    }}
+                    className="p-1 hover:bg-gray-100 rounded transition cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"
                     aria-label="Clear selection"
                   >
                     ✕
-                  </button>
+                  </div>
                 )}
                 <svg
                   className={`w-5 h-5 text-gray-400 transition-transform ${

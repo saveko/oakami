@@ -2,6 +2,53 @@ import '@testing-library/jest-dom';
 import 'jest-axe/extend-expect';
 import { vi } from 'vitest';
 
+// Mock jsdom DOM APIs
+window.HTMLElement.prototype.scrollIntoView = vi.fn();
+
+// Mock matchMedia for focus-visible queries and media-query tests
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: vi.fn().mockImplementation(query => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  })),
+});
+
+// Mock prefers-reduced-motion for animation tests
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: vi.fn().mockImplementation(query => {
+    if (query === '(prefers-reduced-motion: reduce)') {
+      return {
+        matches: false,
+        media: query,
+        onchange: null,
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      };
+    }
+    return {
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    };
+  }),
+});
+
 // Mock Next.js router
 vi.mock('next/navigation', () => ({
   useRouter() {
@@ -46,6 +93,7 @@ vi.mock('recharts', () => ({
   CartesianGrid: () => <div />,
   Tooltip: () => <div />,
   Legend: () => <div />,
+  Cell: () => <div />,
   ResponsiveContainer: ({ children }: any) => <div>{children}</div>,
 }));
 

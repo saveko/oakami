@@ -109,7 +109,7 @@ export const Table = React.forwardRef<HTMLTableElement, TableProps<any>>(
         <div className={cn('overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700', className)}>
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-900">
+              <tr className="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-900 py-3 dark:text-gray-400">
                 {onRowSelect && <th className="w-12 px-4 py-3"></th>}
                 {columns.map((col) => (
                   <th key={col.id} className="px-4 py-3 text-left text-sm font-medium text-gray-600 dark:text-gray-400">

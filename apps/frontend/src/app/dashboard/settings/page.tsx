@@ -2,6 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/lib/store';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
+import { Switch } from '@/components/ui/Switch';
+import { Card } from '@/components/ui/Card';
 import ReportSchedulePanel from '@/components/ReportSchedulePanel';
 
 export default function SettingsPage() {
@@ -84,164 +89,127 @@ export default function SettingsPage() {
 
       <div className="max-w-2xl">
         {/* Profile Section */}
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
+        <Card padding="lg" className="mb-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Profile</h2>
           <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email
-              </label>
-              <input
-                type="email"
-                value={user?.email || ''}
-                disabled
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
-              />
-            </div>
+            <Input
+              label="Email"
+              type="email"
+              value={user?.email || ''}
+              disabled
+            />
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  First Name
-                </label>
-                <input
-                  type="text"
-                  value={user?.firstName || ''}
-                  disabled
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Last Name
-                </label>
-                <input
-                  type="text"
-                  value={user?.lastName || ''}
-                  disabled
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
-                />
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Role
-              </label>
-              <input
+              <Input
+                label="First Name"
                 type="text"
-                value={user?.role || ''}
+                value={user?.firstName || ''}
                 disabled
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
+              />
+              <Input
+                label="Last Name"
+                type="text"
+                value={user?.lastName || ''}
+                disabled
               />
             </div>
+            <Input
+              label="Role"
+              type="text"
+              value={user?.role || ''}
+              disabled
+            />
           </div>
-        </div>
+        </Card>
 
         {/* Preferences Section */}
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
+        <Card padding="lg" className="mb-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Preferences</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Timezone
-                </label>
-                <select
-                  name="timezone"
-                  value={formData.timezone}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
-                >
-                  <option value="UTC">UTC</option>
-                  <option value="EST">Eastern Time</option>
-                  <option value="CST">Central Time</option>
-                  <option value="MST">Mountain Time</option>
-                  <option value="PST">Pacific Time</option>
-                </select>
-              </div>
+              <Select
+                label="Timezone"
+                value={formData.timezone}
+                onChange={(val) =>
+                  setFormData((prev) => ({ ...prev, timezone: val as string }))
+                }
+                options={[
+                  { value: 'UTC', label: 'UTC' },
+                  { value: 'EST', label: 'Eastern Time' },
+                  { value: 'CST', label: 'Central Time' },
+                  { value: 'MST', label: 'Mountain Time' },
+                  { value: 'PST', label: 'Pacific Time' },
+                ]}
+              />
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Currency
-                </label>
-                <select
-                  name="currency"
-                  value={formData.currency}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
-                >
-                  <option value="USD">USD ($)</option>
-                  <option value="EUR">EUR (€)</option>
-                  <option value="GBP">GBP (£)</option>
-                  <option value="CAD">CAD (C$)</option>
-                </select>
-              </div>
+              <Select
+                label="Currency"
+                value={formData.currency}
+                onChange={(val) =>
+                  setFormData((prev) => ({ ...prev, currency: val as string }))
+                }
+                options={[
+                  { value: 'USD', label: 'USD ($)' },
+                  { value: 'EUR', label: 'EUR (€)' },
+                  { value: 'GBP', label: 'GBP (£)' },
+                  { value: 'CAD', label: 'CAD (C$)' },
+                ]}
+              />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Low Stock Threshold (kg)
-                </label>
-                <input
-                  type="number"
-                  name="lowStockThreshold"
-                  value={formData.lowStockThreshold}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
-                />
-              </div>
+              <Input
+                label="Low Stock Threshold (kg)"
+                type="number"
+                name="lowStockThreshold"
+                value={formData.lowStockThreshold.toString()}
+                onChange={handleChange}
+              />
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Expiring Items Alert (days)
-                </label>
-                <input
-                  type="number"
-                  name="expiringItemsDays"
-                  value={formData.expiringItemsDays}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
-                />
-              </div>
+              <Input
+                label="Expiring Items Alert (days)"
+                type="number"
+                name="expiringItemsDays"
+                value={formData.expiringItemsDays.toString()}
+                onChange={handleChange}
+              />
             </div>
 
             {/* Notifications */}
             <div className="pt-4 border-t border-gray-200">
               <h3 className="font-semibold text-gray-900 mb-3">Notifications</h3>
               <div className="space-y-3">
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    name="emailNotifications"
-                    checked={formData.emailNotifications}
-                    onChange={handleChange}
-                    className="w-4 h-4 border-gray-300 rounded focus:ring-2 focus:ring-sky-500"
-                  />
-                  <span className="ml-3 text-gray-700">Email Notifications</span>
-                </label>
+                <Switch
+                  id="emailNotifications"
+                  label="Email Notifications"
+                  checked={formData.emailNotifications}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, emailNotifications: e.target.checked }))
+                  }
+                />
 
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    name="pushNotifications"
-                    checked={formData.pushNotifications}
-                    onChange={handleChange}
-                    className="w-4 h-4 border-gray-300 rounded focus:ring-2 focus:ring-sky-500"
-                  />
-                  <span className="ml-3 text-gray-700">Push Notifications</span>
-                </label>
+                <Switch
+                  id="pushNotifications"
+                  label="Push Notifications"
+                  checked={formData.pushNotifications}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, pushNotifications: e.target.checked }))
+                  }
+                />
               </div>
             </div>
 
-            <button
+            <Button
               type="submit"
+              variant="primary"
+              size="md"
+              fullWidth
               disabled={isLoading}
-              className="w-full bg-sky-500 hover:bg-sky-600 text-white font-semibold py-2 px-4 rounded-lg transition disabled:opacity-50"
+              isLoading={isLoading}
             >
-              {isLoading ? 'Saving...' : 'Save Settings'}
-            </button>
+              Save Settings
+            </Button>
           </form>
-        </div>
+        </Card>
 
         {/* Report Schedules */}
         <div className="bg-white rounded-lg shadow p-6 mb-6">
@@ -249,15 +217,15 @@ export default function SettingsPage() {
         </div>
 
         {/* Danger Zone */}
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+        <Card padding="lg" className="border-l-4 border-l-red-600 bg-red-50">
           <h2 className="text-lg font-semibold text-red-900 mb-4">Danger Zone</h2>
           <p className="text-red-700 text-sm mb-4">
             Once you delete your account, there is no going back. Please be certain.
           </p>
-          <button className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+          <Button variant="destructive" size="md">
             Delete Account
-          </button>
-        </div>
+          </Button>
+        </Card>
       </div>
     </div>
   );

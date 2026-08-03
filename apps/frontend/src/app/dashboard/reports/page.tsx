@@ -1,6 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
+import GenerateReportForm from '@/components/GenerateReportForm';
 import { api } from '@/lib/api';
 
 interface Report {
@@ -17,10 +21,6 @@ export default function ReportsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState({
-    type: 'daily',
-    frequency: 'once',
-  });
 
   useEffect(() => {
     fetchReports();
@@ -38,16 +38,9 @@ export default function ReportsPage() {
     }
   };
 
-  const handleFormChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (_formData: { type: string; frequency: string }) => {
     try {
       await api.listReports();
-      setFormData({ type: 'daily', frequency: 'once' });
       setShowForm(false);
       fetchReports();
     } catch (err: any) {
@@ -80,12 +73,13 @@ export default function ReportsPage() {
           <h1 className="text-3xl font-bold text-gray-900">Reports</h1>
           <p className="text-gray-600 mt-2">View and manage waste reports</p>
         </div>
-        <button
+        <Button
           onClick={() => setShowForm(!showForm)}
-          className="px-6 py-2 bg-sky-500 text-white rounded-lg hover:bg-sky-600 transition"
+          variant="primary"
+          size="md"
         >
           {showForm ? 'Cancel' : 'Generate Report'}
-        </button>
+        </Button>
       </div>
 
       {error && (
@@ -95,91 +89,52 @@ export default function ReportsPage() {
       )}
 
       {showForm && (
-        <div className="bg-white rounded-lg shadow p-6 mb-8">
+        <Card padding="lg" className="mb-8">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Generate New Report</h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Report Type
-                </label>
-                <select
-                  name="type"
-                  value={formData.type}
-                  onChange={handleFormChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
-                >
-                  <option value="daily">Daily</option>
-                  <option value="weekly">Weekly</option>
-                  <option value="monthly">Monthly</option>
-                  <option value="yearly">Yearly</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Frequency
-                </label>
-                <select
-                  name="frequency"
-                  value={formData.frequency}
-                  onChange={handleFormChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
-                >
-                  <option value="once">Once</option>
-                  <option value="daily">Daily</option>
-                  <option value="weekly">Weekly</option>
-                  <option value="monthly">Monthly</option>
-                </select>
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              className="w-full bg-sky-500 hover:bg-sky-600 text-white font-semibold py-2 px-4 rounded-lg transition"
-            >
-              Generate
-            </button>
-          </form>
-        </div>
+          <GenerateReportForm onSubmit={handleSubmit} isLoading={isLoading} />
+        </Card>
       )}
 
       {/* Reports Grid */}
       {reports.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {reports.map((report) => (
-            <div key={report.id} className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition">
+            <Card key={report.id} padding="lg" className="hover:shadow-lg transition flex flex-col">
               <div className="flex items-start justify-between mb-4">
                 <span className="text-4xl">{getReportIcon(report.type)}</span>
-                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                  report.status === 'completed'
-                    ? 'bg-green-100 text-green-800'
-                    : report.status === 'pending'
-                    ? 'bg-yellow-100 text-yellow-800'
-                    : 'bg-red-100 text-red-800'
-                }`}>
+                <Badge
+                  variant="solid"
+                  color={
+                    report.status === 'completed'
+                      ? 'green'
+                      : report.status === 'pending'
+                      ? 'yellow'
+                      : 'red'
+                  }
+                  size="sm"
+                >
                   {report.status}
-                </span>
+                </Badge>
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2 capitalize">
                 {report.type} Report
               </h3>
-              <p className="text-gray-600 text-sm mb-4">
+              <p className="text-gray-600 text-sm mb-4 flex-1">
                 {report.summary}
               </p>
-              <p className="text-gray-500 text-xs">
+              <p className="text-gray-500 text-xs mb-4">
                 Generated: {new Date(report.generatedAt).toLocaleDateString()}
               </p>
-              <button className="mt-4 w-full px-4 py-2 border border-sky-500 text-sky-500 rounded-lg hover:bg-sky-50 transition">
+              <Button variant="ghost" size="md" fullWidth>
                 View
-              </button>
-            </div>
+              </Button>
+            </Card>
           ))}
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow p-8 text-center text-gray-600">
-          No reports found. Generate your first report to get started.
-        </div>
+        <Card padding="lg" className="text-center text-gray-600">
+          <p>No reports found. Generate your first report to get started.</p>
+        </Card>
       )}
     </div>
   );

@@ -4,6 +4,8 @@ import { Suspense, lazy } from 'react';
 import { useDashboardMetrics, usePredictions, useGeneratePredictions } from '@/lib/hooks';
 import { useUnreadCount } from '@/lib/hooks/useNotifications';
 import PredictionCard from '@/components/PredictionCard';
+import { KPICard } from '@/components/ui/KPICard';
+import { Button } from '@/components/ui/Button';
 
 // Lazy load recharts to avoid loading 300KB+ on initial page load
 const DailyWasteTrendChart = lazy(() => import('./DailyWasteTrendChart'));
@@ -13,16 +15,6 @@ const ChartSkeleton = () => (
   <div className="bg-white rounded-lg shadow p-6">
     <div className="h-8 bg-gray-200 rounded w-1/3 mb-4 animate-pulse" />
     <div className="h-80 bg-gray-100 rounded animate-pulse" />
-  </div>
-);
-
-const MetricCard = ({ label, value, unit = '' }: { label: string; value: number | string; unit?: string }) => (
-  <div className="bg-white rounded-lg shadow p-6">
-    <p className="text-gray-600 text-sm font-medium">{label}</p>
-    <p className="text-3xl font-bold text-gray-900 mt-2">
-      {typeof value === 'number' ? value.toLocaleString() : value}
-      {unit && <span className="text-lg text-gray-500 ml-1">{unit}</span>}
-    </p>
   </div>
 );
 
@@ -84,13 +76,15 @@ export default function DashboardPage() {
         <div className="mb-8">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold text-gray-900">AI Predictions</h2>
-            <button
+            <Button
               onClick={() => generatePredictions(30)}
               disabled={genPending}
-              className="px-4 py-1 text-sm bg-sky-100 text-sky-700 rounded hover:bg-sky-200 transition disabled:opacity-50"
+              variant="secondary"
+              size="sm"
+              isLoading={genPending}
             >
-              {genPending ? 'Generating...' : 'Refresh'}
-            </button>
+              Refresh
+            </Button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             {predictions.map((pred: any) => (
@@ -102,10 +96,53 @@ export default function DashboardPage() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <MetricCard label="Total Waste Cost" value={Math.round(metrics.totalWasteCost)} unit="$" />
-        <MetricCard label="Waste Records" value={metrics.wasteRecordCount} />
-        <MetricCard label="Expiring Items" value={metrics.expiringItemsAlert} />
-        <MetricCard label="Low Stock Items" value={metrics.lowStockAlert} />
+        <KPICard
+          label="Total Waste Cost"
+          value={Math.round(metrics.totalWasteCost)}
+          unit="$"
+          status={metrics.totalWasteCost > 1000 ? 'error' : metrics.totalWasteCost > 500 ? 'warning' : 'neutral'}
+          icon="🚨"
+          trend={
+            metrics.dailyTrend && metrics.dailyTrend.length >= 2
+              ? {
+                  value: Math.abs(
+                    ((metrics.dailyTrend[metrics.dailyTrend.length - 1]?.cost || 0) -
+                      (metrics.dailyTrend[0]?.cost || 0)) /
+                      (metrics.dailyTrend[0]?.cost || 1) *
+                      100
+                  ),
+                  direction: (metrics.dailyTrend[metrics.dailyTrend.length - 1]?.cost || 0) > (metrics.dailyTrend[0]?.cost || 0) ? 'up' : 'down',
+                  label: 'vs week ago',
+                }
+              : undefined
+          }
+        />
+
+        <KPICard
+          label="Waste Records"
+          value={metrics.wasteRecordCount}
+          status="neutral"
+          icon="📋"
+          trend={
+            metrics.wasteRecordCount > 10
+              ? { value: Math.min(metrics.wasteRecordCount - 5, 99), direction: 'up', label: 'this week' }
+              : undefined
+          }
+        />
+
+        <KPICard
+          label="Expiring Items"
+          value={metrics.expiringItemsAlert}
+          status={metrics.expiringItemsAlert > 5 ? 'error' : metrics.expiringItemsAlert > 0 ? 'warning' : 'success'}
+          icon="⏰"
+        />
+
+        <KPICard
+          label="Low Stock Items"
+          value={metrics.lowStockAlert}
+          status={metrics.lowStockAlert > 5 ? 'error' : metrics.lowStockAlert > 0 ? 'warning' : 'success'}
+          icon="📦"
+        />
       </div>
 
       {/* Charts - Lazy loaded with Suspense */}

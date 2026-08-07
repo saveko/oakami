@@ -48,6 +48,30 @@ describe('FilterPanel - Unit Tests', () => {
     onFilterChange: vi.fn(),
   };
 
+  /**
+   * FilterPanel is fully controlled, so a static `values` prop means typed
+   * characters can never accumulate (each keystroke re-renders the old value).
+   * This harness holds the state the way a real consumer would, while still
+   * reporting every change to the spy.
+   */
+  const StatefulPanel = ({
+    onFilterChange,
+    ...rest
+  }: { onFilterChange: (id: string, value: any) => void } & Record<string, any>) => {
+    const [values, setValues] = React.useState<FilterState>({} as FilterState);
+    return (
+      <FilterPanel
+        filters={defaultFilters}
+        {...rest}
+        values={values}
+        onFilterChange={(id, value) => {
+          setValues((prev) => ({ ...prev, [id]: value }));
+          onFilterChange(id, value);
+        }}
+      />
+    );
+  };
+
   describe('Rendering', () => {
     it('should render with header and filters', () => {
       render(<FilterPanel {...defaultProps} />);
@@ -97,14 +121,10 @@ describe('FilterPanel - Unit Tests', () => {
     it('should call onFilterChange when select value changes', async () => {
       const user = userEvent.setup();
       const handleChange = vi.fn();
-      render(<FilterPanel {...defaultProps} onFilterChange={handleChange} />);
+      render(<StatefulPanel onFilterChange={handleChange} />);
 
-      const selects = screen.getAllByRole('combobox');
-      const categorySelect = selects[0];
-
-      await user.click(categorySelect);
-      const fruitOption = screen.getByText('Fruits');
-      await user.click(fruitOption);
+      const categorySelect = screen.getByLabelText('Category');
+      await user.selectOptions(categorySelect, 'fruits');
 
       expect(handleChange).toHaveBeenCalledWith('category', 'fruits');
     });
@@ -182,31 +202,30 @@ describe('FilterPanel - Unit Tests', () => {
     it('should call onFilterChange for start date', async () => {
       const user = userEvent.setup();
       const handleChange = vi.fn();
-      render(<FilterPanel {...defaultProps} onFilterChange={handleChange} />);
+      render(<StatefulPanel onFilterChange={handleChange} />);
 
-      const dateInputs = screen.getAllByRole('textbox').filter((el) => el instanceof HTMLInputElement && el.type === 'date');
-      if (dateInputs.length > 0) {
-        await user.type(dateInputs[0], '2026-08-01');
-        expect(handleChange).toHaveBeenCalledWith(
-          'dateRange',
-          expect.objectContaining({ start: '2026-08-01' })
-        );
-      }
+      // <input type="date"> exposes no ARIA role, so target it by its label.
+      const startDate = screen.getByLabelText('Date Range from');
+      await user.type(startDate, '2026-08-01');
+
+      expect(handleChange).toHaveBeenCalledWith(
+        'dateRange',
+        expect.objectContaining({ start: '2026-08-01' })
+      );
     });
 
     it('should call onFilterChange for end date', async () => {
       const user = userEvent.setup();
       const handleChange = vi.fn();
-      render(<FilterPanel {...defaultProps} onFilterChange={handleChange} />);
+      render(<StatefulPanel onFilterChange={handleChange} />);
 
-      const dateInputs = screen.getAllByRole('textbox').filter((el) => el instanceof HTMLInputElement && el.type === 'date');
-      if (dateInputs.length > 1) {
-        await user.type(dateInputs[1], '2026-08-31');
-        expect(handleChange).toHaveBeenCalledWith(
-          'dateRange',
-          expect.objectContaining({ end: '2026-08-31' })
-        );
-      }
+      const endDate = screen.getByLabelText('Date Range to');
+      await user.type(endDate, '2026-08-31');
+
+      expect(handleChange).toHaveBeenCalledWith(
+        'dateRange',
+        expect.objectContaining({ end: '2026-08-31' })
+      );
     });
   });
 
@@ -220,33 +239,31 @@ describe('FilterPanel - Unit Tests', () => {
     it('should call onFilterChange for min value', async () => {
       const user = userEvent.setup();
       const handleChange = vi.fn();
-      render(<FilterPanel {...defaultProps} onFilterChange={handleChange} />);
+      render(<StatefulPanel onFilterChange={handleChange} />);
 
-      const spinButtons = screen.getAllByRole('spinbutton');
-      if (spinButtons.length > 0) {
-        await user.clear(spinButtons[0]);
-        await user.type(spinButtons[0], '10');
-        expect(handleChange).toHaveBeenCalledWith(
-          'costRange',
-          expect.objectContaining({ from: 10 })
-        );
-      }
+      const minInput = screen.getByLabelText('Cost Range from');
+      await user.clear(minInput);
+      await user.type(minInput, '10');
+
+      expect(handleChange).toHaveBeenLastCalledWith(
+        'costRange',
+        expect.objectContaining({ from: 10 })
+      );
     });
 
     it('should call onFilterChange for max value', async () => {
       const user = userEvent.setup();
       const handleChange = vi.fn();
-      render(<FilterPanel {...defaultProps} onFilterChange={handleChange} />);
+      render(<StatefulPanel onFilterChange={handleChange} />);
 
-      const spinButtons = screen.getAllByRole('spinbutton');
-      if (spinButtons.length > 1) {
-        await user.clear(spinButtons[1]);
-        await user.type(spinButtons[1], '100');
-        expect(handleChange).toHaveBeenCalledWith(
-          'costRange',
-          expect.objectContaining({ to: 100 })
-        );
-      }
+      const maxInput = screen.getByLabelText('Cost Range to');
+      await user.clear(maxInput);
+      await user.type(maxInput, '100');
+
+      expect(handleChange).toHaveBeenLastCalledWith(
+        'costRange',
+        expect.objectContaining({ to: 100 })
+      );
     });
   });
 

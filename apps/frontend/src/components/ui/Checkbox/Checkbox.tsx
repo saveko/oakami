@@ -92,7 +92,7 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
               htmlFor={elementId}
               className={`text-sm font-medium cursor-pointer ${
                 disabled ? 'opacity-50 cursor-not-allowed' : ''
-              } ${error ? 'text-red-600' : 'text-gray-700'}`}
+              } ${error ? 'text-red-600 dark:text-red-400' : 'text-gray-700 dark:text-gray-300'}`}
             >
               {label}
               {required && (
@@ -229,7 +229,7 @@ export const CheckboxGroup = forwardRef<HTMLFieldSetElement, CheckboxGroupProps>
                 htmlFor={option.id}
                 className={`text-sm cursor-pointer ${
                   option.disabled || disabled ? 'opacity-50 cursor-not-allowed' : ''
-                } ${error ? 'text-red-600' : 'text-gray-700'}`}
+                } ${error ? 'text-red-600 dark:text-red-400' : 'text-gray-700 dark:text-gray-300'}`}
               >
                 {option.label}
               </label>

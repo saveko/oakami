@@ -23,6 +23,15 @@ export interface FilterPanelProps {
   className?: string;
 }
 
+const selectClasses = cn(
+  'w-full px-3 py-2 rounded-lg border text-base',
+  'bg-white dark:bg-gray-900',
+  'border-gray-300 dark:border-gray-700',
+  'text-gray-900 dark:text-gray-100',
+  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500',
+  'disabled:opacity-50 disabled:cursor-not-allowed'
+);
+
 const FilterInput: React.FC<{
   filter: Filter;
   value: any;
@@ -31,20 +40,23 @@ const FilterInput: React.FC<{
   switch (filter.type) {
     case 'select':
       return (
-        <Select
-          options={(filter.options || []).map((opt) => ({
-            value: String(opt.value),
-            label: opt.label,
-          }))}
-          value={value ? String(value) : undefined}
-          onChange={onChange}
-          placeholder={filter.placeholder}
+        <select
+          id={`filter-${filter.id}`}
+          className={selectClasses}
+          value={value != null ? String(value) : ''}
+          onChange={(e) => onChange(e.target.value)}
           disabled={filter.disabled}
-          label={filter.label}
-        />
+        >
+          <option value="">{filter.placeholder || 'All'}</option>
+          {(filter.options || []).map((opt) => (
+            <option key={String(opt.value)} value={String(opt.value)}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
       );
 
-    case 'checkbox':
+    case 'checkbox': {
       const selectedValues = Array.isArray(value) ? value : [];
       return (
         <div className="space-y-2">
@@ -54,8 +66,8 @@ const FilterInput: React.FC<{
               id={`filter-${filter.id}-${option.value}`}
               label={option.label}
               checked={selectedValues.includes(option.value)}
-              onChange={(checked) => {
-                const updated = checked
+              onChange={(e) => {
+                const updated = e.target.checked
                   ? [...selectedValues, option.value]
                   : selectedValues.filter((v) => v !== option.value);
                 onChange(updated);
@@ -65,47 +77,40 @@ const FilterInput: React.FC<{
           ))}
         </div>
       );
+    }
 
-    case 'date-range':
+    case 'date-range': {
       const dateValue = value || { start: '', end: '' };
       return (
         <div className="space-y-3">
           <Input
             type="date"
+            id={`filter-${filter.id}-start`}
             value={dateValue.start || ''}
-            onChange={(e) =>
-              onChange({
-                ...dateValue,
-                start: e.target.value,
-              })
-            }
-            placeholder="Start date"
+            onChange={(e) => onChange({ ...dateValue, start: e.target.value })}
             disabled={filter.disabled}
-            label="From"
+            label={`${filter.label} from`}
           />
           <Input
             type="date"
+            id={`filter-${filter.id}-end`}
             value={dateValue.end || ''}
-            onChange={(e) =>
-              onChange({
-                ...dateValue,
-                end: e.target.value,
-              })
-            }
-            placeholder="End date"
+            onChange={(e) => onChange({ ...dateValue, end: e.target.value })}
             disabled={filter.disabled}
-            label="To"
+            label={`${filter.label} to`}
           />
         </div>
       );
+    }
 
-    case 'number-range':
+    case 'number-range': {
       const numValue = value || { from: '', to: '' };
       return (
         <div className="space-y-3">
           <Input
             type="number"
-            value={numValue.from || ''}
+            id={`filter-${filter.id}-from`}
+            value={numValue.from ?? ''}
             onChange={(e) =>
               onChange({
                 ...numValue,
@@ -114,11 +119,12 @@ const FilterInput: React.FC<{
             }
             placeholder="Min"
             disabled={filter.disabled}
-            label="From"
+            label={`${filter.label} from`}
           />
           <Input
             type="number"
-            value={numValue.to || ''}
+            id={`filter-${filter.id}-to`}
+            value={numValue.to ?? ''}
             onChange={(e) =>
               onChange({
                 ...numValue,
@@ -127,10 +133,11 @@ const FilterInput: React.FC<{
             }
             placeholder="Max"
             disabled={filter.disabled}
-            label="To"
+            label={`${filter.label} to`}
           />
         </div>
       );
+    }
 
     default:
       return null;
@@ -184,7 +191,14 @@ export const FilterPanel = React.forwardRef<HTMLDivElement, FilterPanelProps>(
     const hasActiveFilters = activeFilterCount > 0;
 
     return (
-      <Card ref={ref} variant="outlined" padding="md" className={cn('w-full', className)}>
+      <Card
+        ref={ref}
+        role="article"
+        aria-label="Filters"
+        variant="outlined"
+        padding="md"
+        className={cn('w-full', className)}
+      >
         {showHeader && (
           <div className="mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
@@ -205,11 +219,14 @@ export const FilterPanel = React.forwardRef<HTMLDivElement, FilterPanelProps>(
         <div className="space-y-4">
           {Object.entries(groupedFilters).map(([section, sectionFilters]) => {
             const isExpanded = expandedSections.has(section);
+            const hasHeader = collapsible && sectionFilters.length > 0;
 
             return (
               <div key={section} className="space-y-2">
-                {collapsible && sectionFilters.length > 0 && (
+                {hasHeader && (
                   <button
+                    type="button"
+                    id={`filter-section-${section}-label`}
                     onClick={() => toggleSection(section)}
                     className={cn(
                       'w-full flex items-center justify-between px-3 py-2 rounded-md',
@@ -243,25 +260,64 @@ export const FilterPanel = React.forwardRef<HTMLDivElement, FilterPanelProps>(
                     id={`filter-section-${section}`}
                     className={cn('space-y-3', !collapsible && 'pt-2')}
                     role="group"
-                    aria-labelledby={`filter-section-${section}-label`}
+                    aria-labelledby={
+                      hasHeader ? `filter-section-${section}-label` : undefined
+                    }
+                    aria-label={
+                      hasHeader
+                        ? undefined
+                        : section === 'default'
+                          ? 'Filters'
+                          : section
+                    }
                   >
-                    {sectionFilters.map((filter) => (
-                      <div key={filter.id} className="space-y-2">
-                        {filter.type !== 'checkbox' && filter.label && (
-                          <label
-                            htmlFor={`filter-${filter.id}`}
-                            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                          >
-                            {filter.label}
-                          </label>
-                        )}
+                    {sectionFilters.map((filter) => {
+                      const control = (
                         <FilterInput
                           filter={filter}
                           value={values[filter.id]}
                           onChange={(value) => onFilterChange(filter.id, value)}
                         />
-                      </div>
-                    ))}
+                      );
+
+                      // A single control can be named by a <label htmlFor>. The
+                      // multi-control types each carry their own labels, so they
+                      // are grouped by a fieldset instead — otherwise the filter
+                      // name renders twice and every text query is ambiguous.
+                      if (filter.type === 'select') {
+                        return (
+                          <div key={filter.id} className="space-y-2">
+                            {filter.label && (
+                              <label
+                                htmlFor={`filter-${filter.id}`}
+                                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                              >
+                                {filter.label}
+                              </label>
+                            )}
+                            {control}
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <fieldset
+                          key={filter.id}
+                          className="space-y-2 border-0 p-0 m-0"
+                          aria-labelledby={`filter-${filter.id}-legend`}
+                        >
+                          {filter.label && (
+                            <legend
+                              id={`filter-${filter.id}-legend`}
+                              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                            >
+                              {filter.label}
+                            </legend>
+                          )}
+                          {control}
+                        </fieldset>
+                      );
+                    })}
                   </div>
                 )}
               </div>

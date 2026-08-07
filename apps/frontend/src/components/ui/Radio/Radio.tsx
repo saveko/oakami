@@ -73,7 +73,7 @@ const Radio = forwardRef<HTMLInputElement, RadioProps>(
             htmlFor={elementId}
             className={`text-sm font-medium cursor-pointer ${
               disabled ? 'opacity-50 cursor-not-allowed' : ''
-            } text-gray-700`}
+            } text-gray-700 dark:text-gray-300`}
           >
             {label}
             {required && (
@@ -192,7 +192,7 @@ export const RadioGroup = forwardRef<HTMLFieldSetElement, RadioGroupProps>(
                 htmlFor={`${name}-${option.value}`}
                 className={`text-sm cursor-pointer ${
                   option.disabled || disabled ? 'opacity-50 cursor-not-allowed' : ''
-                } text-gray-700`}
+                } text-gray-700 dark:text-gray-300`}
               >
                 {option.label}
               </label>

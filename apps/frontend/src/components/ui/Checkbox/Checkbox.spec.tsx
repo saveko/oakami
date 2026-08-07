@@ -303,8 +303,10 @@ describe('CheckboxGroup', () => {
         />
       );
 
-      const group = screen.getByRole('group');
-      expect(group).toHaveClass('flex flex-col gap-3');
+      // role="group" is the <fieldset>; the layout classes sit on the options
+      // container inside it.
+      const optionsContainer = container.querySelector('fieldset > div');
+      expect(optionsContainer).toHaveClass('flex flex-col gap-3');
     });
 
     it('should render in horizontal layout', () => {
@@ -318,8 +320,8 @@ describe('CheckboxGroup', () => {
         />
       );
 
-      const group = screen.getByRole('group');
-      expect(group).toHaveClass('flex flex-wrap gap-4');
+      const optionsContainer = container.querySelector('fieldset > div');
+      expect(optionsContainer).toHaveClass('flex flex-wrap gap-4');
     });
   });
 

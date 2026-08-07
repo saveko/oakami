@@ -54,15 +54,18 @@ describe('Radio', () => {
     });
 
     it('should have unique id when not provided', () => {
-      const { rerender } = render(<Radio name="option1" />);
-      const radio1 = screen.getByRole('radio');
-      const id1 = radio1.id;
+      // Both radios must be mounted at once: a rerender replaces the first
+      // instance, so there is never a second element to compare against.
+      render(
+        <>
+          <Radio name="option1" />
+          <Radio name="option2" />
+        </>
+      );
+      const [radio1, radio2] = screen.getAllByRole('radio');
 
-      rerender(<Radio name="option2" />);
-      const radios = screen.getAllByRole('radio');
-      const id2 = radios[1].id;
-
-      expect(id1).not.toBe(id2);
+      expect(radio1.id).toBeTruthy();
+      expect(radio1.id).not.toBe(radio2.id);
     });
   });
 

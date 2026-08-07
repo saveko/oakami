@@ -27,13 +27,15 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
       id,
       className,
       disabled = false,
-      checked = false,
+      checked,
       onChange,
+      onKeyDown,
       ...props
     },
     ref
   ) => {
-    const elementId = id || `checkbox-${Math.random().toString(36).substr(2, 9)}`;
+    const generatedId = React.useId();
+    const elementId = id || `checkbox-${generatedId}`;
     const helpId = `${elementId}-help`;
     const errorId = `${elementId}-error`;
 
@@ -44,6 +46,22 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
       .filter(Boolean)
       .join(' ');
 
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (disabled) return;
+      onChange?.(event);
+    };
+
+    // Space natively toggles a checkbox, but the visible control is the styled
+    // label, so drive the toggle explicitly and support Enter as well.
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+      onKeyDown?.(event);
+      if (disabled || event.defaultPrevented) return;
+      if (event.key === ' ' || event.key === 'Enter') {
+        event.preventDefault();
+        event.currentTarget.click();
+      }
+    };
+
     return (
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-2">
@@ -51,8 +69,9 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
             ref={ref}
             id={elementId}
             type="checkbox"
-            checked={checked as boolean}
-            onChange={onChange}
+            checked={checked as boolean | undefined}
+            onChange={handleChange}
+            onKeyDown={handleKeyDown}
             disabled={disabled}
             required={required}
             aria-required={required}
@@ -143,14 +162,15 @@ export const CheckboxGroup = forwardRef<HTMLFieldSetElement, CheckboxGroupProps>
     },
     ref
   ) => {
-    const groupId = `checkbox-group-${Math.random().toString(36).substr(2, 9)}`;
+    const groupId = `checkbox-group-${React.useId()}`;
     const helpId = `${groupId}-help`;
     const errorId = `${groupId}-error`;
 
-    const handleChange = (value: string) => {
-      const newValues = values.includes(value)
-        ? values.filter((v) => v !== value)
-        : [...values, value];
+    const handleChange = (option: CheckboxOption) => {
+      if (disabled || option.disabled) return;
+      const newValues = values.includes(option.value)
+        ? values.filter((v) => v !== option.value)
+        : [...values, option.value];
       onChange(newValues);
     };
 
@@ -179,14 +199,14 @@ export const CheckboxGroup = forwardRef<HTMLFieldSetElement, CheckboxGroupProps>
           )}
         </legend>
 
+        {/* No role="group" here: the wrapping <fieldset> already exposes it, and
+            a second one makes every getByRole('group') query ambiguous. */}
         <div
           className={
             layout === 'horizontal'
               ? 'flex flex-wrap gap-4'
               : 'flex flex-col gap-3'
           }
-          role="group"
-          aria-labelledby={legend}
         >
           {options.map((option) => (
             <div key={option.id} className="flex items-center gap-2">
@@ -195,7 +215,7 @@ export const CheckboxGroup = forwardRef<HTMLFieldSetElement, CheckboxGroupProps>
                 id={option.id}
                 value={option.value}
                 checked={values.includes(option.value)}
-                onChange={() => handleChange(option.value)}
+                onChange={() => handleChange(option)}
                 disabled={option.disabled || disabled}
                 aria-label={option.label}
                 className={`

@@ -200,9 +200,10 @@ describe('Checkbox - Accessibility', () => {
       render(<Checkbox />);
 
       const checkbox = screen.getByRole('checkbox');
-      // 20px + padding should meet minimum touch target
-      const height = checkbox.clientHeight;
-      expect(height).toBeGreaterThanOrEqual(20);
+      // jsdom performs no layout, so clientHeight is always 0. Assert the
+      // sizing utility (h-5 = 20px) that produces the touch target instead.
+      expect(checkbox).toHaveClass('h-5');
+      expect(checkbox).toHaveClass('w-5');
     });
 
     it('should have proper spacing in group', () => {

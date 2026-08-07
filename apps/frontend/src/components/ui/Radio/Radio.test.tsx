@@ -310,9 +310,10 @@ describe('Radio - Accessibility', () => {
       render(<Radio name="option" id="radio-1" />);
 
       const radio = screen.getByRole('radio');
-      // 20px + padding should meet minimum touch target
-      const height = radio.clientHeight;
-      expect(height).toBeGreaterThanOrEqual(20);
+      // jsdom performs no layout, so clientHeight is always 0. Assert the
+      // sizing utility (h-5 = 20px) that produces the touch target instead.
+      expect(radio).toHaveClass('h-5');
+      expect(radio).toHaveClass('w-5');
     });
 
     it('should have proper spacing in group', () => {

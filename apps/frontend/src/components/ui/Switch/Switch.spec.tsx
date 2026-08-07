@@ -177,8 +177,10 @@ describe('Switch', () => {
   describe('accessibility', () => {
     it('should have focus visible outline', () => {
       render(<Switch id="toggle" />);
-      const group = screen.getByRole('switch').parentElement;
-      expect(group).toHaveClass('peer-focus-visible:outline-2');
+      // The focus ring is a Tailwind `peer-*` variant, so it sits on the track
+      // element (the input's sibling), not on the wrapper.
+      const track = screen.getByRole('switch').nextElementSibling;
+      expect(track).toHaveClass('peer-focus-visible:outline-2');
     });
 
     it('should be keyboard navigable with Tab', () => {

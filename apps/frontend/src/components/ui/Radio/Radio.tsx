@@ -20,13 +20,29 @@ const Radio = forwardRef<HTMLInputElement, RadioProps>(
       name,
       className,
       disabled = false,
-      checked = false,
+      checked,
       onChange,
+      onKeyDown,
       ...props
     },
     ref
   ) => {
-    const elementId = id || `radio-${Math.random().toString(36).substr(2, 9)}`;
+    const generatedId = React.useId();
+    const elementId = id || `radio-${generatedId}`;
+
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (disabled) return;
+      onChange?.(event);
+    };
+
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+      onKeyDown?.(event);
+      if (disabled || event.defaultPrevented) return;
+      if (event.key === ' ' || event.key === 'Enter') {
+        event.preventDefault();
+        event.currentTarget.click();
+      }
+    };
 
     return (
       <div className="flex items-center gap-2">
@@ -35,8 +51,9 @@ const Radio = forwardRef<HTMLInputElement, RadioProps>(
           id={elementId}
           type="radio"
           name={name}
-          checked={checked as boolean}
-          onChange={onChange}
+          checked={checked as boolean | undefined}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
           disabled={disabled}
           required={required}
           aria-required={required}
@@ -110,7 +127,12 @@ export const RadioGroup = forwardRef<HTMLFieldSetElement, RadioGroupProps>(
     },
     ref
   ) => {
-    const groupId = `radio-group-${Math.random().toString(36).substr(2, 9)}`;
+    const groupId = `radio-group-${React.useId()}`;
+
+    const handleOptionChange = (option: RadioOption) => {
+      if (disabled || option.disabled) return;
+      onChange(option.value);
+    };
     const helpId = `${groupId}-help`;
     const errorId = `${groupId}-error`;
 
@@ -146,7 +168,7 @@ export const RadioGroup = forwardRef<HTMLFieldSetElement, RadioGroupProps>(
               : 'flex flex-col gap-3'
           }
           role="radiogroup"
-          aria-labelledby={legend}
+          aria-label={legend}
         >
           {options.map((option) => (
             <div key={option.value} className="flex items-center gap-2">
@@ -156,7 +178,7 @@ export const RadioGroup = forwardRef<HTMLFieldSetElement, RadioGroupProps>(
                 name={name}
                 value={option.value}
                 checked={value === option.value}
-                onChange={() => onChange(option.value)}
+                onChange={() => handleOptionChange(option)}
                 disabled={option.disabled || disabled}
                 aria-label={option.label}
                 className={`

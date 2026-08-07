@@ -26,14 +26,38 @@ const Switch = forwardRef<HTMLInputElement, SwitchProps>(
       ariaDescribedBy,
       size = 'md',
       id,
-      checked = false,
+      checked,
+      defaultChecked,
       disabled = false,
       onChange,
+      onKeyDown,
       className,
       ...props
     },
     ref
   ) => {
+    // role="switch" requires an explicit aria-checked, so mirror the input's
+    // state when the component is used uncontrolled.
+    const [internalChecked, setInternalChecked] = React.useState(
+      checked ?? defaultChecked ?? false
+    );
+    const isChecked = checked ?? internalChecked;
+
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (disabled) return;
+      if (checked === undefined) setInternalChecked(event.currentTarget.checked);
+      onChange?.(event);
+    };
+
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+      onKeyDown?.(event);
+      if (disabled || event.defaultPrevented) return;
+      if (event.key === ' ' || event.key === 'Enter') {
+        event.preventDefault();
+        event.currentTarget.click();
+      }
+    };
+
     const sizes = {
       sm: 'w-10 h-5',
       md: 'w-12 h-6',
@@ -62,12 +86,14 @@ const Switch = forwardRef<HTMLInputElement, SwitchProps>(
               id={id}
               type="checkbox"
               role="switch"
-              checked={checked as boolean}
-              onChange={onChange}
+              checked={checked as boolean | undefined}
+              defaultChecked={defaultChecked}
+              onChange={handleChange}
+              onKeyDown={handleKeyDown}
               disabled={disabled}
               required={required}
               aria-required={required}
-              aria-checked={checked}
+              aria-checked={isChecked}
               aria-invalid={error}
               aria-label={ariaLabel || label}
               aria-describedby={ariaDescribedBy || (descriptionIds || undefined)}

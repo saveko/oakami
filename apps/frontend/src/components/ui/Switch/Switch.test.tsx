@@ -51,9 +51,11 @@ describe('Switch - Accessibility', () => {
     it('should have visible focus indicator', () => {
       const { container } = render(<Switch id="toggle" />);
 
-      const switchGroup = container.querySelector('.group');
-      expect(switchGroup).toHaveClass('peer-focus-visible:outline-2');
-      expect(switchGroup).toHaveClass('peer-focus-visible:outline-offset-2');
+      // Tailwind `peer-*` variants style a *sibling* of the peer input, so the
+      // focus ring lives on the track element, not the wrapper.
+      const track = container.querySelector('input[role="switch"] + div');
+      expect(track).toHaveClass('peer-focus-visible:outline-2');
+      expect(track).toHaveClass('peer-focus-visible:outline-offset-2');
     });
 
     it('should be focusable and show focus state', () => {

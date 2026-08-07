@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - claude/oakami-v1-research-usjcnq
+
+# A newer push to the same branch supersedes an in-flight run.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  frontend:
+    name: Frontend — tests and build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Both gates are required, and they catch different things: vitest does
+      # not type-check, so `next build` is the only step that sees type errors.
+      - name: Unit and accessibility tests
+        run: npx vitest run
+        working-directory: apps/frontend
+
+      - name: Production build
+        run: npm run build --workspace=apps/frontend
+
+  backend:
+    name: Backend — tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # The Prisma client is generated, not committed, so it must be built
+      # before anything that imports @prisma/client can compile.
+      - name: Generate Prisma client
+        run: npm run db:generate
+
+      - name: Unit tests
+        run: npm run test --workspace=apps/backend

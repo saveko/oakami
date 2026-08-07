@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import React from 'react';
 import { render } from '@/test/utils';
 import { axe, toHaveNoViolations } from 'jest-axe';

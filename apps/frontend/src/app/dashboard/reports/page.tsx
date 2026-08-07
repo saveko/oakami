@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import GenerateReportForm from '@/components/GenerateReportForm';
 import { api } from '@/lib/api';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 interface Report {
   id: string;
@@ -96,6 +97,7 @@ export default function ReportsPage() {
       )}
 
       {/* Reports Grid */}
+      <ErrorBoundary name="Reports">
       {reports.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {reports.map((report) => (
@@ -136,6 +138,7 @@ export default function ReportsPage() {
           <p>No reports found. Generate your first report to get started.</p>
         </Card>
       )}
+      </ErrorBoundary>
     </div>
   );
 }

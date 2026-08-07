@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import AuthProvider from '@/components/AuthProvider';
-import ErrorBoundary from '@/components/ErrorBoundary';
+import PageErrorBoundary from '@/components/PageErrorBoundary';
 import QueryProvider from '@/components/QueryProvider';
 import '../styles/globals.css';
 
@@ -22,11 +22,11 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </head>
       <body>
-        <ErrorBoundary>
+        <PageErrorBoundary>
           <QueryProvider>
             <AuthProvider>{children}</AuthProvider>
           </QueryProvider>
-        </ErrorBoundary>
+        </PageErrorBoundary>
       </body>
     </html>
   );

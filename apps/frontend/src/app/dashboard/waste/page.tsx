@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { useWasteRecords, useCreateWasteRecord, useApproveWasteRecord, useRejectWasteRecord } from '@/lib/hooks/useWaste';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 interface WasteRecord {
   id: string;
@@ -272,6 +273,7 @@ export default function WastePage() {
         </div>
       )}
 
+      <ErrorBoundary name="Waste records">
       <div className="mb-6">
         <Table
           columns={columns}
@@ -289,6 +291,7 @@ export default function WastePage() {
           }
         />
       </div>
+      </ErrorBoundary>
 
       {!isLoading && totalPages > 1 && (
         <div className="flex justify-center">

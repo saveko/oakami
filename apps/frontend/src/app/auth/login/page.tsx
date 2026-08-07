@@ -42,7 +42,7 @@ export default function LoginPage() {
       description="Sign in to Oakami Waste Intelligence"
       bottomLink={
         <>
-          Don't have an account?{' '}
+          Don&apos;t have an account?{' '}
           <Link href="/auth/register" className="text-sky-500 hover:text-sky-600 font-semibold">
             Sign up
           </Link>

@@ -56,7 +56,6 @@ const Radio = forwardRef<HTMLInputElement, RadioProps>(
           onKeyDown={handleKeyDown}
           disabled={disabled}
           required={required}
-          aria-required={required}
           aria-label={ariaLabel || label}
           aria-describedby={ariaDescribedBy}
           className={`

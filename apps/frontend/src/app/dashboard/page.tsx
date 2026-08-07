@@ -6,6 +6,7 @@ import { useUnreadCount } from '@/lib/hooks/useNotifications';
 import PredictionCard from '@/components/PredictionCard';
 import { KPICard } from '@/components/ui/KPICard';
 import { Button } from '@/components/ui/Button';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 // Lazy load recharts to avoid loading 300KB+ on initial page load
 const DailyWasteTrendChart = lazy(() => import('./DailyWasteTrendChart'));
@@ -72,6 +73,7 @@ export default function DashboardPage() {
       </div>
 
       {/* AI Predictions Section */}
+      <ErrorBoundary name="AI predictions">
       {predictions.length > 0 && (
         <div className="mb-8">
           <div className="flex justify-between items-center mb-4">
@@ -93,8 +95,10 @@ export default function DashboardPage() {
           </div>
         </div>
       )}
+      </ErrorBoundary>
 
       {/* KPI Cards */}
+      <ErrorBoundary name="Key metrics">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <KPICard
           label="Total Waste Cost"
@@ -145,7 +149,10 @@ export default function DashboardPage() {
         />
       </div>
 
+      </ErrorBoundary>
+
       {/* Charts - Lazy loaded with Suspense */}
+      <ErrorBoundary name="Charts">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <Suspense fallback={<ChartSkeleton />}>
           <DailyWasteTrendChart data={metrics.dailyTrend} />
@@ -155,6 +162,8 @@ export default function DashboardPage() {
           <CategoryBreakdownChart data={metrics.categoryBreakdown} />
         </Suspense>
       </div>
+
+      </ErrorBoundary>
 
       {/* Additional Stats */}
       <div className="mt-8 bg-white rounded-lg shadow p-6">

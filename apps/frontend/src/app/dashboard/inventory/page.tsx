@@ -8,6 +8,7 @@ import { Loading } from '@/components/ui/Loading';
 import { Error as ErrorComponent } from '@/components/ui/Error';
 import { Button } from '@/components/ui/Button';
 import { useInventory } from '@/lib/hooks/useInventory';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 interface InventoryItem {
   id: string;
@@ -143,6 +144,7 @@ export default function InventoryPage() {
         </div>
       </div>
 
+      <ErrorBoundary name="Inventory">
       <div className="mb-6">
         <Table
           columns={columns}
@@ -160,6 +162,7 @@ export default function InventoryPage() {
           }
         />
       </div>
+      </ErrorBoundary>
 
       {!isLoading && totalPages > 1 && (
         <div className="flex justify-center">

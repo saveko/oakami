@@ -135,7 +135,10 @@ describe('Radio - Accessibility', () => {
       render(<Radio name="option" required id="radio-1" />);
 
       const radio = screen.getByRole('radio');
-      expect(radio).toHaveAttribute('aria-required', 'true');
+      // aria-required is not a supported attribute on role="radio" (it belongs
+      // on the enclosing radiogroup); the native `required` attribute is what
+      // conveys this on an individual input.
+      expect(radio).toHaveAttribute('required');
     });
 
     it('should have aria-label from label prop', () => {
@@ -654,7 +657,10 @@ describe('Radio - Accessibility', () => {
       render(<Radio name="option" required id="radio-1" />);
 
       const radio = screen.getByRole('radio');
-      expect(radio).toHaveAttribute('aria-required', 'true');
+      // aria-required is not a supported attribute on role="radio" (it belongs
+      // on the enclosing radiogroup); the native `required` attribute is what
+      // conveys this on an individual input.
+      expect(radio).toHaveAttribute('required');
     });
   });
 

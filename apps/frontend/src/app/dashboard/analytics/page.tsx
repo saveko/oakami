@@ -17,6 +17,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { api } from '@/lib/api';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 const COLORS = ['#0ea5e9', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6'];
 
@@ -89,6 +90,7 @@ export default function AnalyticsPage() {
       )}
 
       {/* Waste Trend Chart */}
+      <ErrorBoundary name="Waste trend chart">
       <div className="bg-white rounded-lg shadow p-6 mb-8">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Waste Trend</h2>
         {wasteTrend.length > 0 ? (
@@ -118,7 +120,10 @@ export default function AnalyticsPage() {
         )}
       </div>
 
+      </ErrorBoundary>
+
       {/* Category vs Supplier Analysis */}
+      <ErrorBoundary name="Category and supplier analysis">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Category Analysis */}
         <div className="bg-white rounded-lg shadow p-6">
@@ -166,6 +171,7 @@ export default function AnalyticsPage() {
           )}
         </div>
       </div>
+      </ErrorBoundary>
     </div>
   );
 }

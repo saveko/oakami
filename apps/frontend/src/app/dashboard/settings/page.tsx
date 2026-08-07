@@ -8,6 +8,7 @@ import { Select } from '@/components/ui/Select';
 import { Switch } from '@/components/ui/Switch';
 import { Card } from '@/components/ui/Card';
 import ReportSchedulePanel from '@/components/ReportSchedulePanel';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 export default function SettingsPage() {
   const { user } = useAuthStore();
@@ -212,9 +213,11 @@ export default function SettingsPage() {
         </Card>
 
         {/* Report Schedules */}
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
-          <ReportSchedulePanel />
-        </div>
+        <ErrorBoundary name="Report schedules">
+          <div className="bg-white rounded-lg shadow p-6 mb-6">
+            <ReportSchedulePanel />
+          </div>
+        </ErrorBoundary>
 
         {/* Danger Zone */}
         <Card padding="lg" className="border-l-4 border-l-red-600 bg-red-50">

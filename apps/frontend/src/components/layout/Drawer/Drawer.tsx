@@ -67,15 +67,14 @@ const Drawer = forwardRef<HTMLDivElement, DrawerProps>(
       lg: 'w-screen max-w-2xl',
     };
 
-    const sideStyles = {
-      left: {
-        transform: open ? 'translateX(0)' : '-translateX(100%)',
-        left: 0,
-      },
-      right: {
-        transform: open ? 'translateX(0)' : 'translateX(100%)',
-        right: 0,
-      },
+    const sideClasses = {
+      left: 'left-0',
+      right: 'right-0',
+    };
+
+    const sideTransform = {
+      left: open ? 'translateX(0)' : 'translateX(-100%)',
+      right: open ? 'translateX(0)' : 'translateX(100%)',
     };
 
     return (
@@ -98,15 +97,18 @@ const Drawer = forwardRef<HTMLDivElement, DrawerProps>(
           role="dialog"
           aria-modal="true"
           aria-labelledby={title ? titleId.current : undefined}
+          aria-label={title ? undefined : 'Drawer'}
           aria-describedby={description ? descriptionId.current : undefined}
           className={cn(
             'fixed top-0 h-screen bg-white dark:bg-gray-900 shadow-lg z-50',
             'transition-transform duration-250 ease-out',
             'flex flex-col',
             sizeStyles[size],
+            sideClasses[side],
+            'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500',
             className
           )}
-          style={sideStyles[side]}
+          style={{ transform: sideTransform[side] }}
           onClick={handleDrawerClick}
         >
           {/* Header */}

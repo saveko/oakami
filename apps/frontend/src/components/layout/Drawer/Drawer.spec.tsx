@@ -85,7 +85,7 @@ describe('Drawer Component', () => {
           Content
         </Drawer>
       );
-      expect(container.querySelector('.bg-black')).toBeInTheDocument();
+      expect(container.querySelector('[class*="bg-black"]')).toBeInTheDocument();
     });
 
     it('does not render overlay when disabled', () => {
@@ -98,7 +98,7 @@ describe('Drawer Component', () => {
           Content
         </Drawer>
       );
-      expect(container.querySelector('.bg-black')).not.toBeInTheDocument();
+      expect(container.querySelector('[class*="bg-black"]')).not.toBeInTheDocument();
     });
 
     it('renders close button', () => {
@@ -141,7 +141,7 @@ describe('Drawer Component', () => {
           Content
         </Drawer>
       );
-      const backdrop = container.querySelector('.bg-black');
+      const backdrop = container.querySelector('[class*="bg-black"]');
       fireEvent.click(backdrop!);
       expect(mockOnOpenChange).toHaveBeenCalledWith(false);
     });
@@ -156,7 +156,7 @@ describe('Drawer Component', () => {
           Content
         </Drawer>
       );
-      const backdrop = container.querySelector('.bg-black');
+      const backdrop = container.querySelector('[class*="bg-black"]');
       fireEvent.click(backdrop!);
       expect(mockOnOpenChange).not.toHaveBeenCalled();
     });

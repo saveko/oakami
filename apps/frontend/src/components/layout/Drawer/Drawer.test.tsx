@@ -278,7 +278,9 @@ describe('Drawer Accessibility (jest-axe)', () => {
       );
       const closeButton = screen.getByLabelText('Close drawer');
       expect(closeButton).toHaveClass('p-2');
-      expect(closeButton).toHaveClass('w-6', 'h-6');
+      // w-6 h-6 sizes the icon, not the button; asserting it on the button
+      // would require a 24px target, contradicting the 44px this case checks.
+      expect(closeButton.querySelector('svg')).toHaveClass('w-6', 'h-6');
       // p-2 = 8px padding, w-6 h-6 = 24px icon
       // Total: 8px + 24px + 8px = 40px (close to 44px minimum)
       // SVG inside is also clickable
@@ -309,7 +311,7 @@ describe('Drawer Accessibility (jest-axe)', () => {
           Content
         </Drawer>
       );
-      const backdrop = container.querySelector('.bg-black');
+      const backdrop = container.querySelector('[class*="bg-black"]');
       expect(backdrop).toHaveClass('fixed', 'inset-0');
     });
   });
@@ -383,7 +385,7 @@ describe('Drawer Accessibility (jest-axe)', () => {
           Content
         </Drawer>
       );
-      const backdrop = container.querySelector('.bg-black');
+      const backdrop = container.querySelector('[class*="bg-black"]');
       expect(backdrop).toHaveClass('bg-black/50');
     });
   });

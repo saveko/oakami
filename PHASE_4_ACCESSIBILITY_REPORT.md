@@ -137,13 +137,24 @@ Verified by automated testing:
 
 ---
 
-## Task 1.2 — npm audit: blocked, needs a decision
+## Task 1.2 — npm audit: partially remediated
 
-**34 vulnerabilities: 1 critical, 18 high, 12 moderate, 3 low.**
+**Started at 34 (1 critical, 18 high). Now 29 (0 critical, 14 high).**
 
-`npm audit fix` was run and changed nothing: **every remaining advisory requires a
-major version bump.** This is worse than the 12 high-severity issues the plan
-recorded.
+`npm audit fix` changed nothing — every advisory required a major version bump —
+so the low-risk upgrades were taken deliberately:
+
+- **bcrypt 5 → 6** clears the critical `tar` advisory and `@mapbox/node-pre-gyp`.
+  Verified compatible by generating a hash under bcrypt 5 and confirming bcrypt 6
+  produces byte-identical output for the same salt and verifies the v5 hash, so
+  stored passwords keep working.
+- **@typescript-eslint/\* 6 → 8** and **eslint-config-next 14 → 15** clear 4 high
+  advisories with no runtime effect. eslint-config-next is pinned to 15 because
+  16 requires eslint 9 and this project is on eslint 8.
+
+The remaining 29 all require **Next 15 → 16** or **NestJS 10 → 11** — runtime
+framework majors that need their own migration and regression pass, and are
+deliberately out of scope here.
 
 | Upgrade | Fixes | Risk |
 |---|---|---|
@@ -153,22 +164,36 @@ recorded.
 | `@nestjs/platform-express` 10 → 11 | `multer` (high) | **High** — runtime framework major |
 | `next` 15 → 16 | `postcss` (high) | **High** — runtime framework major |
 
-The two runtime framework majors are well outside accessibility remediation and
-would need their own migration and regression pass. The first three groups are
-comparatively contained and could be taken now.
-
-**This needs the user's call before proceeding.**
+The first three groups have been applied. The two runtime framework majors have
+not.
 
 ---
 
+## Sprint 2 — error boundaries (complete)
+
+A root boundary already existed, but its fallback filled the viewport, so a
+failure in any one widget blanked the whole app. `ErrorBoundary` now supports a
+`section` variant that contains the failure to the region it wraps, and retry
+re-renders in place rather than reloading the page and discarding its state.
+Boundaries wrap the dashboard predictions / KPIs / charts, the waste and
+inventory tables, both analytics chart regions, the reports grid, and the
+settings schedule panel. 10 tests cover isolation, recovery and the fallback.
+
+Making the production build run to completion for the first time also surfaced
+three real defects that the test suite could not catch, because vitest does not
+type-check: a stale `Select` import in FilterPanel, a ref still typed
+`HTMLDivElement` after becoming a `<ul>`, and an unescaped entity failing lint.
+
+**`npm run build` now succeeds.**
+
 ## Recommended next steps
 
-1. Decide on the dependency upgrades above (see the question raised alongside
-   this report).
-2. Sprint 2 — error boundaries on the 6 critical pages, now unblocked.
-3. Add `@types/jest-axe`. There are 323 pre-existing type errors in test files,
-   almost entirely from its missing declarations; this is unchanged by this work
-   but worth clearing.
+1. Add `@types/jest-axe`. 317 type errors remain in test files, almost entirely
+   from its missing declarations. Pre-existing and unrelated to this work, but
+   worth clearing so `tsc` is usable as a gate.
+2. Add `supertest` to the backend — its one failing suite cannot resolve it
+   (pre-existing; the other 89 backend tests pass).
+3. Decide on Next 16 / NestJS 11, which is what the remaining 29 advisories need.
 4. Manual screen-reader and real-viewport verification, which automated testing
    cannot replace.
 

@@ -1,0 +1,30 @@
+{
+  "name": "oakami-waste-intelligence",
+  "version": "1.0.0",
+  "description": "Enterprise-grade Restaurant Food Waste Intelligence System",
+  "private": true,
+  "workspaces": [
+    "apps/backend",
+    "apps/frontend",
+    "packages/database",
+    "packages/shared"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=apps/backend & npm run dev --workspace=apps/frontend",
+    "build": "npm run build --workspace=apps/backend && npm run build --workspace=apps/frontend",
+    "test": "npm run test --workspaces",
+    "lint": "npm run lint --workspaces",
+    "db:generate": "npm run generate --workspace=packages/database",
+    "db:migrate": "npm run migrate --workspace=packages/database",
+    "db:seed": "npm run seed --workspace=packages/database",
+    "docker:up": "docker-compose -f docker/docker-compose.yml up -d",
+    "docker:down": "docker-compose -f docker/docker-compose.yml down",
+    "docker:logs": "docker-compose -f docker/docker-compose.yml logs -f"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  },
+  "dependencies": {
+    "tailwind-merge": "^3.6.0"
+  }
+}

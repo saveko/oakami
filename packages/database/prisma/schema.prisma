@@ -1,0 +1,613 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Authentication & Authorization
+model User {
+  id            String     @id @default(cuid())
+  email         String     @unique
+  passwordHash  String
+  firstName     String?
+  lastName      String?
+  avatar        String?
+  phone         String?
+  role          Role       @default(STAFF)
+  isActive      Boolean    @default(true)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  permissions   Permission[]
+  wasteRecords  WasteRecord[]
+  reports       Report[]
+  auditLogs     AuditLog[]
+  organization  Organization? @relation("organizationMembers", fields: [organizationId], references: [id])
+  organizationId String?
+  organizations UserOrganization[] @relation("organizations")
+  refreshTokens RefreshToken[]
+
+  @@index([email])
+  @@index([organizationId])
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Permission {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name   String
+  resource String
+
+  @@unique([userId, name, resource])
+  @@index([userId])
+}
+
+enum Role {
+  STAFF
+  MANAGER
+  OWNER
+  ADMIN
+}
+
+enum UserRole {
+  STAFF
+  MANAGER
+  ADMIN
+}
+
+model UserOrganization {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation("organizations", fields: [userId], references: [id], onDelete: Cascade)
+  organizationId String
+  organization   Organization @relation("userOrganizations", fields: [organizationId], references: [id], onDelete: Cascade)
+  role           UserRole @default(STAFF)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([userId, organizationId])
+  @@index([organizationId])
+  @@index([userId])
+}
+
+// Organization
+model Organization {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  website       String?
+  phone         String?
+  address       String?
+  city          String?
+  state         String?
+  zipCode       String?
+  country       String?
+  logo          String?
+  settings      OrganizationSettings?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  members              User[]                @relation("organizationMembers")
+  userOrganizations    UserOrganization[]    @relation("userOrganizations")
+  ingredients          Ingredient[]
+  categories           WasteCategory[]
+  suppliers            Supplier[]
+  wasteRecords         WasteRecord[]
+  inventory            InventoryItem[]
+  inventoryMovements   InventoryMovement[]
+  purchases            Purchase[]
+  notifications        Notification[]
+  reports              Report[]
+  aiPredictions        AIPrediction[]
+  auditLogs            AuditLog[]
+  filterPresets        FilterPreset[]
+  reportSchedules      ReportSchedule[]
+}
+
+model OrganizationSettings {
+  id             String   @id @default(cuid())
+  organizationId String   @unique
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  timezone       String   @default("UTC")
+  currency       String   @default("USD")
+  dateFormat     String   @default("YYYY-MM-DD")
+
+  wasteAlertThreshold      Float @default(100)
+  expiryAlertDays          Int   @default(3)
+  inventoryLowThreshold    Float @default(10)
+
+  enableNotifications      Boolean @default(true)
+  enableAIPredictions      Boolean @default(true)
+  enableSustainabilityTracking Boolean @default(true)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([organizationId])
+}
+
+// Core Ingredients & Categories
+model Ingredient {
+  id               String   @id @default(cuid())
+  organizationId   String
+  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  name             String
+  description      String?
+  sku              String?
+  barcode          String?
+
+  category         WasteCategory @relation(fields: [categoryId], references: [id])
+  categoryId       String
+
+  unit             String   @default("kg")
+  costPerUnit      Float
+  supplier         Supplier? @relation(fields: [supplierId], references: [id])
+  supplierId       String?
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  inventory        InventoryItem[]
+  movements        InventoryMovement[]
+  wasteRecords     WasteRecord[]
+  purchases        Purchase[]
+  aiPredictions    AIPrediction[]
+
+  @@unique([organizationId, name])
+  @@index([organizationId])
+  @@index([categoryId])
+  @@index([supplierId])
+}
+
+model WasteCategory {
+  id               String   @id @default(cuid())
+  organizationId   String
+  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  name             String
+  description      String?
+  color            String   @default("#0ea5e9")
+  order            Int      @default(0)
+  isActive         Boolean  @default(true)
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  ingredients      Ingredient[]
+  wasteRecords     WasteRecord[]
+  wasteReasons     WasteReason[]
+
+  @@unique([organizationId, name])
+  @@index([organizationId])
+}
+
+model WasteReason {
+  id               String   @id @default(cuid())
+  organizationId   String
+  category         WasteCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId       String
+
+  name             String
+  description      String?
+  order            Int      @default(0)
+  isActive         Boolean  @default(true)
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  wasteRecords     WasteRecord[]
+
+  @@unique([categoryId, name])
+  @@index([categoryId])
+}
+
+model Supplier {
+  id               String   @id @default(cuid())
+  organizationId   String
+  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  name             String
+  description      String?
+  email            String?
+  phone            String?
+  website          String?
+  address          String?
+  city             String?
+  state            String?
+  zipCode          String?
+  country          String?
+
+  rating           Float    @default(5.0)
+  wasteRate        Float    @default(0)
+  qualityScore     Float    @default(100)
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  ingredients      Ingredient[]
+  purchases        Purchase[]
+  wasteRecords     WasteRecord[]
+
+  @@unique([organizationId, name])
+  @@index([organizationId])
+}
+
+// Inventory Management
+model InventoryItem {
+  id               String   @id @default(cuid())
+  organizationId   String
+  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  ingredient       Ingredient @relation(fields: [ingredientId], references: [id])
+  ingredientId     String
+
+  quantity         Float
+  reservedQuantity Float    @default(0)
+  minThreshold     Float    @default(0)
+  maxThreshold     Float    @default(1000)
+
+  lastStockTake    DateTime?
+  expiryDate       DateTime?
+  location         String?
+  batch            String?
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  movements        InventoryMovement[]
+
+  @@unique([organizationId, ingredientId, batch])
+  @@index([organizationId])
+  @@index([ingredientId])
+  @@index([expiryDate])
+  @@index([organizationId, expiryDate])
+  @@index([organizationId, quantity, minThreshold])
+}
+
+model InventoryMovement {
+  id               String   @id @default(cuid())
+  organizationId   String
+  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  inventory        InventoryItem @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
+  inventoryId      String
+
+  ingredient       Ingredient @relation(fields: [ingredientId], references: [id])
+  ingredientId     String
+
+  movementType     MovementType
+  quantity         Float
+  unit             String
+  notes            String?
+  reference        String?
+
+  createdAt        DateTime @default(now())
+
+  @@index([organizationId])
+  @@index([inventoryId])
+  @@index([ingredientId])
+  @@index([createdAt])
+  @@index([inventoryId, createdAt])
+}
+
+enum MovementType {
+  PURCHASE
+  WASTE
+  ADJUSTMENT
+  TRANSFER
+  RETURN
+}
+
+model Purchase {
+  id               String   @id @default(cuid())
+  organizationId   String
+  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  supplier         Supplier @relation(fields: [supplierId], references: [id])
+  supplierId       String
+
+  ingredient       Ingredient @relation(fields: [ingredientId], references: [id])
+  ingredientId     String
+
+  quantity         Float
+  unit             String
+  costPerUnit      Float
+  totalCost        Float
+
+  purchaseDate     DateTime
+  deliveryDate     DateTime?
+  invoiceNumber    String?
+  notes            String?
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([organizationId])
+  @@index([supplierId])
+  @@index([ingredientId])
+  @@index([purchaseDate])
+}
+
+// Waste Recording
+model WasteRecord {
+  id               String   @id @default(cuid())
+  organizationId   String
+  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  ingredient       Ingredient @relation(fields: [ingredientId], references: [id])
+  ingredientId     String
+
+  category         WasteCategory @relation(fields: [categoryId], references: [id])
+  categoryId       String
+
+  wasteReason      WasteReason? @relation(fields: [wasteReasonId], references: [id])
+  wasteReasonId    String?
+
+  supplier         Supplier? @relation(fields: [supplierId], references: [id])
+  supplierId       String?
+
+  quantity         Float
+  unit             String
+  costImpact       Float
+  percentageWaste  Float    @default(0)
+
+  recordedBy       User     @relation(fields: [recordedById], references: [id])
+  recordedById     String
+
+  department       String?
+  shift            String?
+
+  photoUrl         String?
+  notes            String?
+
+  status           WasteStatus @default(PENDING)
+  approvedBy       String?
+  approvedAt       DateTime?
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([organizationId])
+  @@index([ingredientId])
+  @@index([categoryId])
+  @@index([recordedById])
+  @@index([status])
+  @@index([createdAt])
+  @@index([organizationId, status, createdAt])
+  @@index([organizationId, categoryId, status])
+  @@index([organizationId, createdAt, status])
+}
+
+enum WasteStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model FilterPreset {
+  id               String   @id @default(cuid())
+  organizationId   String
+  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  createdBy        String
+  name             String
+  description      String?
+  filterCriteria   Json     // Stores filter query as JSON
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([organizationId, name])
+  @@index([organizationId])
+}
+
+// Reports
+model Report {
+  id               String   @id @default(cuid())
+  organizationId   String
+  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  name             String
+  type             ReportType
+  frequency        ReportFrequency
+  format           String   @default("PDF")
+
+  startDate        DateTime
+  endDate          DateTime?
+
+  filters          String?  // JSON filters
+
+  createdBy        User     @relation(fields: [createdById], references: [id])
+  createdById      String
+
+  scheduledFor     DateTime?
+  sentTo           String?  // Email addresses
+  lastSentAt       DateTime?
+
+  fileUrl          String?
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([organizationId])
+  @@index([type])
+  @@index([frequency])
+}
+
+model ReportSchedule {
+  id               String   @id @default(cuid())
+  organizationId   String
+  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  name             String
+  description      String?
+  enabled          Boolean  @default(true)
+
+  frequency        String   // DAILY, WEEKLY, MONTHLY
+  time             String   // HH:mm format
+  dayOfWeek        Int?     // 0-6 for WEEKLY
+  dayOfMonth       Int?     // 1-31 for MONTHLY
+
+  recipientEmails  String[] // Array of email addresses
+
+  lastRunAt        DateTime?
+  nextRunAt        DateTime?
+
+  createdBy        String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([organizationId, name])
+  @@index([organizationId])
+  @@index([enabled])
+  @@index([nextRunAt])
+}
+
+enum ReportType {
+  DAILY
+  WEEKLY
+  MONTHLY
+  YEARLY
+  COST
+  WASTE
+  CATEGORY
+  INGREDIENT
+  SHIFT
+  STAFF
+  CUSTOM
+}
+
+enum ReportFrequency {
+  ONCE
+  DAILY
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+// AI & Predictions
+model AIPrediction {
+  id               String   @id @default(cuid())
+  organizationId   String
+  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  ingredient       Ingredient? @relation(fields: [ingredientId], references: [id])
+  ingredientId     String?
+
+  predictionType   PredictionType
+
+  value            Float
+  confidence       Float    // 0-1
+  unit             String
+
+  reason           String?
+  recommendation   String?
+
+  predictedFor     DateTime
+
+  createdAt        DateTime @default(now())
+
+  @@index([organizationId])
+  @@index([ingredientId])
+  @@index([predictionType])
+  @@index([predictedFor])
+  @@index([organizationId, ingredientId, predictionType])
+}
+
+enum PredictionType {
+  WASTE
+  EXPIRY
+  DEMAND
+  PURCHASE
+  RISK_SCORE
+}
+
+// Notifications
+model Notification {
+  id               String   @id @default(cuid())
+  organizationId   String
+  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  type             NotificationType
+  title            String
+  message          String
+  severity         NotificationSeverity @default(INFO)
+
+  relatedId        String?
+  relatedType      String?
+
+  isRead           Boolean  @default(false)
+  readAt           DateTime?
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([organizationId])
+  @@index([type])
+  @@index([severity])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+enum NotificationType {
+  WASTE_ALERT
+  EXPIRY_ALERT
+  INVENTORY_LOW
+  HIGH_WASTE
+  WASTE_PREDICTION
+  DAILY_SUMMARY
+  WEEKLY_SUMMARY
+  REPORT_READY
+  APPROVAL_NEEDED
+}
+
+enum NotificationSeverity {
+  INFO
+  WARNING
+  CRITICAL
+}
+
+// Audit & Compliance
+model AuditLog {
+  id               String   @id @default(cuid())
+  organizationId   String
+  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  user             User     @relation(fields: [userId], references: [id])
+  userId           String
+
+  action           String
+  resource         String
+  resourceId       String?
+
+  oldValues        String?  // JSON
+  newValues        String?  // JSON
+
+  ipAddress        String?
+  userAgent        String?
+
+  createdAt        DateTime @default(now())
+
+  @@index([organizationId])
+  @@index([userId])
+  @@index([resource])
+  @@index([action])
+  @@index([createdAt])
+}

@@ -362,7 +362,7 @@ describe('Chart - Accessibility', () => {
       const { container } = render(
         <Chart {...createChartProps({ height: 500 })} />
       );
-      const wrapper = container.querySelector('[role="img"]');
+      const wrapper = container.querySelector('[role="img"]') as HTMLElement | null;
       expect(wrapper?.style.height).toBe('500px');
     });
 

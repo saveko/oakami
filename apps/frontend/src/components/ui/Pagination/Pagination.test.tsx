@@ -302,12 +302,12 @@ describe('Pagination - Accessibility', () => {
     it('should have dark mode classes on buttons', () => {
       const { container } = render(<Pagination {...createPaginationProps()} />);
       const buttons = container.querySelectorAll('button');
+      expect(buttons.length).toBeGreaterThan(0);
+      // Every button must be themed for dark mode. The current-page button uses
+      // the inverted sky palette rather than the neutral grays, so assert on the
+      // presence of a dark: variant rather than one specific token.
       buttons.forEach((btn) => {
-        expect(
-          btn.className.includes('dark:border-gray-600') ||
-          btn.className.includes('dark:bg-gray-800') ||
-          btn.className.includes('dark:text-gray-100')
-        ).toBeTruthy();
+        expect(btn.className).toMatch(/\bdark:/);
       });
     });
 
@@ -332,16 +332,19 @@ describe('Pagination - Accessibility', () => {
     it('should hide previous button text on small screens', () => {
       const { container } = render(<Pagination {...createPaginationProps()} />);
       const prevButton = container.querySelector('[aria-label="Previous page"]');
-      // Check for hidden sm: classes
-      expect(prevButton?.className).toContain('hidden');
-      expect(prevButton?.className).toContain('sm:inline');
+      // The arrow stays visible at every width; only the text label collapses,
+      // so the responsive classes live on the inner <span>, not the button.
+      const prevLabel = prevButton?.querySelector('span');
+      expect(prevLabel?.className).toContain('hidden');
+      expect(prevLabel?.className).toContain('sm:inline');
     });
 
     it('should hide next button text on small screens', () => {
       const { container } = render(<Pagination {...createPaginationProps()} />);
       const nextButton = container.querySelector('[aria-label="Next page"]');
-      expect(nextButton?.className).toContain('hidden');
-      expect(nextButton?.className).toContain('sm:inline');
+      const nextLabel = nextButton?.querySelector('span');
+      expect(nextLabel?.className).toContain('hidden');
+      expect(nextLabel?.className).toContain('sm:inline');
     });
 
     it('should maintain functionality on small screens', () => {

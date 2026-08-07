@@ -64,18 +64,42 @@ export const Pagination = React.forwardRef<HTMLDivElement, PaginationProps>(
 
   const pages = getPageNumbers();
 
+  const [jumpToValue, setJumpToValue] = React.useState('');
+
+  const submitJumpTo = () => {
+    const page = parseInt(jumpToValue, 10);
+    if (page > 0 && page <= totalPages) {
+      onPageChange(page);
+      setJumpToValue('');
+    }
+  };
+
   const buttonSize = {
     sm: 'h-8 w-8 text-sm',
     md: 'h-10 w-10 text-base',
     lg: 'h-12 w-12 text-lg',
   };
 
-  const buttonClasses = cn(
-    'inline-flex items-center justify-center rounded border border-gray-300 bg-white text-gray-900 transition-colors',
-    'hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500',
-    'disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white',
-    'dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700 dark:disabled:hover:bg-gray-800',
+  // Sizing, focus and disabled behaviour are shared by every button. The
+  // current-page button only overrides colours — it must not replace this base,
+  // or it loses its touch target and focus ring.
+  const baseButtonClasses = cn(
+    'inline-flex items-center justify-center rounded border transition-colors',
+    'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500',
+    'disabled:cursor-not-allowed disabled:opacity-50',
     buttonSize[size]
+  );
+
+  const buttonClasses = cn(
+    baseButtonClasses,
+    'border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:hover:bg-white',
+    'dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700 dark:disabled:hover:bg-gray-800'
+  );
+
+  const currentPageButtonClasses = cn(
+    baseButtonClasses,
+    'border-sky-600 bg-sky-600 text-white hover:bg-sky-700',
+    'dark:border-sky-500 dark:bg-sky-600 dark:text-white dark:hover:bg-sky-700'
   );
 
   return (
@@ -113,12 +137,9 @@ export const Pagination = React.forwardRef<HTMLDivElement, PaginationProps>(
           return (
             <button
               key={pageNum}
+              type="button"
               onClick={() => onPageChange(pageNum)}
-              className={cn(
-                isCurrent
-                  ? 'border-sky-600 bg-sky-600 text-white hover:bg-sky-700 dark:border-sky-500 dark:bg-sky-600'
-                  : buttonClasses
-              )}
+              className={isCurrent ? currentPageButtonClasses : buttonClasses}
               aria-label={`Go to page ${pageNum}`}
               aria-current={isCurrent ? 'page' : undefined}
             >
@@ -141,7 +162,9 @@ export const Pagination = React.forwardRef<HTMLDivElement, PaginationProps>(
       {/* Page Info */}
       {showPageInfo && (
         <div className="ml-4 text-sm text-gray-600 dark:text-gray-400">
-          Page <span className="font-medium">{currentPage}</span> of <span className="font-medium">{totalPages}</span>
+          {/* One text node, not `Page <span>1</span> of <span>10</span>`: the
+              inner spans matched text queries intended for the page buttons. */}
+          <span className="font-medium">{`Page ${currentPage} of ${totalPages}`}</span>
         </div>
       )}
 
@@ -150,12 +173,7 @@ export const Pagination = React.forwardRef<HTMLDivElement, PaginationProps>(
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            const input = (e.currentTarget.elements.namedItem('jumpToPage') as HTMLInputElement);
-            const page = parseInt(input.value, 10);
-            if (page > 0 && page <= totalPages) {
-              onPageChange(page);
-              input.value = '';
-            }
+            submitJumpTo();
           }}
           className="ml-4 flex items-center gap-2"
         >
@@ -169,6 +187,16 @@ export const Pagination = React.forwardRef<HTMLDivElement, PaginationProps>(
             min="1"
             max={totalPages}
             placeholder="Page #"
+            value={jumpToValue}
+            onChange={(e) => setJumpToValue(e.target.value)}
+            // Browsers submit a single-input form on Enter implicitly; jsdom
+            // does not, and relying on it would make the control untestable.
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                submitJumpTo();
+              }
+            }}
             className={cn(
               'w-16 rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-900',
               'focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2',

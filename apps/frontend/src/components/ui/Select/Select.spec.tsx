@@ -1,8 +1,19 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
-import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
+import { render, renderHook, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Select from './Select';
+import * as useSelectModule from './useSelect';
+
+/**
+ * The trigger and the clear control are both real buttons (a control nested
+ * inside another button would be invalid HTML), so `getByRole('button')` is
+ * ambiguous once a value is selected. The trigger is the one owning the popup.
+ */
+const getTrigger = (): HTMLElement =>
+  screen
+    .getAllByRole('button')
+    .find((b) => b.getAttribute('aria-haspopup') === 'listbox') as HTMLElement;
 
 describe('Select', () => {
   const mockOptions = [
@@ -15,7 +26,7 @@ describe('Select', () => {
   describe('rendering', () => {
     it('should render with placeholder when no value provided', () => {
       render(<Select options={mockOptions} placeholder="Select a fruit" />);
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       expect(button).toHaveTextContent('Select a fruit');
     });
 
@@ -40,7 +51,7 @@ describe('Select', () => {
           placeholder="Select"
         />
       );
-      expect(screen.getByRole('button')).toHaveTextContent('Apple');
+      expect(getTrigger()).toHaveTextContent('Apple');
     });
 
     it('should render multiple selected values as count', () => {
@@ -52,14 +63,14 @@ describe('Select', () => {
           placeholder="Select"
         />
       );
-      expect(screen.getByRole('button')).toHaveTextContent('2 selected');
+      expect(getTrigger()).toHaveTextContent('2 selected');
     });
 
     it('should render with disabled state', () => {
       render(
         <Select options={mockOptions} disabled placeholder="Select" />
       );
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       expect(button).toBeDisabled();
     });
 
@@ -67,7 +78,7 @@ describe('Select', () => {
       render(
         <Select options={mockOptions} isLoading placeholder="Select" />
       );
-      expect(screen.getByRole('button')).toHaveTextContent('Loading...');
+      expect(getTrigger()).toHaveTextContent('Loading...');
     });
 
     it('should render error state', () => {
@@ -101,14 +112,14 @@ describe('Select', () => {
           placeholder="Select"
         />
       );
-      expect(screen.getByRole('button')).toHaveAttribute('id', 'fruit-select');
+      expect(getTrigger()).toHaveAttribute('id', 'fruit-select');
     });
   });
 
   describe('dropdown interaction', () => {
     it('should open dropdown on button click', async () => {
       render(<Select options={mockOptions} placeholder="Select" />);
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       await waitFor(() => {
@@ -118,7 +129,7 @@ describe('Select', () => {
 
     it('should close dropdown on button click when open', async () => {
       render(<Select options={mockOptions} placeholder="Select" />);
-      const button = screen.getByRole('button');
+      const button = getTrigger();
 
       fireEvent.click(button);
       await waitFor(() => {
@@ -135,7 +146,7 @@ describe('Select', () => {
       render(
         <Select options={mockOptions} disabled placeholder="Select" />
       );
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
@@ -145,7 +156,7 @@ describe('Select', () => {
       render(
         <Select options={mockOptions} isLoading placeholder="Select" />
       );
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
@@ -186,7 +197,7 @@ describe('Select', () => {
         />
       );
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       await waitFor(() => {
@@ -202,7 +213,7 @@ describe('Select', () => {
         <Select options={mockOptions} placeholder="Select" />
       );
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       await waitFor(() => {
@@ -217,16 +228,26 @@ describe('Select', () => {
 
     it('should select multiple options in multi-select mode', async () => {
       const handleChange = vi.fn();
-      render(
-        <Select
-          options={mockOptions}
-          onChange={handleChange}
-          isMulti
-          placeholder="Select"
-        />
-      );
+      // Select is controlled, so the parent must hold the value for a second
+      // selection to accumulate rather than replace the first.
+      const Harness = () => {
+        const [value, setValue] = React.useState<string[]>([]);
+        return (
+          <Select
+            options={mockOptions}
+            value={value}
+            onChange={(v) => {
+              setValue(v as string[]);
+              handleChange(v);
+            }}
+            isMulti
+            placeholder="Select"
+          />
+        );
+      };
+      render(<Harness />);
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       await waitFor(() => {
@@ -244,7 +265,7 @@ describe('Select', () => {
         <Select options={mockOptions} isMulti placeholder="Select" />
       );
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       await waitFor(() => {
@@ -267,7 +288,7 @@ describe('Select', () => {
         />
       );
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       await waitFor(() => {
@@ -293,7 +314,7 @@ describe('Select', () => {
         />
       );
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       await waitFor(() => {
@@ -311,12 +332,12 @@ describe('Select', () => {
         <Select options={mockOptions} searchable placeholder="Select" />
       );
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       await waitFor(() => {
         const searchInput = screen.getByPlaceholderText('Search...');
-        fireEvent.change(searchInput, { target: { value: 'ap' } });
+        fireEvent.change(searchInput, { target: { value: 'appl' } });
       });
 
       await waitFor(() => {
@@ -331,7 +352,7 @@ describe('Select', () => {
         <Select options={mockOptions} searchable placeholder="Select" />
       );
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       await waitFor(() => {
@@ -349,12 +370,12 @@ describe('Select', () => {
         <Select options={mockOptions} searchable placeholder="Select" />
       );
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       await waitFor(() => {
         const searchInput = screen.getByPlaceholderText('Search...');
-        fireEvent.change(searchInput, { target: { value: 'banana') });
+        fireEvent.change(searchInput, { target: { value: 'banana' } });
       });
 
       // The highlighted index should be 0 after search
@@ -373,7 +394,7 @@ describe('Select', () => {
         />
       );
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       expect(screen.queryByPlaceholderText('Search...')).not.toBeInTheDocument();
@@ -465,7 +486,7 @@ describe('Select', () => {
         <Select options={mockOptions} placeholder="Select" />
       );
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.keyDown(button, { key: 'ArrowDown' });
 
       await waitFor(() => {
@@ -478,7 +499,7 @@ describe('Select', () => {
         <Select options={mockOptions} placeholder="Select" />
       );
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.keyDown(button, { key: 'ArrowUp' });
 
       await waitFor(() => {
@@ -491,7 +512,7 @@ describe('Select', () => {
         <Select options={mockOptions} placeholder="Select" />
       );
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       await waitFor(() => {
@@ -515,7 +536,7 @@ describe('Select', () => {
         />
       );
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       await waitFor(() => {
@@ -531,7 +552,7 @@ describe('Select', () => {
         <Select options={mockOptions} placeholder="Select" />
       );
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       await waitFor(() => {
@@ -551,7 +572,7 @@ describe('Select', () => {
         <Select options={mockOptions} placeholder="Select" />
       );
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       await waitFor(() => {
@@ -571,7 +592,7 @@ describe('Select', () => {
         <Select options={mockOptions} placeholder="Select" />
       );
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       await waitFor(() => {
@@ -620,7 +641,7 @@ describe('Select', () => {
       const combobox = screen.getByRole('combobox');
       expect(combobox).toHaveAttribute('aria-expanded', 'false');
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       await waitFor(() => {
@@ -642,8 +663,9 @@ describe('Select', () => {
         <Select options={mockOptions} required placeholder="Select" />
       );
 
-      const button = screen.getByRole('button');
-      expect(button).toHaveAttribute('aria-required', 'true');
+      // aria-required is not a permitted attribute on role="button"; it lives
+      // on the combobox that wraps the trigger.
+      expect(screen.getByRole('combobox')).toHaveAttribute('aria-required', 'true');
     });
 
     it('should set aria-invalid on error', () => {
@@ -651,8 +673,7 @@ describe('Select', () => {
         <Select options={mockOptions} error placeholder="Select" />
       );
 
-      const button = screen.getByRole('button');
-      expect(button).toHaveAttribute('aria-invalid', 'true');
+      expect(screen.getByRole('combobox')).toHaveAttribute('aria-invalid', 'true');
     });
 
     it('should link aria-describedby to error and help text', () => {
@@ -665,7 +686,7 @@ describe('Select', () => {
         />
       );
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       const describedBy = button.getAttribute('aria-describedby');
 
       expect(describedBy).toMatch(/error/);
@@ -679,7 +700,7 @@ describe('Select', () => {
         <Select options={mockOptions} value="apple" placeholder="Select" />
       );
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       await waitFor(() => {
@@ -694,7 +715,7 @@ describe('Select', () => {
         <Select options={mockOptions} placeholder="Select" />
       );
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       await waitFor(() => {
@@ -713,7 +734,7 @@ describe('Select', () => {
         <Select options={mockOptions} searchable placeholder="Select" />
       );
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       await waitFor(() => {
@@ -726,18 +747,19 @@ describe('Select', () => {
         <Select options={mockOptions} placeholder="Select" />
       );
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       expect(button).toHaveClass('focus-visible:outline-2');
     });
   });
 
   describe('useSelect hook', () => {
     it('should manage select state with hook', () => {
-      const { useSelect } = require('./useSelect');
-      const { result } = render(() => {
-        const select = useSelect({ initialValue: '', isMulti: false });
-        return select;
-      });
+      const { useSelect } = useSelectModule;
+      // A hook must be exercised with renderHook; render() returns a query
+      // object, not a { result } handle, so result.current was always undefined.
+      const { result } = renderHook(() =>
+        useSelect({ initialValue: '', isMulti: false })
+      );
 
       expect(result.current.value).toBe('');
     });

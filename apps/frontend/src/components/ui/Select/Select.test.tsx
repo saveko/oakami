@@ -4,6 +4,17 @@ import { render, screen, fireEvent, waitFor } from '@/test/utils';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import Select from './Select';
 
+/**
+ * The trigger and the clear control are both real buttons (a control nested
+ * inside another button would be invalid HTML), so `getByRole('button')` is
+ * ambiguous once a value is selected. The trigger is the one owning the popup.
+ */
+const getTrigger = (): HTMLElement =>
+  screen
+    .getAllByRole('button')
+    .find((b) => b.getAttribute('aria-haspopup') === 'listbox') as HTMLElement;
+
+
 expect.extend(toHaveNoViolations);
 
 describe('Select - Accessibility', () => {
@@ -18,7 +29,7 @@ describe('Select - Accessibility', () => {
     it('should be keyboard navigable with Tab key', async () => {
       render(<Select options={mockOptions} placeholder="Select" />);
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       expect(document.activeElement).not.toBe(button);
 
       button.focus();
@@ -28,7 +39,7 @@ describe('Select - Accessibility', () => {
     it('should open dropdown with Enter key', async () => {
       render(<Select options={mockOptions} placeholder="Select" />);
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       button.focus();
       fireEvent.keyDown(button, { key: 'Enter' });
 
@@ -40,7 +51,7 @@ describe('Select - Accessibility', () => {
     it('should navigate options with arrow keys when dropdown is open', async () => {
       render(<Select options={mockOptions} placeholder="Select" />);
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       await waitFor(() => {
@@ -65,7 +76,7 @@ describe('Select - Accessibility', () => {
         />
       );
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       await waitFor(() => {
@@ -80,7 +91,7 @@ describe('Select - Accessibility', () => {
     it('should close dropdown with Escape key', async () => {
       render(<Select options={mockOptions} placeholder="Select" />);
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       await waitFor(() => {
@@ -98,7 +109,7 @@ describe('Select - Accessibility', () => {
     it('should skip disabled options in keyboard navigation', async () => {
       render(<Select options={mockOptions} placeholder="Select" />);
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       await waitFor(() => {
@@ -132,7 +143,7 @@ describe('Select - Accessibility', () => {
       const combobox = screen.getByRole('combobox');
       expect(combobox).toHaveAttribute('aria-expanded', 'false');
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       await waitFor(() => {
@@ -143,7 +154,7 @@ describe('Select - Accessibility', () => {
     it('should have proper listbox role', async () => {
       render(<Select options={mockOptions} placeholder="Select" />);
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       await waitFor(() => {
@@ -155,7 +166,7 @@ describe('Select - Accessibility', () => {
     it('should have proper option role', async () => {
       render(<Select options={mockOptions} placeholder="Select" />);
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       await waitFor(() => {
@@ -191,7 +202,7 @@ describe('Select - Accessibility', () => {
         />
       );
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       const describedBy = button.getAttribute('aria-describedby');
       expect(describedBy).toContain('error');
     });
@@ -205,7 +216,7 @@ describe('Select - Accessibility', () => {
         />
       );
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       const describedBy = button.getAttribute('aria-describedby');
       expect(describedBy).toContain('help');
     });
@@ -215,8 +226,9 @@ describe('Select - Accessibility', () => {
         <Select options={mockOptions} required placeholder="Select" />
       );
 
-      const button = screen.getByRole('button');
-      expect(button).toHaveAttribute('aria-required', 'true');
+      // aria-required is not a permitted attribute on role="button"; it lives
+      // on the combobox that wraps the trigger.
+      expect(screen.getByRole('combobox')).toHaveAttribute('aria-required', 'true');
     });
 
     it('should have aria-invalid on error', () => {
@@ -224,8 +236,7 @@ describe('Select - Accessibility', () => {
         <Select options={mockOptions} error placeholder="Select" />
       );
 
-      const button = screen.getByRole('button');
-      expect(button).toHaveAttribute('aria-invalid', 'true');
+      expect(screen.getByRole('combobox')).toHaveAttribute('aria-invalid', 'true');
     });
 
     it('should set aria-selected correctly on options', async () => {
@@ -237,7 +248,7 @@ describe('Select - Accessibility', () => {
         />
       );
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       await waitFor(() => {
@@ -250,7 +261,7 @@ describe('Select - Accessibility', () => {
     it('should set aria-disabled on disabled options', async () => {
       render(<Select options={mockOptions} placeholder="Select" />);
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       await waitFor(() => {
@@ -265,7 +276,7 @@ describe('Select - Accessibility', () => {
     it('should have visible focus indicator', () => {
       render(<Select options={mockOptions} placeholder="Select" />);
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       expect(button).toHaveClass('focus-visible:outline-2');
       expect(button).toHaveClass('focus-visible:outline-offset-2');
     });
@@ -275,7 +286,7 @@ describe('Select - Accessibility', () => {
         <Select options={mockOptions} searchable placeholder="Select" />
       );
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       await waitFor(() => {
@@ -289,7 +300,7 @@ describe('Select - Accessibility', () => {
         <Select options={mockOptions} placeholder="Select" />
       );
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       await waitFor(() => {
@@ -305,7 +316,7 @@ describe('Select - Accessibility', () => {
     it('should maintain focus trap during navigation', async () => {
       render(<Select options={mockOptions} placeholder="Select" />);
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       await waitFor(() => {
@@ -325,7 +336,7 @@ describe('Select - Accessibility', () => {
         />
       );
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       const styles = window.getComputedStyle(button);
 
       // Dark text on light background should pass WCAG AA (4.5:1)
@@ -342,7 +353,7 @@ describe('Select - Accessibility', () => {
         />
       );
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       const styles = window.getComputedStyle(button);
 
       expect(styles.opacity).toBeDefined();
@@ -351,7 +362,7 @@ describe('Select - Accessibility', () => {
     it('should have sufficient contrast on option hover', async () => {
       render(<Select options={mockOptions} placeholder="Select" />);
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       await waitFor(() => {
@@ -369,20 +380,22 @@ describe('Select - Accessibility', () => {
     it('should have minimum 44px height on button', () => {
       render(<Select options={mockOptions} placeholder="Select" />);
 
-      const button = screen.getByRole('button');
-      expect(button.clientHeight).toBeGreaterThanOrEqual(44);
+      // jsdom does not lay out, so clientHeight is always 0; assert the class
+      // that produces the 44px target instead.
+      expect(getTrigger().className).toContain('min-h-[44px]');
     });
 
     it('should have minimum 44px height on options', async () => {
       render(<Select options={mockOptions} placeholder="Select" />);
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       await waitFor(() => {
         const options = screen.getAllByRole('option');
+        expect(options.length).toBeGreaterThan(0);
         options.forEach((option) => {
-          expect(option.clientHeight).toBeGreaterThanOrEqual(32);
+          expect(option.className).toContain('min-h-[32px]');
         });
       });
     });
@@ -390,7 +403,7 @@ describe('Select - Accessibility', () => {
     it('should have proper spacing between interactive elements', async () => {
       render(<Select options={mockOptions} placeholder="Select" />);
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       await waitFor(() => {
@@ -409,7 +422,7 @@ describe('Select - Accessibility', () => {
     it('should use semantic button element', () => {
       render(<Select options={mockOptions} placeholder="Select" />);
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       expect(button.tagName).toBe('BUTTON');
     });
 
@@ -418,7 +431,7 @@ describe('Select - Accessibility', () => {
         <Select options={mockOptions} searchable placeholder="Select" />
       );
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       await waitFor(() => {
@@ -475,14 +488,14 @@ describe('Select - Accessibility', () => {
 
       render(<Select options={mockOptions} placeholder="Select" />);
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       expect(button).toBeInTheDocument();
     });
 
     it('should not have disruptive animations on focus', () => {
       render(<Select options={mockOptions} placeholder="Select" />);
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       button.focus();
 
       // Should not trigger layout thrashing animations
@@ -492,7 +505,7 @@ describe('Select - Accessibility', () => {
     it('should have smooth transitions on dropdown open/close', async () => {
       render(<Select options={mockOptions} placeholder="Select" />);
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       await waitFor(() => {
@@ -516,7 +529,7 @@ describe('Select - Accessibility', () => {
         </div>
       );
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       expect(button).toBeInTheDocument();
     });
   });
@@ -536,7 +549,7 @@ describe('Select - Accessibility', () => {
         <Select options={mockOptions} placeholder="Select" />
       );
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       await waitFor(() => {
@@ -582,7 +595,7 @@ describe('Select - Accessibility', () => {
         <Select options={mockOptions} searchable placeholder="Select" />
       );
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       await waitFor(() => {
@@ -597,7 +610,7 @@ describe('Select - Accessibility', () => {
         <Select options={mockOptions} searchable placeholder="Select" />
       );
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       await waitFor(() => {
@@ -618,15 +631,20 @@ describe('Select - Accessibility', () => {
         />
       );
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       await waitFor(() => {
-        const checkboxes = screen.getAllByRole('checkbox');
-        expect(checkboxes.length).toBeGreaterThan(0);
+        // A listbox may only own options, so multi-select state is carried by
+        // aria-selected on a multiselectable listbox rather than by nested
+        // checkbox inputs (which would be a nested-interactive violation).
+        const listbox = screen.getByRole('listbox');
+        expect(listbox).toHaveAttribute('aria-multiselectable', 'true');
 
-        checkboxes.forEach((checkbox) => {
-          expect(checkbox).toHaveAttribute('type', 'checkbox');
+        const options = screen.getAllByRole('option');
+        expect(options.length).toBeGreaterThan(0);
+        options.forEach((option) => {
+          expect(option).toHaveAttribute('aria-selected');
         });
       });
     });
@@ -641,7 +659,7 @@ describe('Select - Accessibility', () => {
         />
       );
 
-      const button = screen.getByRole('button');
+      const button = getTrigger();
       fireEvent.click(button);
 
       await waitFor(() => {

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@/test/utils';
+import { render, screen, fireEvent, waitFor, within } from '@/test/utils';
 import userEvent from '@testing-library/user-event';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { SearchBar } from './SearchBar';
@@ -31,9 +31,9 @@ describe('SearchBar - Accessibility Tests', () => {
         />
       );
 
-      fireEvent.change(container.querySelector('input')!, {
-        target: { value: 'App' },
-      });
+      // The input already holds "App", so re-firing change emits no event;
+      // focusing is what opens the suggestion list for an existing value.
+      fireEvent.focus(container.querySelector('input')!);
 
       await waitFor(() => {
         screen.getByText('Apple');
@@ -174,11 +174,11 @@ describe('SearchBar - Accessibility Tests', () => {
 
       fireEvent.keyDown(input, { key: 'ArrowDown' });
       const firstOption = screen.getByText('Banana');
-      expect(firstOption.closest('button')).toHaveAttribute('aria-selected', 'true');
+      expect(firstOption.closest('[role="option"]')).toHaveAttribute('aria-selected', 'true');
 
       fireEvent.keyDown(input, { key: 'ArrowDown' });
       const secondOption = screen.getByText('Blueberry');
-      expect(secondOption.closest('button')).toHaveAttribute('aria-selected', 'true');
+      expect(secondOption.closest('[role="option"]')).toHaveAttribute('aria-selected', 'true');
     });
 
     it('should support entering from keyboard', async () => {
@@ -230,7 +230,7 @@ describe('SearchBar - Accessibility Tests', () => {
       // Navigate to suggestion
       fireEvent.keyDown(input, { key: 'ArrowDown' });
       await waitFor(() => {
-        expect(screen.getByText('Cherry').closest('button')).toHaveAttribute('aria-selected', 'true');
+        expect(screen.getByText('Cherry').closest('[role="option"]')).toHaveAttribute('aria-selected', 'true');
       });
 
       // Select
@@ -244,7 +244,7 @@ describe('SearchBar - Accessibility Tests', () => {
       const { container } = render(<SearchBar {...defaultProps} />);
       const input = screen.getByPlaceholderText('Search fruits...');
 
-      fireEvent.focus(input);
+      input.focus();
       expect(input).toHaveFocus();
       expect(input.className).toContain('focus-visible:outline');
     });
@@ -331,10 +331,10 @@ describe('SearchBar - Accessibility Tests', () => {
   describe('Color Contrast', () => {
     it('should maintain color contrast for input text in light mode', () => {
       const { container } = render(<SearchBar {...defaultProps} />);
-      const wrapper = container.firstChild as HTMLElement;
+      const input = screen.getByPlaceholderText('Search fruits...');
 
       // Should use high-contrast text colors
-      expect(wrapper.className).toContain('text-gray-900');
+      expect(input.className).toContain('text-gray-900');
     });
 
     it('should maintain color contrast for input text in dark mode', () => {
@@ -360,7 +360,7 @@ describe('SearchBar - Accessibility Tests', () => {
 
       await user.type(input, 'App');
       await waitFor(() => {
-        const option = screen.getByText('Apple').closest('button');
+        const option = screen.getByText('Apple').closest('[role="option"]');
         // Should have hover contrast support
         expect(option?.className).toContain('hover:bg-gray-100');
       });
@@ -381,8 +381,10 @@ describe('SearchBar - Accessibility Tests', () => {
 
       await user.type(input, 'App');
       await waitFor(() => {
-        const suggestionButton = screen.getByText('Apple').closest('button');
-        expect(suggestionButton).toHaveAttribute('type', 'button');
+        // Suggestions are listbox options; a <button> inside a listbox would be
+        // a nested-interactive violation, so assert the option semantics.
+        const suggestion = screen.getByText('Apple').closest('[role="option"]');
+        expect(suggestion).toHaveAttribute('aria-selected');
       });
     });
 

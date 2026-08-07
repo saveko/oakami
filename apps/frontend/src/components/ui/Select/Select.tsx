@@ -55,9 +55,11 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
     const selectRef = useRef<HTMLDivElement>(null);
     const searchInputRef = useRef<HTMLInputElement>(null);
     const optionsRef = useRef<HTMLDivElement>(null);
-    const elementId = id || `select-${Math.random().toString(36).substr(2, 9)}`;
+    const generatedId = React.useId();
+    const elementId = id || `select-${generatedId}`;
     const helpId = `${elementId}-help`;
     const errorId = `${elementId}-error`;
+    const listboxId = `${elementId}-listbox`;
 
     const selectedValue = value || (isMulti ? [] : '');
     const isValueArray = Array.isArray(selectedValue);
@@ -150,6 +152,9 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
           case 'Escape':
             e.preventDefault();
             setIsOpen(false);
+            // Focus must not be stranded on the search input inside the closed
+            // dropdown; return it to the control that opened it.
+            document.getElementById(elementId)?.focus();
             break;
 
           case 'Tab':
@@ -160,7 +165,7 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
             break;
         }
       },
-      [isOpen, filteredOptions, highlightedIndex, handleSelect]
+      [isOpen, filteredOptions, highlightedIndex, handleSelect, elementId]
     );
 
     // Scroll highlighted option into view
@@ -208,8 +213,9 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
       <div ref={ref} className="w-full">
         {label && (
           <label
+            id={`${elementId}-label`}
             htmlFor={elementId}
-            className="block text-sm font-medium text-gray-700 mb-2"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
           >
             {label}
             {required && (
@@ -224,22 +230,35 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
           ref={selectRef}
           className="relative w-full"
           role="combobox"
-          aria-expanded={isOpen}
           aria-haspopup="listbox"
+          aria-expanded={isOpen}
+          aria-controls={isOpen ? listboxId : undefined}
+          aria-activedescendant={
+            isOpen && filteredOptions[highlightedIndex]
+              ? `${listboxId}-option-${highlightedIndex}`
+              : undefined
+          }
           aria-labelledby={label ? `${elementId}-label` : undefined}
-          aria-label={ariaLabel}
+          aria-label={label ? undefined : ariaLabel || placeholder}
+          aria-required={required || undefined}
+          aria-invalid={error || undefined}
         >
           <button
             id={elementId}
             type="button"
             onClick={handleToggle}
+            onKeyDown={handleKeyDown}
             disabled={disabled || isLoading}
-            aria-required={required}
-            aria-invalid={error}
+            aria-haspopup="listbox"
+            aria-expanded={isOpen}
+            aria-controls={isOpen ? listboxId : undefined}
+            aria-labelledby={label ? `${elementId}-label` : undefined}
+            aria-label={ariaLabel}
             aria-describedby={descriptionIds || undefined}
             aria-busy={isLoading}
             className={`
-              w-full px-3 py-2 text-left border rounded-lg
+              w-full px-3 py-2 text-left border rounded-lg min-h-[44px]
+              text-gray-900 dark:text-gray-100
               transition focus-visible:outline-2 focus-visible:outline-offset-2
               focus-visible:outline-sky-500
               disabled:opacity-50 disabled:cursor-not-allowed
@@ -254,30 +273,13 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
               <span
                 className={
                   selectedValue === '' || (isValueArray && selectedValue.length === 0)
-                    ? 'text-gray-500'
-                    : 'text-gray-900'
+                    ? 'text-gray-500 dark:text-gray-400'
+                    : 'text-gray-900 dark:text-gray-100'
                 }
               >
                 {isLoading ? '⏳ Loading...' : getSelectedLabel()}
               </span>
-              <div className="flex items-center gap-1 ml-2">
-                {clearable && selectedValue !== '' && !(isValueArray && selectedValue.length === 0) && (
-                  <div
-                    role="button"
-                    tabIndex={0}
-                    onClick={handleClear}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        handleClear(e as any);
-                      }
-                    }}
-                    className="p-1 hover:bg-gray-100 rounded transition cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"
-                    aria-label="Clear selection"
-                  >
-                    ✕
-                  </div>
-                )}
+              <span className="flex items-center gap-1 ml-2">
                 <svg
                   className={`w-5 h-5 text-gray-400 transition-transform ${
                     isOpen ? 'rotate-180' : ''
@@ -294,9 +296,22 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
                     d="M19 14l-7 7m0 0l-7-7m7 7V3"
                   />
                 </svg>
-              </div>
+              </span>
             </div>
           </button>
+
+          {/* Sibling of the trigger, never nested inside it: a control inside a
+              button is invalid HTML and an axe "nested interactive" violation. */}
+          {clearable && selectedValue !== '' && !(isValueArray && selectedValue.length === 0) && (
+            <button
+              type="button"
+              onClick={handleClear}
+              className="absolute right-9 top-1/2 -translate-y-1/2 p-1 rounded transition hover:bg-gray-100 dark:hover:bg-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"
+              aria-label="Clear selection"
+            >
+              ✕
+            </button>
+          )}
 
           {isOpen && (
             <div
@@ -321,71 +336,65 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
                 </div>
               )}
 
-              <div
-                ref={optionsRef}
-                className="max-h-60 overflow-y-auto"
-                role="listbox"
-                aria-label={ariaLabel}
-              >
-                {filteredOptions.length === 0 ? (
-                  <div className="px-3 py-2 text-center text-gray-500 text-sm">
-                    No options found
-                  </div>
-                ) : (
-                  filteredOptions.map((option, index) => (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => handleSelect(option)}
-                      onMouseEnter={() => setHighlightedIndex(index)}
-                      onKeyDown={handleKeyDown}
-                      disabled={option.disabled}
-                      data-highlighted={index === highlightedIndex}
-                      role="option"
-                      aria-selected={
-                        isMulti && isValueArray
-                          ? selectedValue.includes(option.value)
-                          : option.value === selectedValue
-                      }
-                      aria-disabled={option.disabled}
-                      className={`
-                        w-full px-3 py-2 text-left text-sm transition
-                        disabled:opacity-50 disabled:cursor-not-allowed
-                        focus:outline-none
-                        ${
-                          index === highlightedIndex
-                            ? 'bg-sky-50'
-                            : 'hover:bg-gray-50'
-                        }
-                        ${
-                          isMulti && isValueArray
-                            ? selectedValue.includes(option.value)
-                              ? 'bg-sky-100 font-medium'
-                              : ''
-                            : option.value === selectedValue
-                            ? 'bg-sky-100 font-medium'
-                            : ''
-                        }
-                      `}
-                    >
-                      <div className="flex items-center gap-2">
+              {filteredOptions.length === 0 ? (
+                <div className="px-3 py-2 text-center text-gray-500 text-sm">
+                  No options found
+                </div>
+              ) : (
+                <ul
+                  ref={optionsRef}
+                  id={listboxId}
+                  className="max-h-60 overflow-y-auto m-0 p-0 list-none"
+                  role="listbox"
+                  aria-multiselectable={isMulti || undefined}
+                  aria-label={ariaLabel || label || 'Options'}
+                >
+                  {filteredOptions.map((option, index) => {
+                    const isSelected =
+                      isMulti && isValueArray
+                        ? selectedValue.includes(option.value)
+                        : option.value === selectedValue;
+
+                    return (
+                      // A listbox may only own options — a <button> here is an
+                      // axe "nested interactive"/required-children violation and
+                      // makes every getByRole('button') query ambiguous.
+                      <li
+                        key={option.value}
+                        id={`${listboxId}-option-${index}`}
+                        role="option"
+                        aria-selected={isSelected}
+                        aria-disabled={option.disabled || undefined}
+                        data-highlighted={index === highlightedIndex}
+                        onClick={() => handleSelect(option)}
+                        onMouseEnter={() => setHighlightedIndex(index)}
+                        className={`
+                          w-full px-3 py-2 text-left text-sm transition cursor-pointer
+                          min-h-[32px] flex items-center gap-2
+                          text-gray-900 dark:text-gray-100
+                          ${option.disabled ? 'opacity-50 cursor-not-allowed' : ''}
+                          ${index === highlightedIndex ? 'bg-sky-50 dark:bg-sky-900' : 'hover:bg-gray-50 dark:hover:bg-gray-800'}
+                          ${isSelected ? 'bg-sky-100 dark:bg-sky-800 font-medium' : ''}
+                        `}
+                      >
                         {isMulti && (
-                          <input
-                            type="checkbox"
-                            checked={
-                              isValueArray && selectedValue.includes(option.value)
-                            }
-                            onChange={() => handleSelect(option)}
-                            className="w-4 h-4 text-sky-600 rounded"
+                          <span
                             aria-hidden="true"
-                          />
+                            className={`w-4 h-4 shrink-0 rounded border flex items-center justify-center text-xs ${
+                              isSelected
+                                ? 'bg-sky-600 border-sky-600 text-white'
+                                : 'border-gray-300 dark:border-gray-600'
+                            }`}
+                          >
+                            {isSelected ? '✓' : ''}
+                          </span>
                         )}
                         {option.label}
-                      </div>
-                    </button>
-                  ))
-                )}
-              </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
             </div>
           )}
         </div>

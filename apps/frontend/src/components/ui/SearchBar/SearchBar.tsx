@@ -168,23 +168,36 @@ export const SearchBar = React.forwardRef<HTMLInputElement, SearchBarProps>(
               }
             }}
             onBlur={() => {
-              // Delay hiding to allow suggestion click
-              setTimeout(() => setShowSuggestions(false), 200);
+              // Suggestions commit on mousedown (which preventDefaults the
+              // blur), so the list can close immediately instead of lingering
+              // behind a timeout.
+              setShowSuggestions(false);
             }}
             placeholder={props.placeholder || 'Search...'}
+            role="combobox"
             aria-autocomplete="list"
-            aria-controls={showSuggestions ? 'search-suggestions' : undefined}
+            aria-controls="search-suggestions"
             aria-expanded={showSuggestions}
             aria-haspopup="listbox"
+            aria-activedescendant={
+              showSuggestions && selectedIndex >= 0
+                ? `search-suggestion-${selectedIndex}`
+                : undefined
+            }
+            className="text-gray-900 dark:text-gray-100"
             {...props}
           />
 
           {isLoading && (
             <div
               className="absolute right-10 top-1/2 -translate-y-1/2"
-              aria-hidden="true"
+              role="status"
+              aria-label="Searching"
             >
-              <div className="w-4 h-4 border-2 border-gray-200 border-t-sky-500 rounded-full animate-spin dark:border-gray-700 dark:border-t-sky-400" />
+              <div
+                className="w-4 h-4 border-2 border-gray-200 border-t-sky-500 rounded-full animate-spin dark:border-gray-700 dark:border-t-sky-400"
+                aria-hidden="true"
+              />
             </div>
           )}
 
@@ -215,37 +228,42 @@ export const SearchBar = React.forwardRef<HTMLInputElement, SearchBarProps>(
         </div>
 
         {showSuggestions && filteredSuggestions.length > 0 && (
-          <div
+          <ul
             id="search-suggestions"
             className={cn(
-              'absolute top-full left-0 right-0 mt-1 z-50',
+              'absolute top-full left-0 right-0 mt-1 z-50 m-0 p-0 list-none',
               'bg-white dark:bg-gray-800',
               'border border-gray-200 dark:border-gray-700',
               'rounded-md shadow-lg',
               'max-h-64 overflow-y-auto'
             )}
             role="listbox"
+            aria-label="Search suggestions"
           >
             {filteredSuggestions.map((suggestion, idx) => (
-              <button
+              <li
                 key={idx}
-                onClick={() => handleSuggestionClick(suggestion)}
+                id={`search-suggestion-${idx}`}
+                // onMouseDown, not onClick: the input's blur handler closes the
+                // list before a click would land.
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  handleSuggestionClick(suggestion);
+                }}
                 className={cn(
-                  'w-full text-left px-4 py-2',
+                  'w-full text-left px-4 py-2 cursor-pointer',
                   'text-sm text-gray-900 dark:text-gray-100',
                   'hover:bg-gray-100 dark:hover:bg-gray-700',
-                  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500',
                   'transition-colors',
                   selectedIndex === idx && 'bg-gray-100 dark:bg-gray-700'
                 )}
                 role="option"
                 aria-selected={selectedIndex === idx}
-                type="button"
               >
                 {suggestion}
-              </button>
+              </li>
             ))}
-          </div>
+          </ul>
         )}
       </div>
     );

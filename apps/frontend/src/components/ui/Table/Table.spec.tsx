@@ -69,7 +69,10 @@ describe('Table', () => {
 
       const skeletonRows = container.querySelectorAll('tbody tr');
       expect(skeletonRows.length).toBeGreaterThan(0);
-      expect(container.querySelectorAll('.animate-pulse')).toHaveLength(10); // 5 skeleton rows × 2 elements
+      // 5 skeleton rows, one pulsing cell per column
+      expect(container.querySelectorAll('.animate-pulse')).toHaveLength(
+        5 * mockColumns.length
+      );
     });
 
     it('should render error message when error prop is provided', () => {
@@ -216,14 +219,23 @@ describe('Table', () => {
       const onRowSelect = vi.fn();
       const user = userEvent.setup();
 
-      render(
-        <Table
-          {...createTableProps({
-            onRowSelect,
-            selectedRows: [],
-          })}
-        />
-      );
+      // selectedRows is controlled, so the parent must hold it for a second
+      // click to accumulate rather than replace the first selection.
+      const Harness = () => {
+        const [selected, setSelected] = React.useState<string[]>([]);
+        return (
+          <Table
+            {...createTableProps({
+              onRowSelect: (ids: string[]) => {
+                setSelected(ids);
+                onRowSelect(ids);
+              },
+              selectedRows: selected,
+            })}
+          />
+        );
+      };
+      render(<Harness />);
 
       const checkboxes = screen.getAllByRole('checkbox');
       await user.click(checkboxes[1]);
@@ -401,7 +413,7 @@ describe('Table', () => {
     });
 
     it('should pass full row object to render function', () => {
-      const renderMock = jest.fn((value, row) => {
+      const renderMock = vi.fn((value, row) => {
         if (row.cost > 50) return 'High';
         return 'Low';
       });
@@ -512,7 +524,8 @@ describe('Table', () => {
       );
 
       expect(screen.getByLabelText('Select all rows')).toBeInTheDocument();
-      expect(screen.getByLabelText(/Select row/)).toBeInTheDocument();
+      // One per data row, so the query must allow multiple matches.
+      expect(screen.getAllByLabelText(/Select row/)).toHaveLength(mockData.length);
     });
 
     it('should have role="alert" on error state', () => {

@@ -85,6 +85,7 @@ export const Chart = React.forwardRef<HTMLDivElement, ChartProps>(
             className
           )}
           style={{ height: `${height}px` }}
+          role="img"
           aria-busy="true"
           aria-label={ariaLabel || `Loading ${type} chart`}
         >

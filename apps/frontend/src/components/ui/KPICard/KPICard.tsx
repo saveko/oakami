@@ -61,6 +61,7 @@ export const KPICard = React.forwardRef<HTMLDivElement, KPICardProps>(
             'overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800',
             'h-32 animate-pulse'
           )}
+          role="status"
           aria-busy="true"
           aria-label={ariaLabel || label}
         >
@@ -84,17 +85,26 @@ export const KPICard = React.forwardRef<HTMLDivElement, KPICardProps>(
           isClickable && 'cursor-pointer hover:shadow-lg hover:dark:shadow-gray-900/50',
           className
         )}
-        onClick={onClick}
-        role={isClickable ? 'button' : 'article'}
-        tabIndex={isClickable ? 0 : undefined}
-        onKeyDown={isClickable ? (e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            onClick?.();
-          }
-        } : undefined}
         aria-label={ariaLabel || label}
       >
+        {/* role="button" is not a permitted override on <article> (axe:
+            aria-allowed-role), so the click target is a full-area overlay
+            instead. This also puts the focus ring on the interactive element. */}
+        {isClickable && (
+          <div
+            role="button"
+            tabIndex={0}
+            aria-label={ariaLabel || label}
+            onClick={onClick}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onClick?.();
+              }
+            }}
+            className="absolute inset-0 z-10 rounded-lg focus:outline-2 focus:outline-offset-2 focus:outline-sky-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"
+          />
+        )}
         {/* Icon - Top Right */}
         {icon && (
           <div className="absolute right-4 top-4 text-2xl text-gray-400 dark:text-gray-600">

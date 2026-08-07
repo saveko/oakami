@@ -3,7 +3,15 @@ import React from 'react';
 import { render, screen } from '@/test/utils';
 import userEvent from '@testing-library/user-event';
 import { Input } from './Input';
-import { Mail, Lock } from 'lucide-react';
+
+// Simple stand-in icons. These cases only need *an* element in the icon slot,
+// and lucide-react is not a dependency of this project.
+const Mail = ({ size = 18 }: { size?: number }) => (
+  <svg width={size} height={size} data-testid="icon-mail" aria-hidden="true" />
+);
+const Lock = ({ size = 18 }: { size?: number }) => (
+  <svg width={size} height={size} data-testid="icon-lock" aria-hidden="true" />
+);
 
 describe('Input', () => {
   describe('Rendering', () => {

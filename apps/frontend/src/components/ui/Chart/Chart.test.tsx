@@ -240,7 +240,8 @@ describe('Chart - Accessibility', () => {
   describe('Text Readability', () => {
     it('should use readable font sizes for labels', () => {
       const { container } = render(
-        <Chart {...createChartProps({ emptyMessage: 'Test Message' })} />
+        // The message only renders when there is no data to draw.
+        <Chart {...createChartProps({ data: [], emptyMessage: 'Test Message' })} />
       );
       const text = container.querySelector('p');
       expect(text?.className).toContain('text-sm');

@@ -41,7 +41,7 @@ export const Loading = React.forwardRef<HTMLDivElement, LoadingProps>(
         )}
         role="status"
         aria-busy="true"
-        aria-label={label || `Loading${label ? `: ${label}` : ''}`}
+        aria-label={label ? `Loading: ${label}` : 'Loading'}
       >
         {variant === 'spinner' && (
           <div

@@ -4,13 +4,15 @@ import { axe, toHaveNoViolations } from 'jest-axe';
 import { usePathname } from 'next/navigation';
 import { Navbar } from './Navbar';
 
-jest.mock('next/navigation', () => ({
+vi.mock('next/navigation', () => ({
   usePathname: vi.fn(),
 }));
 
-jest.mock('next/link', () => {
-  return ({ children, href }: any) => <a href={href}>{children}</a>;
-});
+// A module factory must return a module object; returning the component
+// directly makes vi.mock throw before any test runs.
+vi.mock('next/link', () => ({
+  default: ({ children, href }: any) => <a href={href}>{children}</a>,
+}));
 
 expect.extend(toHaveNoViolations);
 
@@ -22,7 +24,7 @@ describe('Navbar Accessibility Tests', () => {
   ];
 
   beforeEach(() => {
-    (usePathname as jest.Mock).mockReturnValue('/dashboard');
+    (usePathname as unknown as ReturnType<typeof vi.fn>).mockReturnValue('/dashboard');
   });
 
   describe('WCAG 2.1 Level AA - Color Contrast', () => {

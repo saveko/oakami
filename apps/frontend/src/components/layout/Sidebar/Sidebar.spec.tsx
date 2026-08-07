@@ -3,13 +3,15 @@ import { render, screen, fireEvent } from '@/test/utils';
 import { usePathname } from 'next/navigation';
 import { Sidebar, SidebarItem } from './Sidebar';
 
-jest.mock('next/navigation', () => ({
+vi.mock('next/navigation', () => ({
   usePathname: vi.fn(),
 }));
 
-jest.mock('next/link', () => {
-  return ({ children, href }: any) => <a href={href}>{children}</a>;
-});
+// A module factory must return a module object; returning the component
+// directly makes vi.mock throw before any test runs.
+vi.mock('next/link', () => ({
+  default: ({ children, href }: any) => <a href={href}>{children}</a>,
+}));
 
 describe('Sidebar Component', () => {
   const mockItems: SidebarItem[] = [
@@ -34,7 +36,7 @@ describe('Sidebar Component', () => {
   ];
 
   beforeEach(() => {
-    (usePathname as jest.Mock).mockReturnValue('/dashboard');
+    (usePathname as unknown as ReturnType<typeof vi.fn>).mockReturnValue('/dashboard');
   });
 
   describe('Rendering', () => {
@@ -97,7 +99,7 @@ describe('Sidebar Component', () => {
     });
 
     it('updates active state when pathname changes', () => {
-      (usePathname as jest.Mock).mockReturnValue('/waste');
+      (usePathname as unknown as ReturnType<typeof vi.fn>).mockReturnValue('/waste');
       render(<Sidebar items={mockItems} />);
       const wasteLink = screen.getByText('Waste Records').closest('a');
       expect(wasteLink).toHaveAttribute('aria-current', 'page');
@@ -188,7 +190,7 @@ describe('Sidebar Component', () => {
     });
 
     it('marks active nested item as current', () => {
-      (usePathname as jest.Mock).mockReturnValue('/reports/daily');
+      (usePathname as unknown as ReturnType<typeof vi.fn>).mockReturnValue('/reports/daily');
       render(<Sidebar items={nestedItems} open={true} />);
       const expandButton = screen.getByRole('button', { name: /Reports/i });
       fireEvent.click(expandButton);

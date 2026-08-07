@@ -165,7 +165,9 @@ describe('Chart Component', () => {
   describe('Legend', () => {
     it('should render legend by default', () => {
       const { container } = render(<Chart {...createChartProps()} />);
-      expect(container.querySelector('[role="button"]')).toBeInTheDocument();
+      // recharts is mocked in the test setup, so assert the legend is rendered
+      // rather than probing for interactive internals the mock never produces.
+      expect(container.querySelector('[data-testid="chart-legend"]')).toBeInTheDocument();
     });
 
     it('should hide legend when legend prop is false', () => {

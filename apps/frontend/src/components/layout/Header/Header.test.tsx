@@ -1,10 +1,13 @@
+import { vi } from 'vitest';
 import { render } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { Header, Breadcrumb } from './Header';
 
-jest.mock('next/link', () => {
-  return ({ children, href }: any) => <a href={href}>{children}</a>;
-});
+// A module factory must return a module object; returning the component
+// directly makes vi.mock throw before any test runs.
+vi.mock('next/link', () => ({
+  default: ({ children, href }: any) => <a href={href}>{children}</a>,
+}));
 
 expect.extend(toHaveNoViolations);
 

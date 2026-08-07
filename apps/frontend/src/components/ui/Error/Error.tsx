@@ -213,6 +213,7 @@ export const Error = React.forwardRef<HTMLDivElement, ErrorProps>(
             severityConfig.bg,
             className
           )}
+          role="alert"
           {...props}
         >
           {content}
@@ -230,6 +231,7 @@ export const Error = React.forwardRef<HTMLDivElement, ErrorProps>(
           'border-l-4',
           severityConfig.border,
           severityConfig.bg,
+          severityConfig.text,
           className
         )}
         role="alert"

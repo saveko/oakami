@@ -3,13 +3,15 @@ import { render, screen, fireEvent } from '@/test/utils';
 import { usePathname } from 'next/navigation';
 import { Navbar } from './Navbar';
 
-jest.mock('next/navigation', () => ({
+vi.mock('next/navigation', () => ({
   usePathname: vi.fn(),
 }));
 
-jest.mock('next/link', () => {
-  return ({ children, href }: any) => <a href={href}>{children}</a>;
-});
+// A module factory must return a module object; returning the component
+// directly makes vi.mock throw before any test runs.
+vi.mock('next/link', () => ({
+  default: ({ children, href }: any) => <a href={href}>{children}</a>,
+}));
 
 describe('Navbar Component', () => {
   const mockItems = [
@@ -19,7 +21,7 @@ describe('Navbar Component', () => {
   ];
 
   beforeEach(() => {
-    (usePathname as jest.Mock).mockReturnValue('/dashboard');
+    (usePathname as unknown as ReturnType<typeof vi.fn>).mockReturnValue('/dashboard');
   });
 
   describe('Rendering', () => {
@@ -83,7 +85,7 @@ describe('Navbar Component', () => {
     });
 
     it('updates active state when pathname changes', () => {
-      (usePathname as jest.Mock).mockReturnValue('/waste');
+      (usePathname as unknown as ReturnType<typeof vi.fn>).mockReturnValue('/waste');
       render(<Navbar items={mockItems} />);
       const wasteLink = screen.getByText('Waste Records').closest('a');
       expect(wasteLink).toHaveAttribute('aria-current', 'page');

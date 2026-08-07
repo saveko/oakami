@@ -154,8 +154,10 @@ describe('KPICard - Accessibility', () => {
       const { container } = render(
         <KPICard {...createKPICardProps({ onClick: vi.fn() })} />
       );
-      const card = container.querySelector('article');
-      expect(card?.className).toContain('focus:');
+      // The focus ring belongs to the interactive element, which is the click
+      // overlay — <article> itself is not focusable.
+      const target = container.querySelector('[role="button"]');
+      expect(target?.className).toContain('focus:');
     });
   });
 

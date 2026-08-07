@@ -42,7 +42,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       .join(' ') || undefined;
 
     // Base styles
-    const baseStyles = 'w-full px-3 py-2 text-base rounded-lg border transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-offset-2';
+    const baseStyles = 'w-full px-3 py-2 text-base rounded-lg border transition-colors duration-150 placeholder:text-gray-400 dark:placeholder:text-gray-500 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-offset-2';
 
     // Border and background styles
     const borderStyles = error

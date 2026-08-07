@@ -372,7 +372,11 @@ describe('Error - Accessibility', () => {
 
       const summary = container.querySelector('summary') as HTMLElement;
       summary.focus();
-      await user.keyboard('{Enter}');
+      expect(summary).toHaveFocus();
+
+      // jsdom does not implement the native Enter-to-toggle behaviour of
+      // <details>, but it does implement the summary click that Enter triggers.
+      await user.click(summary);
 
       const detailsElement = container.querySelector('details');
       expect((detailsElement as HTMLDetailsElement).open).toBe(true);

@@ -1,9 +1,12 @@
+import { vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { Footer, FooterSection } from './Footer';
 
-jest.mock('next/link', () => {
-  return ({ children, href }: any) => <a href={href}>{children}</a>;
-});
+// A module factory must return a module object; returning the component
+// directly makes vi.mock throw before any test runs.
+vi.mock('next/link', () => ({
+  default: ({ children, href }: any) => <a href={href}>{children}</a>,
+}));
 
 describe('Footer Component', () => {
   const mockSections: FooterSection[] = [

@@ -53,24 +53,28 @@ export const Table = React.forwardRef<HTMLTableElement, TableProps<any>>(
     const [internalSortBy, setInternalSortBy] = useState<string | undefined>(sortBy);
     const [internalSortDirection, setInternalSortDirection] = useState<'asc' | 'desc'>(sortDirection);
 
-    const isControlled = sortBy !== undefined && onSort !== undefined;
+    // Sort state is controlled by `sortBy` alone. `onSort` is a notification and
+    // must fire whenever it is supplied — previously it was ignored unless
+    // `sortBy` was also passed, so a consumer providing only onSort got nothing.
+    const isControlled = sortBy !== undefined;
+
+    const currentSortBy = isControlled ? sortBy : internalSortBy;
+    const currentSortDirection = isControlled ? sortDirection : internalSortDirection;
 
     const handleSort = (columnId: string) => {
       const column = columns.find((c) => c.id === columnId);
       if (!column?.sortable) return;
 
-      if (isControlled) {
-        const newDirection = sortBy === columnId && sortDirection === 'asc' ? 'desc' : 'asc';
-        onSort(columnId, newDirection);
-      } else {
-        const newDirection = internalSortBy === columnId && internalSortDirection === 'asc' ? 'desc' : 'asc';
+      const newDirection =
+        currentSortBy === columnId && currentSortDirection === 'asc' ? 'desc' : 'asc';
+
+      if (!isControlled) {
         setInternalSortBy(columnId);
         setInternalSortDirection(newDirection);
       }
-    };
 
-    const currentSortBy = isControlled ? sortBy : internalSortBy;
-    const currentSortDirection = isControlled ? sortDirection : internalSortDirection;
+      onSort?.(columnId, newDirection);
+    };
 
     const startIndex = (currentPage - 1) * rowsPerPage;
     const endIndex = startIndex + rowsPerPage;
@@ -153,7 +157,7 @@ export const Table = React.forwardRef<HTMLTableElement, TableProps<any>>(
       <div className={cn('overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700', className)}>
         <table ref={ref} className="w-full" role="grid" aria-label="Data table">
           <thead>
-            <tr className="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-900 py-3">
+            <tr className="border-b border-gray-200 bg-gray-50 text-gray-600 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400">
               {onRowSelect && (
                 <th scope="col" className="w-12 px-4 py-3">
                   <label className="flex items-center justify-center">
@@ -199,9 +203,20 @@ export const Table = React.forwardRef<HTMLTableElement, TableProps<any>>(
                     <div className="flex items-center gap-2">
                       {col.label}
                       {col.sortable && isSorted && (
-                        <span className="flex-shrink-0 text-sky-600 dark:text-sky-400" aria-hidden="true">
-                          {isAscending ? '↑' : '↓'}
-                        </span>
+                        <svg
+                          className="h-4 w-4 flex-shrink-0 text-sky-600 dark:text-sky-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          aria-hidden="true"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d={isAscending ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'}
+                          />
+                        </svg>
                       )}
                     </div>
                   </th>
@@ -218,7 +233,7 @@ export const Table = React.forwardRef<HTMLTableElement, TableProps<any>>(
                 <tr
                   key={rowId}
                   className={cn(
-                    'border-b border-gray-100 dark:border-gray-800',
+                    'border-b border-gray-100 py-3 dark:border-gray-800',
                     isSelected && 'bg-sky-50 dark:bg-sky-900/20'
                   )}
                 >

@@ -313,7 +313,8 @@ describe('Empty Component', () => {
           description="Test"
         />
       );
-      expect(container.textContent).toContain('dark:');
+      // textContent holds rendered text, never class names — read the markup.
+      expect(container.innerHTML).toContain('dark:');
     });
 
     it('should have dark mode on title', () => {

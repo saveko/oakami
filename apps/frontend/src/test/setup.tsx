@@ -92,7 +92,7 @@ vi.mock('recharts', () => ({
   YAxis: () => <div />,
   CartesianGrid: () => <div />,
   Tooltip: () => <div />,
-  Legend: () => <div />,
+  Legend: (props: any) => <div data-testid="chart-legend" style={props?.wrapperStyle} />,
   Cell: () => <div />,
   ResponsiveContainer: ({ children }: any) => <div>{children}</div>,
 }));

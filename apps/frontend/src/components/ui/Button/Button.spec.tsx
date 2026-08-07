@@ -62,8 +62,8 @@ describe('Button', () => {
 
   describe('States', () => {
     it('renders disabled button', () => {
-      const button = screen.getByRole('button', { name: /disabled/i });
       render(<Button disabled>Disabled</Button>);
+      const button = screen.getByRole('button', { name: /disabled/i });
       expect(button).toBeDisabled();
     });
 

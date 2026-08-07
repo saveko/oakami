@@ -327,8 +327,9 @@ describe('Empty - Accessibility', () => {
     it('should have readable font size for title', () => {
       const { container } = render(<Empty {...defaultProps} />);
       const title = container.querySelector('h3');
-      expect(title?.className).toContain('text-lg') ||
-      expect(title?.className).toContain('text-2xl');
+      // `expect(a) || expect(b)` is not an "or" — the first assertion throws
+      // before the second is ever evaluated. Match either accepted size.
+      expect(title?.className).toMatch(/text-(lg|2xl)\b/);
     });
 
     it('should have readable font size for description', () => {
@@ -336,8 +337,7 @@ describe('Empty - Accessibility', () => {
         <Empty {...defaultProps} description="Test" />
       );
       const description = container.querySelector('p');
-      expect(description?.className).toContain('text-sm') ||
-      expect(description?.className).toContain('text-base');
+      expect(description?.className).toMatch(/text-(sm|base)\b/);
     });
 
     it('should have readable font weight', () => {

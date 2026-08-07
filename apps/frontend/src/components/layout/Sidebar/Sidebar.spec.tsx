@@ -8,9 +8,15 @@ vi.mock('next/navigation', () => ({
 }));
 
 // A module factory must return a module object; returning the component
-// directly makes vi.mock throw before any test runs.
+// directly makes vi.mock throw before any test runs. The stub must also
+// forward the remaining props — dropping them discards every className,
+// aria-current and event handler the component sets on its links.
 vi.mock('next/link', () => ({
-  default: ({ children, href }: any) => <a href={href}>{children}</a>,
+  default: ({ children, href, ...rest }: any) => (
+    <a href={href} {...rest}>
+      {children}
+    </a>
+  ),
 }));
 
 describe('Sidebar Component', () => {
@@ -142,7 +148,9 @@ describe('Sidebar Component', () => {
 
     it('hides labels when closed', () => {
       render(<Sidebar items={mockItems} open={false} />);
-      expect(screen.getByText('Dashboard')).not.toBeVisible();
+      // The label stays in the accessibility tree (so the icon-only link keeps
+      // its name) but is visually hidden.
+      expect(screen.getByText('Dashboard')).toHaveClass('sr-only');
     });
   });
 
@@ -186,7 +194,9 @@ describe('Sidebar Component', () => {
       const expandButton = screen.getByRole('button', { name: /Reports/i });
       fireEvent.click(expandButton);
       fireEvent.click(expandButton);
-      expect(screen.queryByText('Daily Report')).not.toBeVisible();
+      // Collapsing removes the children from the DOM; queryByText yields null,
+      // which toBeVisible cannot accept.
+      expect(screen.queryByText('Daily Report')).not.toBeInTheDocument();
     });
 
     it('marks active nested item as current', () => {
@@ -202,7 +212,7 @@ describe('Sidebar Component', () => {
       render(<Sidebar items={nestedItems} open={false} />);
       const expandButton = screen.getByRole('button', { name: /Reports/i });
       fireEvent.click(expandButton);
-      expect(screen.queryByText('Daily Report')).not.toBeVisible();
+      expect(screen.queryByText('Daily Report')).not.toBeInTheDocument();
     });
   });
 
@@ -288,8 +298,11 @@ describe('Sidebar Component', () => {
     it('icons are hidden from screen readers', () => {
       render(<Sidebar items={mockItems} />);
       const icons = screen.getAllByText(/📊|🚨|⚙️/);
+      expect(icons.length).toBeGreaterThan(0);
       icons.forEach((icon) => {
-        expect(icon.closest('span')).toHaveAttribute('aria-hidden', 'true');
+        // The fixture supplies its own <span>, so closest('span') returns that
+        // element; the component's aria-hidden wrapper is its ancestor.
+        expect(icon.closest('[aria-hidden]')).toHaveAttribute('aria-hidden', 'true');
       });
     });
   });

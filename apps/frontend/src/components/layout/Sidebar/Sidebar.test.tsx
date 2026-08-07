@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render } from '@/test/utils';
+import { render, screen, fireEvent } from '@/test/utils';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { usePathname } from 'next/navigation';
 import { Sidebar, SidebarItem } from './Sidebar';
@@ -9,9 +9,15 @@ vi.mock('next/navigation', () => ({
 }));
 
 // A module factory must return a module object; returning the component
-// directly makes vi.mock throw before any test runs.
+// directly makes vi.mock throw before any test runs. The stub must also
+// forward the remaining props — dropping them discards every className,
+// aria-current and event handler the component sets on its links.
 vi.mock('next/link', () => ({
-  default: ({ children, href }: any) => <a href={href}>{children}</a>,
+  default: ({ children, href, ...rest }: any) => (
+    <a href={href} {...rest}>
+      {children}
+    </a>
+  ),
 }));
 
 expect.extend(toHaveNoViolations);
@@ -339,6 +345,10 @@ describe('Sidebar Accessibility Tests', () => {
         },
       ];
       const { container } = render(<Sidebar items={nestedItems} open={true} />);
+      // Children are only in the DOM once the group is expanded — collapsed
+      // content should not be exposed to a screen reader.
+      fireEvent.click(screen.getByRole('button', { name: /Parent/i }));
+
       // Nesting should be communicated via HTML structure, not just visual indentation
       const childLink = container.querySelector('a[href="/child"]');
       expect(childLink).toBeInTheDocument();

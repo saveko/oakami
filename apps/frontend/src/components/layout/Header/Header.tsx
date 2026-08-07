@@ -34,7 +34,9 @@ const Header = forwardRef<HTMLDivElement, HeaderProps>(
     const HeadingComponent = level;
 
     const variantStyles = {
-      default: 'bg-white dark:bg-gray-900 border-0',
+      // No `border-0` here: cn() merges Tailwind classes, so it would cancel the
+      // base `border-b` and leave the default header with no separator at all.
+      default: 'bg-white dark:bg-gray-900',
       elevated: 'bg-white dark:bg-gray-900 shadow-sm',
       outlined: 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800',
     };
@@ -107,17 +109,19 @@ const Header = forwardRef<HTMLDivElement, HeaderProps>(
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             {/* Title & Description */}
             <div className="flex-1">
-              <HeadingComponent
-                className={cn(
+              {title && (
+                <HeadingComponent
+                  className={cn(
                   'font-bold text-gray-900 dark:text-white',
                   level === 'h1' && 'text-4xl md:text-5xl',
                   level === 'h2' && 'text-3xl md:text-4xl',
                   level === 'h3' && 'text-2xl md:text-3xl',
-                  'mb-2'
-                )}
-              >
-                {title}
-              </HeadingComponent>
+                    'mb-2'
+                  )}
+                >
+                  {title}
+                </HeadingComponent>
+              )}
 
               {description && (
                 <p className="text-gray-600 dark:text-gray-400 text-lg">

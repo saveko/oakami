@@ -45,9 +45,11 @@ const Navbar = forwardRef<HTMLDivElement, NavbarProps>(
       return pathname === href;
     };
 
+    // The `variant` prop picks the navbar's own palette; the dark: variants let
+    // it follow the app-wide theme as every other component does.
     const bgColor = {
-      light: 'bg-white border-b border-gray-200',
-      dark: 'bg-gray-900 border-b border-gray-800',
+      light: 'bg-white border-b border-gray-200 dark:bg-gray-900 dark:border-gray-800',
+      dark: 'bg-gray-900 border-b border-gray-800 dark:bg-gray-900 dark:border-gray-800',
     }[variant];
 
     const textColor = {

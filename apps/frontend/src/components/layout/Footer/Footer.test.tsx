@@ -4,9 +4,15 @@ import { axe, toHaveNoViolations } from 'jest-axe';
 import { Footer, FooterSection } from './Footer';
 
 // A module factory must return a module object; returning the component
-// directly makes vi.mock throw before any test runs.
+// directly makes vi.mock throw before any test runs. The stub must also
+// forward the remaining props — dropping them discards every className,
+// aria-current and event handler the component sets on its links.
 vi.mock('next/link', () => ({
-  default: ({ children, href }: any) => <a href={href}>{children}</a>,
+  default: ({ children, href, ...rest }: any) => (
+    <a href={href} {...rest}>
+      {children}
+    </a>
+  ),
 }));
 
 expect.extend(toHaveNoViolations);
@@ -75,10 +81,12 @@ describe('Footer Accessibility Tests', () => {
     });
 
     it('links have semantic link elements', () => {
-      const { getByRole } = render(<Footer sections={mockSections} />);
-      const links = getByRole('link', { hidden: true }) ||
-        document.querySelector('footer a');
-      expect(links).toBeInTheDocument();
+      const { getAllByRole } = render(<Footer sections={mockSections} />);
+      // The footer renders one link per section entry, so the query must allow
+      // multiple matches.
+      const links = getAllByRole('link', { hidden: true });
+      expect(links.length).toBeGreaterThan(0);
+      links.forEach((link) => expect(link.tagName).toBe('A'));
     });
 
     it('social links have aria-labels', () => {
@@ -347,11 +355,15 @@ describe('Footer Accessibility Tests', () => {
       ];
 
       for (const variant of variants) {
-        const { container } = render(
+        // Each variant must be torn down before the next renders: leaving them
+        // mounted puts several <footer> landmarks in one document, which is
+        // itself a violation (landmark-no-duplicate-contentinfo).
+        const { container, unmount } = render(
           <Footer sections={mockSections} variant={variant} />
         );
         const results = await axe(container);
         expect(results).toHaveNoViolations();
+        unmount();
       }
     });
 

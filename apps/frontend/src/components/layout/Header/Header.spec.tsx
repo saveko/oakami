@@ -1,11 +1,17 @@
 import { vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { Header, Breadcrumb } from './Header';
 
 // A module factory must return a module object; returning the component
-// directly makes vi.mock throw before any test runs.
+// directly makes vi.mock throw before any test runs. The stub must also
+// forward the remaining props — dropping them discards every className,
+// aria-current and event handler the component sets on its links.
 vi.mock('next/link', () => ({
-  default: ({ children, href }: any) => <a href={href}>{children}</a>,
+  default: ({ children, href, ...rest }: any) => (
+    <a href={href} {...rest}>
+      {children}
+    </a>
+  ),
 }));
 
 describe('Header Component', () => {
@@ -41,8 +47,11 @@ describe('Header Component', () => {
         { label: 'Dashboard' },
       ];
       render(<Header title="Dashboard" breadcrumbs={breadcrumbs} />);
-      expect(screen.getByText('Home')).toBeInTheDocument();
-      expect(screen.getByText('Dashboard')).toBeInTheDocument();
+      // The title and the final breadcrumb are both "Dashboard", so scope the
+      // lookup to the breadcrumb navigation.
+      const crumbs = within(screen.getByRole('navigation', { name: /breadcrumb/i }));
+      expect(crumbs.getByText('Home')).toBeInTheDocument();
+      expect(crumbs.getByText('Dashboard')).toBeInTheDocument();
     });
 
     it('renders with actions', () => {
@@ -121,7 +130,10 @@ describe('Header Component', () => {
 
     it('renders last breadcrumb as current page', () => {
       render(<Header title="Profile" breadcrumbs={breadcrumbs} />);
-      const currentBreadcrumb = screen.getByText('Profile').closest('span');
+      // The page title duplicates the final breadcrumb's text, so scope the
+      // lookup to the breadcrumb navigation.
+      const crumbs = within(screen.getByRole('navigation', { name: /breadcrumb/i }));
+      const currentBreadcrumb = crumbs.getByText('Profile').closest('span');
       expect(currentBreadcrumb).toHaveAttribute('aria-current', 'page');
     });
 
@@ -278,7 +290,7 @@ describe('Header Component', () => {
           actions={<button>Action</button>}
         />
       );
-      const actions = container.querySelector('.md:justify-end');
+      const actions = container.querySelector('[class*="md:justify-end"]');
       expect(actions).toBeInTheDocument();
     });
 
@@ -372,13 +384,18 @@ describe('Header Component', () => {
         { label: 'Avatar' },
       ];
       render(<Header title="Avatar" breadcrumbs={breadcrumbs} />);
-      expect(screen.getByText('Home')).toBeInTheDocument();
-      expect(screen.getByText('Avatar')).toBeInTheDocument();
+      // The page title duplicates the final breadcrumb's text, so scope the
+      // lookup to the breadcrumb navigation.
+      const crumbs = within(screen.getByRole('navigation', { name: /breadcrumb/i }));
+      expect(crumbs.getByText('Home')).toBeInTheDocument();
+      expect(crumbs.getByText('Avatar')).toBeInTheDocument();
     });
 
     it('handles no title', () => {
       const { container } = render(<Header title="" />);
-      expect(container.querySelector('h1')).toBeInTheDocument();
+      // An empty heading is a WCAG failure (axe: empty-heading), so no title
+      // means no heading element rather than an empty one.
+      expect(container.querySelector('h1')).not.toBeInTheDocument();
     });
   });
 
@@ -405,7 +422,10 @@ describe('Header Component', () => {
         { label: 'Dashboard' },
       ];
       render(<Header title="Dashboard" breadcrumbs={breadcrumbs} />);
-      const current = screen.getByText('Dashboard').closest('span');
+      // The page title duplicates the final breadcrumb's text, so scope the
+      // lookup to the breadcrumb navigation.
+      const crumbs = within(screen.getByRole('navigation', { name: /breadcrumb/i }));
+      const current = crumbs.getByText('Dashboard').closest('span');
       expect(current).toHaveAttribute('aria-current', 'page');
     });
 

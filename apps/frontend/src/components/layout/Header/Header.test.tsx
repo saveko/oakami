@@ -4,9 +4,15 @@ import { axe, toHaveNoViolations } from 'jest-axe';
 import { Header, Breadcrumb } from './Header';
 
 // A module factory must return a module object; returning the component
-// directly makes vi.mock throw before any test runs.
+// directly makes vi.mock throw before any test runs. The stub must also
+// forward the remaining props — dropping them discards every className,
+// aria-current and event handler the component sets on its links.
 vi.mock('next/link', () => ({
-  default: ({ children, href }: any) => <a href={href}>{children}</a>,
+  default: ({ children, href, ...rest }: any) => (
+    <a href={href} {...rest}>
+      {children}
+    </a>
+  ),
 }));
 
 expect.extend(toHaveNoViolations);

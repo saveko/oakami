@@ -96,7 +96,10 @@ const Footer = forwardRef<HTMLDivElement, FooterProps>(
           <div
             className={cn(
               'flex flex-col md:flex-row md:items-center md:justify-between gap-6',
-              (sections || socialLinks) && 'border-t border-gray-200 dark:border-gray-700 pt-6 md:pt-8'
+              // An empty array is truthy, so `sections || socialLinks` drew a
+              // separator above the copyright even with nothing to separate.
+              (sections?.length || socialLinks?.length) &&
+                'border-t border-gray-200 dark:border-gray-700 pt-6 md:pt-8'
             )}
           >
             {/* Copyright */}

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render } from '@/test/utils';
+import { render, within } from '@/test/utils';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { usePathname } from 'next/navigation';
 import { Navbar } from './Navbar';
@@ -9,9 +9,15 @@ vi.mock('next/navigation', () => ({
 }));
 
 // A module factory must return a module object; returning the component
-// directly makes vi.mock throw before any test runs.
+// directly makes vi.mock throw before any test runs. The stub must also
+// forward the remaining props — dropping them discards every className,
+// aria-current and event handler the component sets on its links.
 vi.mock('next/link', () => ({
-  default: ({ children, href }: any) => <a href={href}>{children}</a>,
+  default: ({ children, href, ...rest }: any) => (
+    <a href={href} {...rest}>
+      {children}
+    </a>
+  ),
 }));
 
 expect.extend(toHaveNoViolations);
@@ -137,9 +143,13 @@ describe('Navbar Accessibility Tests', () => {
     });
 
     it('mobile menu items are keyboard accessible', () => {
-      const { getByLabelText, getByText } = render(<Navbar items={mockItems} />);
+      const { getByLabelText } = render(<Navbar items={mockItems} />);
       fireEvent.click(getByLabelText('Toggle navigation menu'));
-      const mobileLink = getByText('Dashboard').closest('a');
+      // The desktop nav and the mobile menu both render the items; the desktop
+      // one is hidden by a breakpoint that jsdom does not apply, so scope the
+      // query to the mobile menu.
+      const mobileNav = document.getElementById('mobile-nav') as HTMLElement;
+      const mobileLink = within(mobileNav).getByText('Dashboard').closest('a');
       expect(mobileLink).not.toHaveAttribute('disabled');
     });
   });
@@ -190,9 +200,13 @@ describe('Navbar Accessibility Tests', () => {
     });
 
     it('mobile menu items have adequate touch target size', () => {
-      const { getByLabelText, getByText } = render(<Navbar items={mockItems} />);
+      const { getByLabelText } = render(<Navbar items={mockItems} />);
       fireEvent.click(getByLabelText('Toggle navigation menu'));
-      const mobileLink = getByText('Dashboard').closest('a');
+      // The desktop nav and the mobile menu both render the items; the desktop
+      // one is hidden by a breakpoint that jsdom does not apply, so scope the
+      // query to the mobile menu.
+      const mobileNav = document.getElementById('mobile-nav') as HTMLElement;
+      const mobileLink = within(mobileNav).getByText('Dashboard').closest('a');
       expect(mobileLink).toHaveClass('px-4');
       expect(mobileLink).toHaveClass('py-2');
     });
@@ -236,10 +250,14 @@ describe('Navbar Accessibility Tests', () => {
     });
 
     it('mobile nav items are properly semantically structured', () => {
-      const { getByLabelText, getByRole } = render(<Navbar items={mockItems} />);
+      const { getByLabelText } = render(<Navbar items={mockItems} />);
       fireEvent.click(getByLabelText('Toggle navigation menu'));
-      const mobileNav = getByRole('navigation');
+      // The desktop nav and the mobile menu both render the items; the desktop
+      // one is hidden by a breakpoint that jsdom does not apply, so scope the
+      // query to the mobile menu.
+      const mobileNav = document.getElementById('mobile-nav');
       expect(mobileNav).toBeInTheDocument();
+      expect(mobileNav).toHaveAttribute('role', 'navigation');
     });
 
     it('active state is marked in mobile menu', () => {

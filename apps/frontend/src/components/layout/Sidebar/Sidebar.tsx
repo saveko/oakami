@@ -70,7 +70,7 @@ const Sidebar = forwardRef<HTMLElement, SidebarProps>(
               onClick={() => toggleItemExpanded(item.id)}
               disabled={item.disabled}
               className={cn(
-                'w-full flex items-center gap-3 px-3 py-2 mx-1 rounded-md transition-colors',
+                'w-full flex items-center gap-3 px-3 py-2 mx-1 rounded-md transition-colors text-sm',
                 'text-gray-200 hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed',
                 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500',
                 itemClassName
@@ -82,11 +82,16 @@ const Sidebar = forwardRef<HTMLElement, SidebarProps>(
                   {item.icon}
                 </span>
               )}
+              <span
+                className={cn(
+                  'text-left text-sm font-medium truncate',
+                  open ? 'flex-1' : 'sr-only'
+                )}
+              >
+                {item.label}
+              </span>
               {open && (
                 <>
-                  <span className="flex-1 text-left text-sm font-medium truncate">
-                    {item.label}
-                  </span>
                   <svg
                     className={cn(
                       'w-4 h-4 transition-transform',
@@ -124,7 +129,7 @@ const Sidebar = forwardRef<HTMLElement, SidebarProps>(
             key={item.id}
             href={item.href}
             className={cn(
-              'flex items-center gap-3 px-3 py-2 mx-1 rounded-md transition-colors',
+              'flex items-center gap-3 px-3 py-2 mx-1 rounded-md transition-colors text-sm truncate',
               'text-gray-200 hover:bg-gray-800',
               'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500',
               'disabled:opacity-50 disabled:pointer-events-none',
@@ -139,16 +144,42 @@ const Sidebar = forwardRef<HTMLElement, SidebarProps>(
                 {item.icon}
               </span>
             )}
-            {open && (
-              <span className="flex-1 text-sm font-medium truncate">
-                {item.label}
-              </span>
-            )}
+            {/* Always rendered: removing the label when collapsed left the
+                link with no accessible name at all, since the icon is
+                aria-hidden. sr-only keeps it announced but unseen. */}
+            <span
+              className={cn(
+                'text-sm font-medium truncate',
+                open ? 'flex-1' : 'sr-only'
+              )}
+            >
+              {item.label}
+            </span>
           </Link>
         );
       }
 
-      return null;
+      // Neither a link nor a group: still render the label so the item is not
+      // silently dropped from the navigation.
+      return (
+        <div
+          key={item.id}
+          className={cn(
+            'flex items-center gap-3 px-3 py-2 mx-1 text-sm text-gray-200',
+            item.disabled && 'opacity-50',
+            itemClassName
+          )}
+        >
+          {item.icon && (
+            <span className="w-6 h-6 flex-shrink-0" aria-hidden="true">
+              {item.icon}
+            </span>
+          )}
+          <span className={cn('font-medium truncate', open ? 'flex-1' : 'sr-only')}>
+            {item.label}
+          </span>
+        </div>
+      );
     };
 
     return (

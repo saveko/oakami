@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@/test/utils';
+import { render, screen, fireEvent, within } from '@/test/utils';
 import { usePathname } from 'next/navigation';
 import { Navbar } from './Navbar';
 
@@ -8,9 +8,15 @@ vi.mock('next/navigation', () => ({
 }));
 
 // A module factory must return a module object; returning the component
-// directly makes vi.mock throw before any test runs.
+// directly makes vi.mock throw before any test runs. The stub must also
+// forward the remaining props — dropping them discards every className,
+// aria-current and event handler the component sets on its links.
 vi.mock('next/link', () => ({
-  default: ({ children, href }: any) => <a href={href}>{children}</a>,
+  default: ({ children, href, ...rest }: any) => (
+    <a href={href} {...rest}>
+      {children}
+    </a>
+  ),
 }));
 
 describe('Navbar Component', () => {
@@ -119,7 +125,10 @@ describe('Navbar Component', () => {
       render(<Navbar items={mockItems} />);
       const button = screen.getByLabelText('Toggle navigation menu');
       fireEvent.click(button);
-      expect(screen.getByRole('navigation')).toBeInTheDocument();
+      // Desktop and mobile navigation both live in the DOM (the desktop one is
+      // hidden by a CSS breakpoint, which jsdom does not apply), so scope to the
+      // mobile menu by its id.
+      expect(document.getElementById('mobile-nav')).toBeInTheDocument();
     });
 
     it('hides mobile menu when toggled again', () => {
@@ -233,7 +242,9 @@ describe('Navbar Component', () => {
       render(<Navbar items={mockItems} />);
       const button = screen.getByLabelText('Toggle navigation menu');
       fireEvent.click(button);
-      const mobileNav = screen.getByRole('navigation');
+      // Both the desktop nav and the mobile menu carry a navigation role; the
+      // desktop one is hidden by a breakpoint jsdom does not apply.
+      const mobileNav = document.getElementById('mobile-nav');
       expect(mobileNav).toHaveClass('md:hidden');
     });
 
@@ -342,7 +353,8 @@ describe('Navbar Component', () => {
       );
       const button = screen.getByLabelText('Toggle navigation menu');
       fireEvent.click(button);
-      expect(screen.getByText('User Menu')).toBeInTheDocument();
+      const mobileNav = document.getElementById('mobile-nav') as HTMLElement;
+      expect(within(mobileNav).getByText('User Menu')).toBeInTheDocument();
     });
 
     it('separates mobile right content with border', () => {

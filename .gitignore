@@ -56,3 +56,6 @@ uploads/
 
 # Prisma
 node_modules/.prisma/
+
+# Integration directories (pre-existing, not tracked)
+10_Integrations/

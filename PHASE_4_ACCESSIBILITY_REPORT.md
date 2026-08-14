@@ -186,15 +186,49 @@ type-check: a stale `Select` import in FilterPanel, a ref still typed
 
 **`npm run build` now succeeds.**
 
+## CI (added after the merge, PR #3)
+
+This work merged as PR #2 with **zero automated verification** — the repository
+had no `.github` directory and no workflows at all. Given that its central
+finding was eleven suites that never ran and therefore reported no failures,
+that gap was the most consequential thing left: a suite which silently stops
+running looks exactly like a suite that passes.
+
+`.github/workflows/ci.yml` now runs on every pull request, in two jobs:
+
+| Job | Steps |
+|---|---|
+| frontend | `vitest run` (1830), then `next build` |
+| backend | `db:generate`, then `jest` (89) |
+
+Both frontend gates are kept because they catch different things — vitest does
+not type-check, and `next build` was the only step that found three of the
+defects fixed here.
+
+Scoping that out surfaced one more misconfiguration of the same family as the
+Playwright/vitest one: `apps/backend/jest.config.js` listed `../test` in
+`roots`, so `waste-api.e2e.spec.ts` ran under the **unit** config. Removing it
+takes the unit run to 7/7 suites. That leaves the e2e spec matching no config at
+all — `test/jest-e2e.json` looks for `.e2e-spec.ts` while the file is
+`.e2e.spec.ts`, so `test:e2e` already matched nothing — which is recorded here
+rather than papered over.
+
+No typecheck or audit gate yet, deliberately: both would be red on day one (see
+below), and a pipeline that is red by default teaches people to ignore it.
+
 ## Recommended next steps
 
-1. Add `@types/jest-axe`. 317 type errors remain in test files, almost entirely
-   from its missing declarations. Pre-existing and unrelated to this work, but
-   worth clearing so `tsc` is usable as a gate.
-2. Add `supertest` to the backend — its one failing suite cannot resolve it
-   (pre-existing; the other 89 backend tests pass).
-3. Decide on Next 16 / NestJS 11, which is what the remaining 29 advisories need.
-4. Manual screen-reader and real-viewport verification, which automated testing
+1. Add `@types/jest-axe`, then add a typecheck job to CI. 317 type errors remain
+   in test files, almost entirely from its missing declarations. Pre-existing and
+   unrelated to this work, but it is what currently blocks `tsc` as a gate.
+2. Add `supertest` and rename `waste-api.e2e.spec.ts` to `.e2e-spec.ts` so the
+   e2e suite runs under its own config, then add it to CI.
+3. Finish the error logging (plan Task 2.2). The new boundaries accept an
+   `onError` prop, but no page passes one and the `console.error` is dev-only —
+   so in production a caught error is displayed to the user and then dropped.
+4. Decide on Next 16 / NestJS 11, which is what the remaining 29 advisories need,
+   after which an `npm audit` gate can be added.
+5. Manual screen-reader and real-viewport verification, which automated testing
    cannot replace.
 
 ---

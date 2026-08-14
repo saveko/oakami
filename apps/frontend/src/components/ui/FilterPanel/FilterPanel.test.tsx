@@ -354,7 +354,8 @@ describe('FilterPanel - Accessibility Tests', () => {
       const labels = container.querySelectorAll('label');
 
       labels.forEach((label) => {
-        expect(label.htmlFor || label.closest('div').querySelector('input, select')).toBeTruthy();
+        const closestDiv = label.closest('div');
+        expect(label.htmlFor || closestDiv?.querySelector('input, select')).toBeTruthy();
       });
     });
 

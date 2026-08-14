@@ -334,7 +334,7 @@ describe('KPICard', () => {
 
   describe('Ref Forwarding', () => {
     it('should forward ref to article element', () => {
-      const ref = React.createRef<HTMLElement>();
+      const ref = React.createRef<HTMLDivElement>();
       render(<KPICard {...createKPICardProps()} ref={ref} />);
 
       expect(ref.current).toBeInstanceOf(HTMLElement);
